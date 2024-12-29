@@ -21,46 +21,64 @@ const Arrow = ({ extraStyle }: { extraStyle: string }) => {
     </svg>
   );
 };
-const Step = ({ emoji, text }: { emoji: string; text: string }) => {
+
+const Step = ({ emoji, text, description }: { emoji: string; text: string; description: string }) => {
   return (
-    <div className="w-full md:w-48 flex flex-col gap-2 items-center justify-center">
-      <span className="text-4xl">{emoji}</span>
-      <h3 className="font-bold">{text}</h3>
+    <div className="w-full md:w-64 flex flex-col gap-3 items-center justify-center">
+      <span className="text-5xl">{emoji}</span>
+      <div className="text-center">
+        <h3 className="font-bold text-lg mb-2">{text}</h3>
+        <p className="text-sm opacity-80">{description}</p>
+      </div>
     </div>
   );
 };
 
-// Problem Agitation: A crucial, yet overlooked, component for a landing page that sells.
-// It goes under your Hero section, and above your Features section.
-// Your Hero section makes a promise to the customer: "Our product will help you achieve XYZ".
-// Your Problem section explains what happens to the customer if its problem isn't solved.
-// The copy should NEVER mention your product. Instead, it should dig the emotional outcome of not fixing a problem.
-// For instance:
-// - Hero: "ShipFast helps developers launch startups fast"
-// - Problem Agitation: "Developers spend too much time adding features, get overwhelmed, and quit." (not about ShipFast at all)
-// - Features: "ShipFast has user auth, Stripe, emails all set up for you"
 const Problem = () => {
   return (
-    <section className="bg-neutral text-neutral-content">
+    <section className="bg-gradient-to-b from-neutral to-neutral-800 text-neutral-content font-sans">
       <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
-        <h2 className="max-w-3xl mx-auto font-extrabold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8">
-          80% of startups fail because founders never launch
+        <h2 className="max-w-3xl mx-auto font-bold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8">
+          数字时代的孤独感正在影响我们的工作和生活
         </h2>
-        <p className="max-w-xl mx-auto text-lg opacity-90 leading-relaxed mb-12 md:mb-20">
-          Emails, DNS records, user authentication... There&apos;s so much going
-          on.
+        <p className="max-w-xl mx-auto text-lg opacity-90 leading-relaxed font-normal mb-12 md:mb-20">
+          每天面对冰冷的屏幕，缺乏互动和情感连接，这让我们的工作变得单调乏味，甚至影响心理健康
         </p>
 
-        <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6">
-          <Step emoji="🧑‍💻" text="8 hrs to add Stripe" />
+        <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-8 md:gap-12">
+          <Step 
+            emoji="🖥️" 
+            text="冰冷的数字世界" 
+            description="每天超过8小时面对屏幕，缺乏生机和互动"
+          />
 
           <Arrow extraStyle="max-md:-scale-x-100 md:-rotate-90" />
 
-          <Step emoji="😮‍💨" text="Struggle to find time" />
+          <Step 
+            emoji="😔" 
+            text="工作倦怠" 
+            description="感到孤独和压力，工作热情逐渐消退"
+          />
 
           <Arrow extraStyle="md:-scale-x-100 md:-rotate-90" />
 
-          <Step emoji="😔" text="Quit project" />
+          <Step 
+            emoji="💔" 
+            text="效率与创造力下降" 
+            description="注意力难以集中，创意灵感逐渐枯竭"
+          />
+        </div>
+
+        <div className="mt-16 md:mt-24 flex flex-wrap justify-center gap-4 text-sm opacity-80">
+          <div className="flex items-center gap-2 bg-neutral-700/30 px-4 py-2 rounded-full">
+            <span className="font-semibold">76%</span> 的人在远程工作时感到孤独
+          </div>
+          <div className="flex items-center gap-2 bg-neutral-700/30 px-4 py-2 rounded-full">
+            <span className="font-semibold">52%</span> 的人希望工作环境更有趣味性
+          </div>
+          <div className="flex items-center gap-2 bg-neutral-700/30 px-4 py-2 rounded-full">
+            <span className="font-semibold">89%</span> 的人认为快乐的工作环境能提升效率
+          </div>
         </div>
       </div>
     </section>
