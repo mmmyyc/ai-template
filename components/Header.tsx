@@ -68,7 +68,7 @@ const cta: JSX.Element = (
 const Header = () => {
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
+  // setIsOpen(false) when the route changes (i.e: when the user clicks on a link on mobile)
   useEffect(() => {
     setIsOpen(false);
   }, [searchParams]);
@@ -92,8 +92,8 @@ const Header = () => {
               className="w-10 h-10 rounded-full"
               placeholder="blur"
               priority={true}
-              width={40}
-              height={40}
+              width={32}
+              height={32}
             />
             <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
               {config.appName}
@@ -161,8 +161,8 @@ const Header = () => {
                 className="w-10 h-10 rounded-full"
                 placeholder="blur"
                 priority={true}
-                width={40}
-                height={40}
+                width={32}
+                height={32}
               />
               <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
                 {config.appName}
