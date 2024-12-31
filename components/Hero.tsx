@@ -10,7 +10,7 @@ const Hero = () => {
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 flex flex-col items-start">
             <h1 className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-gray-900">
-              遇见您的桌面好伙伴
+              遇见您的专属桌面伙伴
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 font-normal leading-relaxed mb-12">
               一个可爱的虚拟伙伴，陪伴您的每一刻。让工作学习充满乐趣，为您的数字生活增添一抹温暖的色彩。
