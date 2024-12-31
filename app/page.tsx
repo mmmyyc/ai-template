@@ -19,7 +19,7 @@ const LandingPage = () => {
         <Problem />
 
         {/* Introduction Section */}
-        {/* <section className="py-24 bg-white">
+        <section className="py-24 bg-white">
           <div className="container mx-auto px-6">
             <div className="flex flex-col lg:flex-row items-center gap-12">
               <div className="lg:w-1/2">
@@ -65,22 +65,24 @@ const LandingPage = () => {
                     height={400}
                     className="rounded-xl shadow-2xl"
                   />
-                   装饰元素 *
-                  {/* <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-full -z-10"></div>
+                  {/* 装饰元素 */}
+                  <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-full -z-10"></div>
                   <div className="absolute -top-4 -left-4 w-32 h-32 bg-indigo-50 rounded-full -z-10"></div>
                 </div>
               </div>
             </div>
           </div>
-        </section> */} 
+        </section>
 
         {/* FeaturesListicle Section */}
         <FeaturesListicle />
 
         {/* CTA Section */}
         <CTA />
+
+        {/* Footer */}
+
       </main>
-      {/* Footer */}
       <Footer />
     </div>
   )
