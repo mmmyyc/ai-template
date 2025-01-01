@@ -1,17 +1,113 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Upload } from 'lucide-react'
+import apiClient from "@/libs/api";
+import { AxiosError } from 'axios'
+import { useRouter } from "next/navigation";
+import config from "@/config";
+import toast from "react-hot-toast";
 
 export default function ImageGenerationPage() {
+  const router = useRouter()
   const [prompt, setPrompt] = useState('')
-  const [selectedWorkflow, setSelectedWorkflow] = useState('workflow-1')
   const [result, setResult] = useState<string>('/placeholder.svg?height=512&width=512')
+  const [referenceImage, setReferenceImage] = useState<File | null>(null)
+  const [referencePreview, setReferencePreview] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
 
-  const handleGenerate = () => {
-    console.log('Generating with:', { prompt, selectedWorkflow })
-    setResult('/placeholder.svg?height=512&width=512')
+  // 处理图片上传
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setReferenceImage(file)
+      // 创建预览URL
+      const previewUrl = URL.createObjectURL(file)
+      setReferencePreview(previewUrl)
+    }
   }
+
+  // 清理预览URL
+  useEffect(() => {
+    return () => {
+      if (referencePreview) {
+        URL.revokeObjectURL(referencePreview)
+      }
+    }
+  }, [referencePreview])
+
+  // 清除上传的图片
+  const handleClearImage = () => {
+    setReferenceImage(null)
+    if (referencePreview) {
+      URL.revokeObjectURL(referencePreview)
+      setReferencePreview(null)
+    }
+  }
+
+  // 处理图片生成
+  const handleGenerate = async () => {
+    if (!prompt) {
+      toast.error('Please enter a prompt')
+      return
+    }
+
+    setIsGenerating(true)
+    try {
+      const formData = new FormData()
+      formData.append('prompt', prompt)
+      if (referenceImage) {
+        formData.append('reference_image', referenceImage)
+      }
+
+      const response = await apiClient.post('/generate', formData, {
+        responseType: 'blob', // 指定响应类型为 blob
+      })
+
+      // axios 成功响应直接包含数据
+      const imageBlob = new Blob([response.data], { type: 'image/png' })
+      const imageUrl = URL.createObjectURL(imageBlob)
+      setResult(imageUrl)
+
+    } catch (error) {
+      console.error('Generation error:', error)
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          router.push(config.auth.loginUrl)
+          return
+        }
+        toast.error(error.response?.data?.error || 'Failed to generate image')
+      } else {
+        toast.error('Failed to generate image. Please try again.')
+      }
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  // 处理图片下载
+  const handleDownload = async () => {
+    try {
+      // 创建一个下载链接
+      const link = document.createElement('a')
+      link.href = result
+      link.download = `generated-${Date.now()}.png`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      toast.error('Failed to download image')
+    }
+  }
+
+  // 清理生成的图片 URL
+  useEffect(() => {
+    return () => {
+      if (result && result.startsWith('blob:')) {
+        URL.revokeObjectURL(result)
+      }
+    }
+  }, [result])
 
   return (
     <div className="p-6">
@@ -44,10 +140,45 @@ export default function ImageGenerationPage() {
                   <span className="label-text">Reference Image</span>
                 </label>
                 <div className="border-2 border-dashed border-base-300 rounded-lg p-4">
-                  <button className="btn btn-outline w-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Image
-                  </button>
+                  {referencePreview ? (
+                    <div className="space-y-4">
+                      <div className="relative w-full aspect-square">
+                        <img
+                          src={referencePreview}
+                          alt="Reference preview"
+                          className="w-full h-full object-contain rounded-lg"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="btn btn-outline btn-sm flex-1"
+                          onClick={handleClearImage}
+                        >
+                          Remove
+                        </button>
+                        <label className="btn btn-outline btn-sm flex-1 cursor-pointer">
+                          Change
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="btn btn-outline w-full cursor-pointer">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Image
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
 
@@ -55,8 +186,9 @@ export default function ImageGenerationPage() {
               <button 
                 className="btn btn-primary w-full"
                 onClick={handleGenerate}
+                disabled={isGenerating}
               >
-                Generate
+                {isGenerating ? 'Generating...' : 'Generate'}
               </button>
             </div>
           </div>
@@ -76,9 +208,8 @@ export default function ImageGenerationPage() {
             <div className="p-4 flex justify-end">
               <button 
                 className="btn btn-primary"
-                onClick={() => {
-                  console.log('Downloading image:', result)
-                }}
+                onClick={handleDownload}
+                disabled={result === '/placeholder.svg?height=512&width=512'}
               >
                 Download
               </button>
