@@ -35,7 +35,7 @@ const CTA = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
             <Link 
-              href="/download" 
+              href="/comfy" 
               className="btn btn-primary btn-lg px-12 rounded-full bg-white hover:bg-blue-50 text-blue-600 border-none"
             >
               <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
