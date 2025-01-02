@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       .select("*")
       .eq("id", user?.id)
       .single();
-
+    console.log(data);
     const stripeSessionURL = await createCheckout({
       priceId,
       mode,

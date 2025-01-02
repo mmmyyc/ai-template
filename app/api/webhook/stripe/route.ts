@@ -5,10 +5,13 @@ import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
+// 初始化 Stripe 实例，配置 API 版本和类型支持
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-08-16",
   typescript: true,
 });
+
+// Webhook 密钥，用于验证请求来源
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 // This is where we receive Stripe webhook events
@@ -16,8 +19,10 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 // By default, it'll store the user in the database
 // See more: https://shipfa.st/docs/features/payments
 export async function POST(req: NextRequest) {
+  // 获取原始请求体数据
   const body = await req.text();
 
+  // 获取 Stripe 签名用于验证
   const signature = headers().get("stripe-signature");
 
   let eventType;
@@ -37,6 +42,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
 
+  // 获取事件类型
   eventType = event.type;
 
   try {
@@ -49,11 +55,13 @@ export async function POST(req: NextRequest) {
 
         const session = await findCheckoutSession(stripeObject.id);
 
+        // 提取会话中的关键信息
         const customerId = session?.customer;
         const priceId = session?.line_items?.data[0]?.price.id;
         const userId = stripeObject.client_reference_id;
         const plan = configFile.stripe.plans.find((p) => p.priceId === priceId);
 
+        // 获取 Stripe 客户信息
         const customer = (await stripe.customers.retrieve(
           customerId as string
         )) as Stripe.Customer;
@@ -89,6 +97,7 @@ export async function POST(req: NextRequest) {
           user = profile;
         }
 
+        // 更新用户配置信息
         await supabase
           .from("profiles")
           .update({
@@ -180,5 +189,6 @@ export async function POST(req: NextRequest) {
     console.error("stripe error: ", e.message);
   }
 
+  // 返回空对象表示处理成功
   return NextResponse.json({});
 }

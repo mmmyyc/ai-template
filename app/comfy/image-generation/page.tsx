@@ -61,13 +61,17 @@ export default function ImageGenerationPage() {
       }
 
       const response = await apiClient.post('/generate', formData, {
-        responseType: 'blob', // 指定响应类型为 blob
+        responseType: 'blob',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       })
 
-      // axios 成功响应直接包含数据
-      const imageBlob = new Blob([response.data], { type: 'image/png' })
-      const imageUrl = URL.createObjectURL(imageBlob)
-      setResult(imageUrl)
+      if (response.data) {
+        const imageUrl = URL.createObjectURL(response.data)
+        setResult(imageUrl)
+        toast.success('Image generated successfully')
+      }
 
     } catch (error) {
       console.error('Generation error:', error)
