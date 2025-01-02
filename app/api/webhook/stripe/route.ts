@@ -18,6 +18,10 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 // It used to update the user data, send emails, etc...
 // By default, it'll store the user in the database
 // See more: https://shipfa.st/docs/features/payments
+// 这里用于接收 Stripe webhook 事件
+// 用于更新用户数据、发送邮件等操作
+// 默认情况下，它会将用户信息存储在数据库中
+// 更多信息请参考：https://shipfa.st/docs/features/payments
 export async function POST(req: NextRequest) {
   // 获取原始请求体数据
   const body = await req.text();
@@ -29,12 +33,14 @@ export async function POST(req: NextRequest) {
   let event;
 
   // Create a private supabase client using the secret service_role API key
+  // 使用服务端密钥创建具有管理权限的 Supabase 客户端
   const supabase = new SupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
   // verify Stripe event is legit
+  // 验证 Stripe 事件的合法性
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
@@ -50,6 +56,8 @@ export async function POST(req: NextRequest) {
       case "checkout.session.completed": {
         // First payment is successful and a subscription is created (if mode was set to "subscription" in ButtonCheckout)
         // ✅ Grant access to the product
+        // 首次支付成功，并创建订阅（如果在 ButtonCheckout 中设置了订阅模式）
+        // ✅ 授予产品访问权限
         const stripeObject: Stripe.Checkout.Session = event.data
           .object as Stripe.Checkout.Session;
 
@@ -71,6 +79,7 @@ export async function POST(req: NextRequest) {
         let user;
         if (!userId) {
           // check if user already exists
+          // 检查用户是否已存在
           const { data: profile } = await supabase
             .from("profiles")
             .select("*")
@@ -80,6 +89,7 @@ export async function POST(req: NextRequest) {
             user = profile;
           } else {
             // create a new user using supabase auth admin
+            // 使用 Supabase 管理员权限创建新用户
             const { data } = await supabase.auth.admin.createUser({
               email: customer.email,
             });
@@ -88,6 +98,7 @@ export async function POST(req: NextRequest) {
           }
         } else {
           // find user by ID
+          // 通过 ID 查找用户
           const { data: profile } = await supabase
             .from("profiles")
             .select("*")
@@ -108,6 +119,7 @@ export async function POST(req: NextRequest) {
           .eq("id", user?.id);
 
         // Extra: send email with user link, product page, etc...
+        // 扩展功能：发送包含用户链接、产品页面等的邮件
         // try {
         //   await sendEmail(...);
         // } catch (e) {
@@ -120,6 +132,8 @@ export async function POST(req: NextRequest) {
       case "checkout.session.expired": {
         // User didn't complete the transaction
         // You don't need to do anything here, by you can send an email to the user to remind him to complete the transaction, for instance
+        // 用户未完成交易
+        // 这里不需要做任何事情，但你可以发送邮件提醒用户完成交易
         break;
       }
 
@@ -127,12 +141,17 @@ export async function POST(req: NextRequest) {
         // The customer might have changed the plan (higher or lower plan, cancel soon etc...)
         // You don't need to do anything here, because Stripe will let us know when the subscription is canceled for good (at the end of the billing cycle) in the "customer.subscription.deleted" event
         // You can update the user data to show a "Cancel soon" badge for instance
+        // 客户可能改变了计划（升级、降级、即将取消等）
+        // 这里不需要做任何事情，因为当订阅在计费周期结束时被完全取消时，Stripe 会通过 "customer.subscription.deleted" 事件通知我们
+        // 你可以更新用户数据以显示"即将取消"的标记
         break;
       }
 
       case "customer.subscription.deleted": {
         // The customer subscription stopped
         // ❌ Revoke access to the product
+        // 客户订阅已停止
+        // ❌ 撤销产品访问权限
         const stripeObject: Stripe.Subscription = event.data
           .object as Stripe.Subscription;
         const subscription = await stripe.subscriptions.retrieve(
@@ -149,12 +168,15 @@ export async function POST(req: NextRequest) {
       case "invoice.paid": {
         // Customer just paid an invoice (for instance, a recurring payment for a subscription)
         // ✅ Grant access to the product
+        // 客户刚刚支付了发票（例如，订阅的定期付款）
+        // ✅ 授予产品访问权限
         const stripeObject: Stripe.Invoice = event.data
           .object as Stripe.Invoice;
         const priceId = stripeObject.lines.data[0].price.id;
         const customerId = stripeObject.customer;
 
         // Find profile where customer_id equals the customerId (in table called 'profiles')
+        // 在 'profiles' 表中查找 customer_id 等于 customerId 的用户档案
         const { data: profile } = await supabase
           .from("profiles")
           .select("*")
@@ -162,9 +184,11 @@ export async function POST(req: NextRequest) {
           .single();
 
         // Make sure the invoice is for the same plan (priceId) the user subscribed to
+        // 确保发票对应的是用户订阅的相同计划（priceId）
         if (profile.price_id !== priceId) break;
 
         // Grant the profile access to your product. It's a boolean in the database, but could be a number of credits, etc...
+        // 授予用户档案产品访问权限。在数据库中是一个布尔值，但也可以是信用点数等
         await supabase
           .from("profiles")
           .update({ has_access: true })
@@ -179,11 +203,17 @@ export async function POST(req: NextRequest) {
         // ⏳ OR wait for the customer to pay (more friendly):
         //      - Stripe will automatically email the customer (Smart Retries)
         //      - We will receive a "customer.subscription.deleted" when all retries were made and the subscription has expired
+        // 支付失败（例如客户没有有效的支付方式）
+        // ❌ 撤销产品访问权限
+        // ⏳ 或者等待客户支付（更友好的方式）：
+        //      - Stripe 会自动发送邮件给客户（智能重试）
+        //      - 当所有重试都完成且订阅过期时，我们会收到 "customer.subscription.deleted" 事件
 
         break;
 
       default:
       // Unhandled event type
+      // 未处理的事件类型
     }
   } catch (e) {
     console.error("stripe error: ", e.message);
