@@ -50,5 +50,102 @@ return NextResponse.json({ data: { success: true, user } });
 - 保持响应数据结构的一致性对于前端数据处理至关重要
 - 建议在项目中统一 API 响应格式，避免类似问题
 
+## 图片生成功能实现
+
+### 1. 用户计划与权限管理
+1. 创建了 `/api/getPlan` 路由
+   ```typescript
+   // 获取用户计划信息
+   const { data: profile } = await supabase
+     .from("profiles")
+     .select("plan")
+     .eq("id", user.id)
+     .single();
+   ```
+2. 实现了三级权限控制：
+   - free：基础访问权限
+   - basic：基础生成功能
+   - advanced：高级生成功能
+
+### 2. 生成界面优化
+1. 基础/高级生成按钮
+   - 基础按钮：所有用户可见
+   - 高级按钮：仅高级用户可见，使用土豪金风格
+   ```typescript
+   {userPlan === 'advanced' && (
+     <button className="btn bg-[#FFD700]">
+       ✨ Advanced Generate
+     </button>
+   )}
+   ```
+
+2. 动态样式切换
+   - 根据生成类型改变界面风格
+   - 高级模式下使用金色主题
+   - 添加渐变和过渡动画效果
+
+### 3. 功能实现细节
+1. 状态管理
+   ```typescript
+   const [userPlan, setUserPlan] = useState<'free'| 'basic' | 'advanced'>('free')
+   const [generationType, setGenerationType] = useState<'basic' | 'advanced'>('basic')
+   ```
+
+2. 生成请求处理
+   ```typescript
+   const formData = new FormData()
+   formData.append('prompt', prompt)
+   formData.append('type', type)
+   formData.append('reference_image', referenceImage)
+   ```
+
+3. 错误处理
+   - 401 错误重定向到登录页
+   - 生成失败提示
+   - 文件类型验证
+
+### 4. Stripe 订阅集成
+1. Webhook 处理
+   ```typescript
+   await supabase
+     .from("profiles")
+     .update({
+       customer_id: customerId,
+       price_id: priceId,
+       has_access: true,
+       plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced"
+     })
+   ```
+
+2. 订阅状态更新
+   - 支付成功时更新用户计划
+   - 订阅取消时降级为免费计划
+   - 自动处理订阅续费
+
+### 5. 用户体验优化
+1. 视觉反馈
+   - 加载状态显示
+   - 成功/失败提示
+   - 按钮状态切换
+
+2. 界面交互
+   - 图片预览功能
+   - 文件上传控制
+   - 响应式布局
+
+## 主要技术要点
+1. Next.js API 路由实现
+2. Supabase 认证和数据管理
+3. Stripe 支付集成
+4. React 状态管理
+5. 条件渲染和样式切换
+6. 文件处理和预览
+
+## 待优化项目
+1. 缓存优化
+2. 错误重试机制
+3. 批量生成功能
+4. 历史记录功能
+5. 更多高级选项
 
 自动跳转只作用于服务器组件？客户端组件不行吗，一个猜测
