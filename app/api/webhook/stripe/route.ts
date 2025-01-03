@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
         // } else {
         //   console.log("Webhook - Successfully updated profile for user:", user?.id);
         // }
-        // break;
+        break;
       }
 
       case "checkout.session.expired": {
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
 
         await supabase
           .from("profiles")
-          .update({ has_access: false })
+          .update({ has_access: false, plan: "free" })
           .eq("customer_id", subscription.customer);
         break;
       }
@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
         // 授予用户档案产品访问权限。在数据库中是一个布尔值，但也可以是信用点数等
         await supabase
           .from("profiles")
-          .update({ has_access: true })
+          .update({ has_access: true , plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced" })
           .eq("customer_id", customerId);
 
         break;

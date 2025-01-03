@@ -13,15 +13,20 @@ export default async function LayoutPrivate({
 }: {
   children: ReactNode;
 }) {
-  // const supabase = createClient();
+  const supabase = createClient();
 
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // if (!user) {
-  //   redirect(config.auth.loginUrl);
-  // }
+  if (!user) {
+    redirect(config.auth.loginUrl);
+  }
 
-  return <>{children}</>;
+  const { data: userData } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  if (userData.plan === "basic") {
+    return <>{children}</>;
+  } else {
+    redirect("/dashboard/billing");
+  }
 }
