@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from "next/server";
 // Users must be authenticated. It will prefill the Checkout data with their email and/or credit card (if any)
 export async function POST(req: NextRequest) {
   const body = await req.json();
-
   if (!body.priceId) {
     return NextResponse.json(
       { error: "Price ID is required" },
@@ -35,6 +34,13 @@ export async function POST(req: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    if (!user) {
+      return NextResponse.json(
+        { error: "You must be logged in to checkout." },
+        { status: 401 }
+      );
+    }
+    
     const { priceId, mode, successUrl, cancelUrl } = body;
 
     const { data } = await supabase
@@ -42,7 +48,6 @@ export async function POST(req: NextRequest) {
       .select("*")
       .eq("id", user?.id)
       .single();
-    console.log(data);
     const stripeSessionURL = await createCheckout({
       priceId,
       mode,

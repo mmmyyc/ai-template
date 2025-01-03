@@ -1,6 +1,9 @@
 import type { Metadata } from "next"
 import { Inter } from 'next/font/google'
 import { MainNav } from './components/main-nav'
+import { redirect } from "next/navigation";
+import { createClient } from "@/libs/supabase/server";
+import config from "@/config";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -9,11 +12,22 @@ export const metadata: Metadata = {
   description: "ComfyUI Playground",
 }
 
-export default function Layout({
+export default async function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
+
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(config.auth.loginUrl);
+  }
+
   return (
     <div className={inter.className}>
       <div className="drawer lg:drawer-open">

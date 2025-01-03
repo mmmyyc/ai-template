@@ -16,10 +16,8 @@ const ButtonCheckout = ({
   mode?: "payment" | "subscription";
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const handlePayment = async () => {
     setIsLoading(true);
-
     try {
       const { url }: { url: string } = await apiClient.post(
         "/stripe/create-checkout",
