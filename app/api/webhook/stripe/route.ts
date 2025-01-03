@@ -4,6 +4,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import config from "@/config";
 
 // 初始化 Stripe 实例，配置 API 版本和类型支持
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
   try {
     switch (eventType) {
       case "checkout.session.completed": {
+        // 用户刚结完账。
         // First payment is successful and a subscription is created (if mode was set to "subscription" in ButtonCheckout)
         // ✅ Grant access to the product
         // 首次支付成功，并创建订阅（如果在 ButtonCheckout 中设置了订阅模式）
@@ -107,17 +109,17 @@ export async function POST(req: NextRequest) {
 
           user = profile;
         }
-
+        console.log("!!!!!!user:",user);
         // 更新用户配置信息
-        await supabase
+        const { error: updateError } = await supabase
           .from("profiles")
           .update({
             customer_id: customerId,
             price_id: priceId,
             has_access: true,
+            plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced"
           })
           .eq("id", user?.id);
-
         // Extra: send email with user link, product page, etc...
         // 扩展功能：发送包含用户链接、产品页面等的邮件
         // try {
@@ -125,8 +127,13 @@ export async function POST(req: NextRequest) {
         // } catch (e) {
         //   console.error("Email issue:" + e?.message);
         // }
-
-        break;
+        // 错误排查
+        // if (updateError) {
+        //   console.error("Webhook - Profile update error:", updateError);
+        // } else {
+        //   console.log("Webhook - Successfully updated profile for user:", user?.id);
+        // }
+        // break;
       }
 
       case "checkout.session.expired": {

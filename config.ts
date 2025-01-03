@@ -22,14 +22,14 @@ const config = {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1QcehVQeZYgpkJjDvXU3AH0V"
+            ? "price_1Qd6FHQeZYgpkJjDDc6FqLgz"
             : "price_456",
         //  REQUIRED - Name of the plan, displayed on the pricing page
-        name: "Starter",
+        name: "Basic",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
-        description: "Perfect for small projects",
+        description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
         // The price you want to display, the one user will be charged on Stripe.
-        price: 7,
+        price: 14,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
         priceAnchor: 20,
         features: [
@@ -44,14 +44,14 @@ const config = {
       {
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1O5KtcAxyNprDp7iftKnrrpw"
+            ? "price_1Qd6iuQeZYgpkJjDCVuW3gEN"
             : "price_456",
         // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
         isFeatured: true,
         name: "Advanced",
-        description: "You need more power",
-        price: 149,
-        priceAnchor: 299,
+        description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
+        price: 20,
+        priceAnchor: 99,
         features: [
           {
             name: "NextJS boilerplate",
