@@ -109,7 +109,6 @@ export async function POST(req: NextRequest) {
 
           user = profile;
         }
-        console.log("!!!!!!user:",user);
         // 更新用户配置信息
         const { error: updateError } = await supabase
           .from("profiles")

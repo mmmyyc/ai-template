@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Upload } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Upload, ChevronDown } from 'lucide-react'
 import apiClient from "@/libs/api";
 import { AxiosError } from 'axios'
 import { useRouter } from "next/navigation";
@@ -15,6 +15,27 @@ export default function ImageGenerationPage() {
   const [referenceImage, setReferenceImage] = useState<File | null>(null)
   const [referencePreview, setReferencePreview] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [userPlan, setUserPlan] = useState<'free'| 'basic' | 'advanced'>('free')
+  const [generationType, setGenerationType] = useState<'basic' | 'advanced'>('basic')
+
+  // 获取用户计划信息
+  useEffect(() => {
+    const fetchUserPlan = async () => {
+      try {
+        const { data: profile } = await apiClient.get('/auth/getPlan');
+        if(profile.plan === 'basic'){
+          setUserPlan('basic');
+        }else if(profile.plan === 'advanced'){
+          setUserPlan('advanced');
+        }else{
+          setUserPlan('free');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user plan:', error);
+      }
+    };
+    fetchUserPlan();
+  }, []);
 
   // 处理图片上传
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,16 +67,20 @@ export default function ImageGenerationPage() {
   }
 
   // 处理图片生成
-  const handleGenerate = async () => {
+  const handleGenerate = async (type: 'basic' | 'advanced' = 'basic') => {
     if (!prompt) {
       toast.error('Please enter a prompt')
       return
     }
 
     setIsGenerating(true)
+    // setGenerationType(type)  // 设置当前生成类型
+    
     try {
       const formData = new FormData()
       formData.append('prompt', prompt)
+      // formData.append('type', type)  // 添加生成类型
+      // formData.append('quality', quality)  // 添加质量设置
       if (referenceImage) {
         formData.append('reference_image', referenceImage)
       }
@@ -70,7 +95,7 @@ export default function ImageGenerationPage() {
       if (response.data) {
         const imageUrl = URL.createObjectURL(response.data)
         setResult(imageUrl)
-        toast.success('Image generated successfully')
+        toast.success(`${type === 'advanced' ? 'Advanced' : 'Basic'} image generated successfully`)
       }
 
     } catch (error) {
@@ -122,17 +147,20 @@ export default function ImageGenerationPage() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* 左侧控制面板 */}
         <div className="lg:col-span-1">
-          <div className="card bg-base-100 shadow">
+          <div className={`card ${generationType === 'advanced' ? 'bg-gradient-to-r from-yellow-100 to-yellow-200' : 'bg-base-100'} shadow transition-all duration-300`}>
             <div className="card-body space-y-4">
-
               {/* Prompt 输入框 */}
               <div className="form-control w-full">
                 <label className="label">
-                  <span className="label-text">Prompt</span>
+                  <span className={`label-text ${generationType === 'advanced' ? 'text-black font-semibold' : ''}`}>
+                    {generationType === 'advanced' ? '✨ Advanced Prompt' : 'Prompt'}
+                  </span>
                 </label>
                 <textarea
-                  className="textarea textarea-bordered min-h-[120px]"
-                  placeholder="Enter your prompt here..."
+                  className={`textarea textarea-bordered min-h-[120px] ${
+                    generationType === 'advanced' ? 'border-[#FFD700] focus:border-[#DAA520]' : ''
+                  }`}
+                  placeholder={generationType === 'advanced' ? "Enter your advanced prompt here..." : "Enter your prompt here..."}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                 />
@@ -141,9 +169,13 @@ export default function ImageGenerationPage() {
               {/* 参考图片上传 */}
               <div className="form-control w-full">
                 <label className="label">
-                  <span className="label-text">Reference Image</span>
+                  <span className={`label-text ${generationType === 'advanced' ? 'text-black font-semibold' : ''}`}>
+                    {generationType === 'advanced' ? '✨ Reference Image' : 'Reference Image'}
+                  </span>
                 </label>
-                <div className="border-2 border-dashed border-base-300 rounded-lg p-4">
+                <div className={`border-2 border-dashed rounded-lg p-4 ${
+                  generationType === 'advanced' ? 'border-[#FFD700]' : 'border-base-300'
+                }`}>
                   {referencePreview ? (
                     <div className="space-y-4">
                       <div className="relative w-full aspect-square">
@@ -155,12 +187,16 @@ export default function ImageGenerationPage() {
                       </div>
                       <div className="flex gap-2">
                         <button
-                          className="btn btn-outline btn-sm flex-1"
+                          className={`btn btn-outline btn-sm flex-1 ${
+                            generationType === 'advanced' ? 'border-[#FFD700] text-black hover:bg-[#FFD700]' : ''
+                          }`}
                           onClick={handleClearImage}
                         >
                           Remove
                         </button>
-                        <label className="btn btn-outline btn-sm flex-1 cursor-pointer">
+                        <label className={`btn btn-outline btn-sm flex-1 cursor-pointer ${
+                          generationType === 'advanced' ? 'border-[#FFD700] text-black hover:bg-[#FFD700]' : ''
+                        }`}>
                           Change
                           <input
                             type="file"
@@ -172,7 +208,9 @@ export default function ImageGenerationPage() {
                       </div>
                     </div>
                   ) : (
-                    <label className="btn btn-outline w-full cursor-pointer">
+                    <label className={`btn btn-outline w-full cursor-pointer ${
+                      generationType === 'advanced' ? 'border-[#FFD700] text-black hover:bg-[#FFD700]' : ''
+                    }`}>
                       <Upload className="h-4 w-4 mr-2" />
                       Upload Image
                       <input
@@ -186,14 +224,49 @@ export default function ImageGenerationPage() {
                 </div>
               </div>
 
-              {/* 生成按钮 */}
-              <button 
-                className="btn btn-primary w-full"
-                onClick={handleGenerate}
-                disabled={isGenerating}
-              >
-                {isGenerating ? 'Generating...' : 'Generate'}
-              </button>
+              {/* 生成按钮组 */}
+              <div className="space-y-2">
+                {/* 基础生成按钮 */}
+                <button 
+                  className="btn btn-primary w-full"
+                  onClick={() => {
+                    setGenerationType('basic');
+                    handleGenerate('basic');
+                  }}
+                  disabled={isGenerating}
+                >
+                  {isGenerating && generationType === 'basic' ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    'Basic Generate'
+                  )}
+                </button>
+
+                {/* 高级生成按钮 - 仅对高级用户显示 */}
+                {userPlan === 'advanced' && (
+                  <button 
+                    className={`btn w-full ${
+                      generationType === 'advanced' 
+                        ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#DAA520] hover:to-[#CD853F]' 
+                        : 'bg-[#FFD700] hover:bg-[#DAA520]'
+                    } text-black font-bold border-[#FFD700] hover:border-[#DAA520]`}
+                    onClick={() => {
+                      setGenerationType('advanced');
+                      handleGenerate('advanced');
+                    }}
+                    disabled={isGenerating}
+                  >
+                    {isGenerating && generationType === 'advanced' ? (
+                      <span className="loading loading-spinner loading-xs"></span>
+                    ) : (
+                      <>
+                        <span className="mr-2">✨</span>
+                        Advanced Generate
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

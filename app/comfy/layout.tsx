@@ -23,7 +23,6 @@ export default async function Layout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   if (!user) {
     redirect(config.auth.loginUrl);
   }

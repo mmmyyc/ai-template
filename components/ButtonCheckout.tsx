@@ -22,7 +22,6 @@ const ButtonCheckout = ({
     setIsLoading(true);
     try {
       const { data: authData } = await apiClient.get("/auth/check");
-      console.log("authData:",authData);
       if (!authData.success) {
         router.push(config.auth.loginUrl);
         return;
