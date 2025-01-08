@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 export default function ImageGenerationPage() {
   const router = useRouter()
   const [prompt, setPrompt] = useState('')
-  const [result, setResult] = useState<string>('/placeholder.svg?height=512&width=512')
+  const [result, setResult] = useState<string | null>(null)
   const [referenceImage, setReferenceImage] = useState<File | null>(null)
   const [referencePreview, setReferencePreview] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -74,28 +74,30 @@ export default function ImageGenerationPage() {
     }
 
     setIsGenerating(true)
-    // setGenerationType(type)  // 设置当前生成类型
     
     try {
       const formData = new FormData()
       formData.append('prompt', prompt)
-      // formData.append('type', type)  // 添加生成类型
-      // formData.append('quality', quality)  // 添加质量设置
       if (referenceImage) {
         formData.append('reference_image', referenceImage)
       }
 
       const response = await apiClient.post('/generate', formData, {
-        responseType: 'blob',
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
 
-      if (response.data) {
-        const imageUrl = URL.createObjectURL(response.data)
-        setResult(imageUrl)
+      // 清理之前的URL
+      if (result) {
+        URL.revokeObjectURL(result)
+      }
+
+      if (response.data?.url) {
+        setResult(response.data.url)
         toast.success(`${type === 'advanced' ? 'Advanced' : 'Basic'} image generated successfully`)
+      } else {
+        throw new Error('Invalid response format')
       }
 
     } catch (error) {
@@ -105,7 +107,12 @@ export default function ImageGenerationPage() {
           router.push(config.auth.loginUrl)
           return
         }
-        toast.error(error.response?.data?.error || 'Failed to generate image')
+        // 尝试读取详细错误信息
+        const errorMessage = error.response?.data instanceof Blob 
+          ? await error.response.data.text() 
+          : error.response?.data?.error || 'Failed to generate image'
+        console.error('Error details:', errorMessage)
+        toast.error(errorMessage)
       } else {
         toast.error('Failed to generate image. Please try again.')
       }
@@ -114,29 +121,29 @@ export default function ImageGenerationPage() {
     }
   }
 
-  // 处理图片下载
-  const handleDownload = async () => {
-    try {
-      // 创建一个下载链接
-      const link = document.createElement('a')
-      link.href = result
-      link.download = `generated-${Date.now()}.png`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    } catch (error) {
-      toast.error('Failed to download image')
-    }
-  }
-
-  // 清理生成的图片 URL
+  // 清理函数：组件卸载时清理所有URL
   useEffect(() => {
     return () => {
-      if (result && result.startsWith('blob:')) {
+      if (result) {
         URL.revokeObjectURL(result)
       }
+      if (referencePreview) {
+        URL.revokeObjectURL(referencePreview)
+      }
     }
-  }, [result])
+  }, [result, referencePreview])
+
+  // 下载生成的图片
+  const handleDownload = () => {
+    if (!result) return
+    
+    const link = document.createElement('a')
+    link.href = result
+    link.download = `generated-image-${Date.now()}.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   return (
     <div className="p-6">
@@ -275,18 +282,40 @@ export default function ImageGenerationPage() {
         <div className="lg:col-span-2">
           <div className="card bg-base-100 shadow">
             <div className="card-body p-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={result}
-                alt="Generated image"
-                className="w-full h-[512px] object-contain rounded-lg"
-              />
+              {/* 图片加载状态 */}
+              {isGenerating ? (
+                <div className="w-full h-[512px] flex items-center justify-center bg-base-200">
+                  <div className="flex flex-col items-center gap-4">
+                    <span className="loading loading-spinner loading-lg"></span>
+                    <p className="text-base-content/60">Generating your image...</p>
+                  </div>
+                </div>
+              ) : result ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={result}
+                  alt="Generated image"
+                  className="w-full h-[512px] object-contain rounded-lg"
+                  onError={() => {
+                    console.error('Image load error')
+                    setResult(null)  // 清除错误的图片URL
+                  }}
+                />
+              ) : (
+                // 默认占位内容
+                <div className="w-full h-[512px] flex items-center justify-center bg-base-200">
+                  <div className="text-center text-base-content/60">
+                    <p>No image generated yet</p>
+                    <p className="text-sm mt-2">Enter a prompt and click generate to start</p>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="p-4 flex justify-end">
               <button 
                 className="btn btn-primary"
                 onClick={handleDownload}
-                disabled={result === '/placeholder.svg?height=512&width=512'}
+                disabled={!result || isGenerating}
               >
                 Download
               </button>
