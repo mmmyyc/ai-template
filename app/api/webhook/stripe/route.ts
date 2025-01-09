@@ -116,7 +116,8 @@ export async function POST(req: NextRequest) {
             customer_id: customerId,
             price_id: priceId,
             has_access: true,
-            plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced"
+            plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced",
+            // available_uses : user?.available_uses + (config.stripe.plans[0].priceId ? 30 : 60),
           })
           .eq("id", user?.id);
         // Extra: send email with user link, product page, etc...
@@ -166,7 +167,9 @@ export async function POST(req: NextRequest) {
 
         await supabase
           .from("profiles")
-          .update({ has_access: false, plan: "free" })
+          .update({ has_access: false, plan: "free"
+            // , available_uses: 3 
+          })
           .eq("customer_id", subscription.customer);
         break;
       }
@@ -197,7 +200,9 @@ export async function POST(req: NextRequest) {
         // 授予用户档案产品访问权限。在数据库中是一个布尔值，但也可以是信用点数等
         await supabase
           .from("profiles")
-          .update({ has_access: true , plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced" })
+          .update({ has_access: true , plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced" ,
+            //  available_uses: profile.available_uses + (priceId === config.stripe.plans[0].priceId ? 30 : 60)
+            })
           .eq("customer_id", customerId);
 
         break;
