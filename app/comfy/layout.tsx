@@ -9,9 +9,10 @@ import React from 'react';
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Comfy UI",
-  description: "ComfyUI Playground",
+  title: "YCamie - Create AI Desktop Pets & Virtual Companions",
+  description: "Generate high-quality AI-powered desktop pets with YCamie. Customize virtual companions featuring intelligent interactions and adorable animations for your workspace.",
 }
+
 
 export default async function Layout({
   children,

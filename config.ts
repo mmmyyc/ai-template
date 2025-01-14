@@ -3,10 +3,10 @@ import { ConfigProps } from "./types/config";
 
 const config = {
   // REQUIRED
-  appName: "YCami",
+  appName: "YCamie",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "YCami - Your AI-Powered Virtual Desktop Companion Enhance your workspace with YCami, the ultimate AI desktop pet and virtual companion. Customize your digital pet with adorable animations and personalized behaviors, bringing intelligent interactions to your desktop. Experience seamless window interactions, interactive desktop entertainment, and a wide variety of unique characters. Perfect for professionals and anyone seeking a delightful digital friend, YCami transforms your digital workspace with advanced AI features and workspace customization.",
+    "Get high-quality Shimeji desktop pets without spending weeks on customization or hundreds of dollars.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
   domainName: "shipfa.st",
   crisp: {
