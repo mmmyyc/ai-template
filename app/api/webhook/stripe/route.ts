@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
             price_id: priceId,
             has_access: true,
             plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced",
-            // available_uses : user?.available_uses + (config.stripe.plans[0].priceId ? 30 : 60),
+            available_uses : user?.available_uses + (config.stripe.plans[0].priceId ? 30 : 60),
           })
           .eq("id", user?.id);
         // Extra: send email with user link, product page, etc...
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
         await supabase
           .from("profiles")
           .update({ has_access: false, plan: "free"
-            // , available_uses: 3 
+            , available_uses: 3
           })
           .eq("customer_id", subscription.customer);
         break;
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
         await supabase
           .from("profiles")
           .update({ has_access: true , plan: priceId === config.stripe.plans[0].priceId ? "basic" : "advanced" ,
-            //  available_uses: profile.available_uses + (priceId === config.stripe.plans[0].priceId ? 30 : 60)
+             available_uses: profile.available_uses + (priceId === config.stripe.plans[0].priceId ? 30 : 60)
             })
           .eq("customer_id", customerId);
 

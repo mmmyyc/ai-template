@@ -60,7 +60,7 @@ const cta: JSX.Element = (
       href="/comfy"
       className="btn btn-outline rounded-full px-6 hover:bg-blue-50 hover:text-blue-600"
     >
-      Download Client
+      Try Now
     </Link>
   </div>
 );

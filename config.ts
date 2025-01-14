@@ -51,7 +51,7 @@ const config = {
         // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
         isFeatured: true,
         name: "Advanced",
-        description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
+        description: "providing high-quality desktop pets consisting of 46 high-quality pictures",
         price: 20,
         priceAnchor: 99,
         features: [

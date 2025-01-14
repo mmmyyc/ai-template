@@ -56,6 +56,32 @@ export async function POST(request: NextRequest) {
       // 将验证通过的图片添加到请求数据中
       apiFormData.append('file', referenceImage)
     }
+
+    const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("email", user?.email)
+    .single();
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    }
+
+    if (profile.available_uses <= 0) {
+      return NextResponse.json({ error: "No available uses left" }, { status: 403 });
+    }
+
+    const { error: updateError } = await supabase
+    .from("profiles")
+    .update({
+      available_uses: profile.available_uses - 1,
+    })
+    .eq("id", profile?.id);
+
+    if (updateError) {
+      return NextResponse.json({ error: "Failed to update usage count" }, { status: 500 });
+    }
+
     // 调用 ComfyUI API 生成图片
     const response = await fetch(COMFY_API_URL, {
       // headers: {

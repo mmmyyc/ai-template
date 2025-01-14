@@ -48,9 +48,9 @@ const Hero = () => {
               </div>
             </div>
 
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <TestimonialsAvatars priority={true} />
-            </div>
+            </div> */}
           </div>
 
           <div className="lg:w-1/2 relative">

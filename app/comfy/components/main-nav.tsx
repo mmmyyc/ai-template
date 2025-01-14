@@ -9,9 +9,9 @@ export function MainNav() {
   
   const apps = [
     { id: 'image-gen', name: 'DeskPet Generation', icon: Image, href: '/comfy/image-generation' },
-    { id: 'text-gen', name: 'Text Generation', icon: Layers, href: '/comfy/text-generation' },
-    { id: 'chat', name: 'Chat', icon: Send, href: '/comfy/chat' },
-    { id: 'settings', name: 'Settings', icon: Settings, href: '/comfy/settings' },
+    // { id: 'text-gen', name: 'Text Generation', icon: Send, href: '/comfy/text-generation' },
+    // { id: 'chat', name: 'Chat', icon: Layers, href: '/comfy/chat' },
+    // { id: 'settings', name: 'Settings', icon: Settings, href: '/comfy/settings' },
   ]
 
   return (
