@@ -138,11 +138,11 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="text-center text-sm text-base-content/70">
+          {/* <div className="text-center text-sm text-base-content/70">
             <Link href="/signup" className="link link-hover">
               Don't have an account? Sign up
             </Link>
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-8 text-center text-sm text-base-content/70">
@@ -157,17 +157,17 @@ export default function Login() {
         <div className="absolute inset-0 flex items-center justify-center p-8">
           <div className="bg-white/90 backdrop-blur-sm rounded-lg p-8 max-w-lg">
             <p className="text-lg mb-4">
-              "I've never come across a platform that has made it SO easy-peasy to start selling. {config.appName} is full of beautiful surprises, and it's a genuine joy to use!"
+              "I've never come across a desktop companion platform that has made customization SO effortless. {config.appName} is full of delightful surprises, and it's a genuine joy to use"
             </p>
             <div className="flex items-center gap-3">
               <div className="avatar">
                 <div className="w-10 h-10 rounded-full">
-                  <img src="/testimonial-1.jpg" alt="User" />
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3276&q=80" alt="User" />
                 </div>
               </div>
               <div>
-                <div className="font-semibold">Rachel Shillcock</div>
-                <div className="text-sm text-base-content/70">@MissRachilli</div>
+                <div className="font-semibold">Emily Zhang</div>
+                <div className="text-sm text-base-content/70">@EmilyZ</div>
               </div>
             </div>
           </div>
