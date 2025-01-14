@@ -1,11 +1,20 @@
 import sharp from 'sharp';
-import archiver from 'archiver';
 import { NextRequest, NextResponse } from 'next/server';
+import { mkdir, readFile, rm, writeFile, readdir } from 'fs/promises';
+import path from 'path';
+import os from 'os';
+import AdmZip from 'adm-zip';
 
 export async function POST(request: NextRequest) {
+  const tempDir = path.join(os.tmpdir(), 'shimeji-' + Date.now());
+  const tempImgDir = path.join(tempDir, 'img');
+  
   try {
     const data = await request.formData();
     const imageData = data.get('image') as File;
+    
+    // 创建临时目录
+    await mkdir(tempImgDir, { recursive: true });
     
     // 读取图片数据
     const buffer = await imageData.arrayBuffer();
@@ -20,61 +29,35 @@ export async function POST(request: NextRequest) {
       throw new Error('Invalid image dimensions');
     }
 
-    // // 确保宽高能被5整除，避免小数点问题
-    // const adjustedWidth = Math.floor(width / 5) * 5;
-    // const adjustedHeight = Math.floor(height / 5) * 5;
-    
-    // // 调整图片大小为能被5整除的尺寸
-    // const resizedImage = await image
-    //   .resize(adjustedWidth, adjustedHeight, {
-    //     fit: 'contain',
-    //     background: { r: 255, g: 255, b: 255, alpha: 0 }
-    //   })
-    //   .toBuffer();
-    
-    // // 使用调整后的图片
-    // const processImage = sharp(resizedImage);
-    
-    // // 计算每个切片的尺寸
-    // const sliceWidth = adjustedWidth / 5;
-    // const sliceHeight = adjustedHeight / 5;
     const processImage = image;
     const adjustedWidth = 640;
     const adjustedHeight = 640;
     const sliceWidth = 128;
     const sliceHeight = 128;
-    // 创建 zip 文件
-    const archive = archiver('zip', {
-      zlib: { level: 9 } // 最高压缩级别
-    });
     
     // 存储所有切片的 Promise
     const slicePromises = [];
     let sliceIndex = 1;
     
-    // 切割图片
+    // 切割图片并保存到临时目录
     for (let row = 0; row < 5; row++) {
       for (let col = 0; col < 5; col++) {
         const left = col * sliceWidth;
         const top = row * sliceHeight;
         
-        // 验证切割区域
         if (left + sliceWidth <= adjustedWidth && top + sliceHeight <= adjustedHeight) {
           const slicePromise = processImage
-            .clone()  // 创建新的处理实例
+            .clone()
             .extract({
               left: Math.round(left),
               top: Math.round(top),
               width: Math.round(sliceWidth),
               height: Math.round(sliceHeight)
             })
-            .toBuffer()
-            .then(buffer => {
-              // 添加到 zip
-              archive.append(buffer, { name: `img/shime${sliceIndex}.png` });
-              sliceIndex++;
-            });
+            .toFile(path.join(tempImgDir, `shime${sliceIndex}.png`));
+          
           slicePromises.push(slicePromise);
+          sliceIndex++;
         }
       }
     }
@@ -82,27 +65,46 @@ export async function POST(request: NextRequest) {
     // 等待所有切片处理完成
     await Promise.all(slicePromises);
     
-    // 完成 zip 文件
-    archive.finalize();
+    // 下载原始的 shimejiee.zip
+    const shimejeeResponse = await fetch('https://kilkakon.com/shimeji/shimejiee.zip');
+    const shimejeeBuffer = await shimejeeResponse.arrayBuffer();
     
-    // 创建可读流
-    const chunks: Buffer[] = [];
-    archive.on('data', (chunk: Buffer) => chunks.push(chunk));
+    // 保存到临时文件
+    const tempZipPath = path.join(tempDir, 'shimejiee.zip');
+    await writeFile(tempZipPath, Buffer.from(shimejeeBuffer));
     
-    // 等待 zip 完成
-    const zipBuffer = await new Promise<Buffer>((resolve, reject) => {
-      archive.on('end', () => resolve(Buffer.concat(chunks)));
-      archive.on('error', reject);
-    });
+    // 使用 adm-zip 处理 zip 文件
+    const zip = new AdmZip(tempZipPath);
     
-    // 返回 zip 文件
+    // 读取临时目录中的所有切割图片并添加到 zip
+    const imgFiles = await readdir(tempImgDir);
+    for (const file of imgFiles) {
+      const imgPath = path.join(tempImgDir, file);
+      const imgContent = await readFile(imgPath);
+      zip.addFile(`img/shimeji/${file}`, imgContent);
+    }
+    
+    // 保存修改后的 zip
+    const modifiedZipBuffer = zip.toBuffer();
+    
+    // 清理临时文件
+    await rm(tempDir, { recursive: true, force: true });
+    
+    // 返回修改后的 zip 文件
     return NextResponse.json({
       data: {
-        zipBase64: zipBuffer.toString('base64')
+        zipBase64: modifiedZipBuffer.toString('base64')
       }
     });
     
   } catch (error) {
+    // 确保清理临时文件
+    try {
+      await rm(tempDir, { recursive: true, force: true });
+    } catch (cleanupError) {
+      console.error('Error cleaning up:', cleanupError);
+    }
+    
     console.error('Error processing image:', error);
     return NextResponse.json({
       success: false,
