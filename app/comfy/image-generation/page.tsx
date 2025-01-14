@@ -7,6 +7,7 @@ import { AxiosError } from 'axios'
 import { useRouter } from "next/navigation";
 import config from "@/config";
 import toast from "react-hot-toast";
+import Image from 'next/image'
 
 export default function ImageGenerationPage() {
   const router = useRouter()
@@ -223,7 +224,7 @@ export default function ImageGenerationPage() {
                   {referencePreview ? (
                     <div className="space-y-4">
                       <div className="relative w-full aspect-square">
-                        <img
+                        <Image
                           src={referencePreview}
                           alt="Reference preview"
                           className="w-full h-full object-contain rounded-lg"
@@ -329,7 +330,7 @@ export default function ImageGenerationPage() {
                 </div>
               ) : result ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img
+                <Image
                   src={result}
                   alt="Generated image"
                   className="w-full h-[512px] object-contain rounded-lg"

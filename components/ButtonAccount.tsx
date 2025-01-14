@@ -6,6 +6,7 @@ import { Popover, Transition } from "@headlessui/react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/libs/supabase/client";
 import apiClient from "@/libs/api";
+import Image from 'next/image'
 
 // A button to show user some account actions
 //  1. Billing: open a Stripe Customer Portal to manage their billing (cancel subscription, update payment method, etc.).
@@ -60,7 +61,7 @@ const ButtonAccount = () => {
         <>
           <Popover.Button className="btn">
             {user?.user_metadata?.avatar_url ? (
-              <img
+              <Image
                 src={user?.user_metadata?.avatar_url}
                 alt={"Profile picture"}
                 className="w-6 h-6 rounded-full shrink-0"
