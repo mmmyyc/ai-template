@@ -10,10 +10,10 @@ const Hero = () => {
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 flex flex-col items-start">
             <h1 className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-gray-900">
-              遇见您的桌面好伙伴
+              Meet your desktop companion
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 font-normal leading-relaxed mb-12">
-              一个可爱的虚拟伙伴，陪伴您的每一刻。让工作学习充满乐趣，为您的数字生活增添一抹温暖的色彩。
+              Get high-quality Shimeji desktop pets without spending weeks on customization or hundreds of dollars.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link 
@@ -23,13 +23,13 @@ const Hero = () => {
                 <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                立即体验
+                Try Now
               </Link>
               <Link 
                 href="/demo" 
                 className="btn btn-outline btn-lg px-8 rounded-full"
               >
-                观看演示
+                Watch Demo
               </Link>
             </div>
 
@@ -38,13 +38,13 @@ const Hero = () => {
                 <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                完全定制化
+                Fully Customizable
               </div>
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                超高质量
+                High Quality
               </div>
             </div>
 
@@ -56,8 +56,8 @@ const Hero = () => {
           <div className="lg:w-1/2 relative">
             <div className="relative w-full max-w-lg mx-auto">
               <Image
-                src="/hero-pet.png"
-                alt="桌面宠物演示"
+                src="/landing/three_person.webp"
+                alt="Desktop Pet Demo"
                 className="w-full h-auto rounded-2xl shadow-xl"
                 priority={true}
                 width={500}

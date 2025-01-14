@@ -4,6 +4,7 @@ import { MainNav } from './components/main-nav'
 import { redirect } from "next/navigation";
 import { createClient } from "@/libs/supabase/server";
 import config from "@/config";
+import React from 'react';
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,7 +18,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode
 }) {
-
   const supabase = createClient();
 
   const {
@@ -26,7 +26,6 @@ export default async function Layout({
   if (!user) {
     redirect(config.auth.loginUrl);
   }
-
   return (
     <div className={inter.className}>
       <div className="drawer lg:drawer-open">

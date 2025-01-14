@@ -3,10 +3,10 @@ import { ConfigProps } from "./types/config";
 
 const config = {
   // REQUIRED
-  appName: "ShipFast",
+  appName: "YCami",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "The NextJS boilerplate with all you need to build your SaaS, AI tool, or any other web app.",
+    "YCami - Your AI-Powered Virtual Desktop Companion Enhance your workspace with YCami, the ultimate AI desktop pet and virtual companion. Customize your digital pet with adorable animations and personalized behaviors, bringing intelligent interactions to your desktop. Experience seamless window interactions, interactive desktop entertainment, and a wide variety of unique characters. Perfect for professionals and anyone seeking a delightful digital friend, YCami transforms your digital workspace with advanced AI features and workspace customization.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
   domainName: "shipfa.st",
   crisp: {
@@ -34,11 +34,13 @@ const config = {
         priceAnchor: 20,
         features: [
           {
-            name: "NextJS boilerplate",
+            name: "Shimeji Customization",
           },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
+          { name: "HD Animated Images" },
+          { name: "Fun Interaction" },
+          { name: "Real-time Response" },
+          { name: "25-frame Animation Set" },
+          { name: "Human Character Customization" },
         ],
       },
       {
@@ -54,13 +56,15 @@ const config = {
         priceAnchor: 99,
         features: [
           {
-            name: "NextJS boilerplate",
+            name: "Shimeji Customization",
           },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
-          { name: "1 year of updates" },
-          { name: "24/7 support" },
+          { name: "HD Animated Images" },
+          { name: "Fun Interaction" },
+          { name: "Real-time Response" },
+          { name: "46-frame Premium Animation" },
+          { name: "Human Character Customization" },
+          { name: "Pet Character Customization" },
+          { name: "Multi-device Support" },
         ],
       },
     ],

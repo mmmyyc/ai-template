@@ -28,7 +28,7 @@ const Footer = () => {
             </Link>
 
             <p className="mt-3 text-sm text-base-content/80">
-              让您的数字世界充满欢乐，为工作增添一份趣味
+              Fill your digital world with joy, adding fun to your work
             </p>
             <p className="mt-3 text-sm text-base-content/60">
               Copyright © {new Date().getFullYear()} - All rights reserved
@@ -38,27 +38,27 @@ const Footer = () => {
           <div className="flex-grow flex flex-wrap justify-center -mb-10 md:mt-0 mt-10 text-center">
             <div className="lg:w-1/3 md:w-1/2 w-full px-4">
               <div className="footer-title font-semibold text-base-content tracking-widest text-sm md:text-left mb-3">
-                产品
+                Product
               </div>
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                 <Link href="/features" className="link link-hover">
-                  特性
+                  Features
                 </Link>
                 <Link href="/store" className="link link-hover">
-                  宠物商店
+                  Pet Store
                 </Link>
                 <Link href="/download" className="link link-hover">
-                  下载
+                  Download
                 </Link>
                 {config.resend.supportEmail && (
                   <a
                     href={`mailto:${config.resend.supportEmail}`}
                     target="_blank"
                     className="link link-hover"
-                    aria-label="联系支持"
+                    aria-label="Contact Support"
                   >
-                    技术支持
+                    Support
                   </a>
                 )}
               </div>
@@ -66,36 +66,36 @@ const Footer = () => {
 
             <div className="lg:w-1/3 md:w-1/2 w-full px-4">
               <div className="footer-title font-semibold text-base-content tracking-widest text-sm md:text-left mb-3">
-                资源
+                Resources
               </div>
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                 <Link href="/docs" className="link link-hover">
-                  使用文档
+                  Documentation
                 </Link>
                 <Link href="/community" className="link link-hover">
-                  社区
+                  Community
                 </Link>
                 <Link href="/blog" className="link link-hover">
-                  博客
+                  Blog
                 </Link>
                 <Link href="/changelog" className="link link-hover">
-                  更新日志
+                  Changelog
                 </Link>
               </div>
             </div>
 
             <div className="lg:w-1/3 md:w-1/2 w-full px-4">
               <div className="footer-title font-semibold text-base-content tracking-widest text-sm md:text-left mb-3">
-                法律
+                Legal
               </div>
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                 <Link href="/privacy-policy" className="link link-hover">
-                  隐私政策
+                  Privacy Policy
                 </Link>
                 <Link href="/tos" className="link link-hover">
-                  服务条款
+                  Terms of Service
                 </Link>
               </div>
             </div>

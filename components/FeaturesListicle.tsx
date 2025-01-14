@@ -9,15 +9,15 @@ const features: {
   svg: JSX.Element;
 }[] = [
   {
-    name: "互动陪伴",
+    name: "Interactive Companion",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "智能识别窗口和应用程序",
-            "可爱的行走、爬行和攀爬动画",
-            "支持鼠标拖拽互动",
-            "丰富的表情和动作系统",
+            "Smart window and app recognition",
+            "Cute walking, crawling, and climbing animations",
+            "Mouse drag interaction support",
+            "Rich expression and action system",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -45,15 +45,15 @@ const features: {
     ),
   },
   {
-    name: "个性定制",
+    name: "Customization",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "数百种可爱角色可选",
-            "支持自定义动作和表情",
-            "可调整大小和透明度",
-            "个性化的行为模式设置",
+            "Hundreds of cute characters to choose from",
+            "Custom actions and expressions support",
+            "Adjustable size and transparency",
+            "Personalized behavior pattern settings",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -81,15 +81,15 @@ const features: {
     ),
   },
   {
-    name: "智能助手",
+    name: "Smart Assistant",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "智能提醒休息和喝水",
-            "工作时间管理",
-            "自动调整互动频率",
-            "根据使用场景变化行为",
+            "Smart break and hydration reminders",
+            "Work time management",
+            "Auto-adjust interaction frequency",
+            "Behavior adapts to usage scenarios",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -117,15 +117,15 @@ const features: {
     ),
   },
   {
-    name: "社区互动",
+    name: "Community",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "分享自定义角色和动作",
-            "参与社区创作和讨论",
-            "收藏喜欢的角色",
-            "与其他用户交流使用心得",
+            "Share custom characters and actions",
+            "Join community creations and discussions",
+            "Save favorite characters",
+            "Exchange experiences with other users",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -196,10 +196,10 @@ const FeaturesListicle = () => {
       <div className="max-w-3xl mx-auto">
         <div className="px-6 md:px-8">
           <h2 className="font-bold text-3xl lg:text-4xl tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-            为您的数字生活增添一份温暖与陪伴
+            Adding Warmth and Companionship to Your Digital Life
           </h2>
           <div className="text-gray-600 leading-relaxed mb-12 lg:text-lg font-normal">
-            我们精心设计了丰富的互动功能和个性化选项，让您的桌面不再冰冷。无论是工作还是学习，都能感受到可爱伙伴带来的温暖与乐趣。
+            We've carefully designed rich interactive features and personalization options to make your desktop more lively. Whether you're working or studying, you'll feel the warmth and joy brought by your cute companion.
           </div>
         </div>
       </div>
