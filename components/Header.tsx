@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import type { JSX } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -65,10 +65,10 @@ const cta: JSX.Element = (
   </div>
 );
 
-const Header = () => {
+const HeaderContent = () => {
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  // setIsOpen(false) when the route changes (i.e: when the user clicks on a link on mobile)
+
   useEffect(() => {
     setIsOpen(false);
   }, [searchParams]);
@@ -211,6 +211,14 @@ const Header = () => {
         </div>
       </div>
     </header>
+  );
+};
+
+const Header = () => {
+  return (
+    <Suspense fallback={<div className="h-[72px] bg-white/80 backdrop-blur-md border-b border-gray-100" />}>
+      <HeaderContent />
+    </Suspense>
   );
 };
 
