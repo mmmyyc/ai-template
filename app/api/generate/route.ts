@@ -84,9 +84,9 @@ export async function POST(request: NextRequest) {
 
     // 调用 ComfyUI API 生成图片
     const response = await fetch(COMFY_API_URL, {
-      // headers: {
-      //   Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
-      // },
+      headers: {
+        'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
+      },
       method: 'POST',
       body: apiFormData,
     })

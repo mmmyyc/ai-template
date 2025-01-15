@@ -228,6 +228,8 @@ export default function ImageGenerationPage() {
                           src={referencePreview}
                           alt="Reference preview"
                           className="w-full h-full object-contain rounded-lg"
+                          width={512}
+                          height={512}
                         />
                       </div>
                       <div className="flex gap-2">
@@ -338,6 +340,8 @@ export default function ImageGenerationPage() {
                     console.error('Image load error')
                     setResult(null)  // 清除错误的图片URL
                   }}
+                  width={512}
+                  height={512}
                 />
               ) : (
                 // 默认占位内容
