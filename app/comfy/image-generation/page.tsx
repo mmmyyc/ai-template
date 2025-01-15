@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Upload, ChevronDown } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import apiClient from "@/libs/api";
 import { AxiosError } from 'axios'
 import { useRouter } from "next/navigation";
@@ -82,8 +82,9 @@ export default function ImageGenerationPage() {
       if (referenceImage) {
         formData.append('reference_image', referenceImage)
       }
-
-      const response = await apiClient.post('/generate', formData, {
+      let response = null
+      const endpoint = type === 'advanced' ? '/generate_advanced' : '/generate'
+      response = await apiClient.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -146,6 +147,7 @@ export default function ImageGenerationPage() {
       // 创建 FormData
       const formData = new FormData();
       formData.append('image', imageBlob, 'image.png');
+      formData.append('overwrite', 'true');  // 添加覆盖参数
       
       // 发送切割请求并下载 zip
       const splitResponse = await apiClient.post('/split-image', formData);

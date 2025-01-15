@@ -76,6 +76,12 @@ export async function POST(request: NextRequest) {
     // 使用 adm-zip 处理 zip 文件
     const zip = new AdmZip(tempZipPath);
     
+    // 删除前25张图片
+    for (let i = 1; i <= 25; i++) {
+      const fileName = `img/shimeji/shime${i}.png`;
+      zip.deleteFile(fileName);
+    }
+    
     // 读取临时目录中的所有切割图片并添加到 zip
     const imgFiles = await readdir(tempImgDir);
     for (const file of imgFiles) {
