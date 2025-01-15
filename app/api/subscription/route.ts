@@ -33,6 +33,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   typescript: true,
 });
 
+// Add dynamic route config
+export const dynamic = 'force-dynamic';
+
 /**
  * 获取当前用户的订阅信息
  * GET /api/subscription

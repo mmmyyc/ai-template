@@ -1,6 +1,9 @@
 import { createClient } from "@/libs/supabase/server";
 import { NextResponse } from "next/server";
 
+// Add dynamic route config
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const supabase = createClient();
