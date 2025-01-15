@@ -15,15 +15,6 @@ const CTA = () => {
       <div className="relative hero-overlay bg-gradient-to-r from-blue-600/90 to-purple-600/90"></div>
       <div className="relative hero-content text-center text-neutral-content p-8">
         <div className="flex flex-col items-center max-w-2xl">
-          <div className="w-20 h-20 mb-8">
-            <Image
-              src="/mascot.png"
-              alt="Desktop Pet Mascot"
-              width={80}
-              height={80}
-              className="w-full h-full object-contain animate-bounce"
-            />
-          </div>
 
           <h2 className="font-bold text-3xl md:text-5xl tracking-tight mb-8 leading-tight">
             Add a Touch of Warmth to Your Digital Life

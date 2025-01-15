@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ButtonSignin from "./ButtonSignin";
-import logo from "@/app/icon.png";
+import logo from "@/app/apple-icon.png";
 import config from "@/config";
 
 const links: {
@@ -92,8 +92,8 @@ const Header = () => {
               className="w-10 h-10 rounded-full"
               placeholder="blur"
               priority={true}
-              width={32}
-              height={32}
+              width={48}
+              height={48}
             />
             <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
               {config.appName}

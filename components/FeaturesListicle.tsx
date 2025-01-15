@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { JSX } from "react";
-import Image from 'next/image';
 
 const features: {
   name: string;
