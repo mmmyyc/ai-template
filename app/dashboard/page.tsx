@@ -2,7 +2,7 @@ import ButtonAccount from "@/components/ButtonAccount";
 import ButtonCheckout from "@/components/ButtonCheckout";
 import config from "@/config";
 import { createClient } from "@/libs/supabase/server";
-
+import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
@@ -44,7 +44,9 @@ export default async function Dashboard() {
         <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="space-y-4 text-center md:text-left">
             <h1 className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-              Dashboard
+              <Link href="/">
+                Dashboard
+              </Link>
             </h1>
             <div className={`inline-flex items-center px-4 py-2 rounded-full ${planInfo.className} font-bold shadow-lg`}>
               <span className="mr-2">
@@ -58,7 +60,6 @@ export default async function Dashboard() {
           </div>
           <ButtonAccount />
         </div>
-
         {/* 订阅计划区域 */}
         <div className="space-y-8">
           <div className="text-center space-y-4">
