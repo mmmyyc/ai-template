@@ -57,51 +57,27 @@ const PrivacyPolicy = () => {
           className="leading-relaxed whitespace-pre-wrap"
           style={{ fontFamily: "sans-serif" }}
         >
-          {`Last Updated: 2023-08-25
+          {`Effective Date: January 16, 2025
 
-Thank you for visiting ShipFast ("we," "us," or "our"). This Privacy Policy outlines how we collect, use, and protect your personal and non-personal information when you use our website located at https://shipfa.st (the "Website").
+At YCamie, your privacy is important to us. This Privacy Policy outlines the types of personal information we collect and how we use and protect it. By using our website, https://ycamie, you agree to the terms of this Privacy Policy.
 
-By accessing or using the Website, you agree to the terms of this Privacy Policy. If you do not agree with the practices described in this policy, please do not use the Website.
+Information We Collect
 
-1. Information We Collect
+Personal Data: When you make a purchase on our website, we collect your name, email address, and payment information to process your order.
+Non-Personal Data: We collect non-personal data through web cookies to enhance your experience on our website.
+Purpose of Data Collection The information we collect is used solely for processing orders and providing the services you request.
 
-1.1 Personal Data
+Data Sharing We do not share your personal data with any third parties. Your information is kept private and secure.
 
-We collect the following personal information from you:
+Children's Privacy Our website is not intended for children, and we do not knowingly collect data from children. If we learn that we have collected personal information from a child, we will take steps to delete it.
 
-Name: We collect your name to personalize your experience and communicate with you effectively.
-Email: We collect your email address to send you important information regarding your orders, updates, and communication.
-Payment Information: We collect payment details to process your orders securely. However, we do not store your payment information on our servers. Payments are processed by trusted third-party payment processors.
+Data Protection We implement reasonable security measures to protect your personal information from unauthorized access, use, or disclosure.
 
-1.2 Non-Personal Data
+Updates to This Privacy Policy We may update this Privacy Policy from time to time. Any changes will be communicated to you via email.
 
-We may use web cookies and similar technologies to collect non-personal information such as your IP address, browser type, device information, and browsing patterns. This information helps us to enhance your browsing experience, analyze trends, and improve our services.
+Contact Information If you have any questions about this Privacy Policy or how we handle your data, please contact us at mmmmmyyc@gmail.com.
 
-2. Purpose of Data Collection
-
-We collect and use your personal data for the sole purpose of order processing. This includes processing your orders, sending order confirmations, providing customer support, and keeping you updated about the status of your orders.
-
-3. Data Sharing
-
-We do not share your personal data with any third parties except as required for order processing (e.g., sharing your information with payment processors). We do not sell, trade, or rent your personal information to others.
-
-4. Children's Privacy
-
-ShipFast is not intended for children under the age of 13. We do not knowingly collect personal information from children. If you are a parent or guardian and believe that your child has provided us with personal information, please contact us at the email address provided below.
-
-5. Updates to the Privacy Policy
-
-We may update this Privacy Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. Any updates will be posted on this page, and we may notify you via email about significant changes.
-
-6. Contact Information
-
-If you have any questions, concerns, or requests related to this Privacy Policy, you can contact us at:
-
-Email: marc@shipfa.st
-
-For all other inquiries, please visit our Contact Us page on the Website.
-
-By using ShipFast, you consent to the terms of this Privacy Policy.`}
+By using YCamie, you consent to our Privacy Policy.`}
         </pre>
       </div>
     </main>

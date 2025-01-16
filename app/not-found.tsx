@@ -98,6 +98,9 @@ export default function Custom404() {
       <p className="text-lg md:text-xl font-semibold">
         This page doesn&apos;t exist 😅
       </p>
+      <p className="text-lg md:text-xl font-semibold">
+        We are working on it. Please be patient and check back soon!
+      </p>
 
       <div className="flex flex-wrap gap-4 justify-center">
         <Link href="/" className="btn btn-sm">
