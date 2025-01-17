@@ -210,7 +210,7 @@ CREATE TABLE public.image_generations (
   status generation_status NOT NULL DEFAULT 'pending',
   result text,
   error text,
-  prompt text
+  prompt text,
   
   -- 元数据字段（Supabase 标准）
   created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -239,7 +239,7 @@ CREATE INDEX idx_image_generations_user_status ON public.image_generations(user_
 CREATE TRIGGER handle_updated_at
   BEFORE UPDATE ON public.image_generations
   FOR EACH ROW
-  EXECUTE FUNCTION extensions.moddatetime();
+  EXECUTE FUNCTION update_updated_at();
 
 -- 添加状态检查约束
 ALTER TABLE public.image_generations

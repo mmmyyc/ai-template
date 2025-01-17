@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     const { error: taskError } = await supabase
       .from("image_generations")
       .insert({
-        id: taskId,
+        task_id: taskId,
         user_id: user.id,
         status: "pending",
         prompt: prompt as string
