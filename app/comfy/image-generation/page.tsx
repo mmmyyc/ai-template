@@ -67,6 +67,48 @@ export default function ImageGenerationPage() {
     }
   }
 
+  // 轮询任务状态
+  const pollStatus = async (taskId: string, maxAttempts = 20) => {
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      try {
+        const statusResponse = await apiClient.get(`/api/generate/status?taskId=${taskId}`);
+        const status = statusResponse.data.data.status;
+
+        if (status === 'completed') {
+          return {
+            success: true,
+            result: statusResponse.data.data.result
+          };
+        }
+
+        if (status === 'failed') {
+          return {
+            success: false,
+            error: statusResponse.data.data.error || 'Generation failed'
+          };
+        }
+
+        // 使用指数退避增加轮询间隔
+        const backoffTime = Math.min(1000 * Math.pow(2, attempts), 10000);
+        await new Promise(resolve => setTimeout(resolve, backoffTime));
+        attempts++;
+      } catch (error) {
+        console.error('Status check error:', error);
+        return {
+          success: false,
+          error: 'Failed to check generation status'
+        };
+      }
+    }
+
+    return {
+      success: false,
+      error: 'Generation timed out'
+    };
+  };
+
   // 处理图片生成
   const handleGenerate = async (type: 'basic' | 'advanced' = 'basic') => {
     if (!prompt) {
@@ -77,27 +119,35 @@ export default function ImageGenerationPage() {
     setIsGenerating(true)
     
     try {
+      // 清除之前的结果
+      if (result) {
+        URL.revokeObjectURL(result)
+        setResult(null)
+      }
+
       const formData = new FormData()
       formData.append('prompt', prompt)
       if (referenceImage) {
         formData.append('reference_image', referenceImage)
       }
-      let response = null
+      
       const endpoint = type === 'advanced' ? '/generate_advanced' : '/generate'
-      response = await apiClient.post(endpoint, formData, {
+      const response = await apiClient.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
 
-      // 清理之前的URL
-      if (result) {
-        URL.revokeObjectURL(result)
-      }
-
-      if (response.data?.url) {
-        setResult(response.data.url)
-        toast.success(`${type === 'advanced' ? 'Advanced' : 'Basic'} image generated successfully`)
+      if (response.data?.taskId) {
+        // 开始轮询检查任务状态
+        const pollResult = await pollStatus(response.data.taskId);
+        
+        if (pollResult.success) {
+          setResult(pollResult.result);
+          toast.success(`${type === 'advanced' ? 'Advanced' : 'Basic'} image generated successfully`);
+        } else {
+          toast.error(pollResult.error);
+        }
       } else {
         throw new Error('Invalid response format')
       }
@@ -109,7 +159,6 @@ export default function ImageGenerationPage() {
           router.push(config.auth.loginUrl)
           return
         }
-        // 尝试读取详细错误信息
         const errorMessage = error.response?.data instanceof Blob 
           ? await error.response.data.text() 
           : error.response?.data?.error || 'Failed to generate image'
@@ -123,17 +172,14 @@ export default function ImageGenerationPage() {
     }
   }
 
-  // 清理函数：组件卸载时清理所有URL
+  // 组件卸载时清理
   useEffect(() => {
     return () => {
       if (result) {
         URL.revokeObjectURL(result)
       }
-      if (referencePreview) {
-        URL.revokeObjectURL(referencePreview)
-      }
     }
-  }, [result, referencePreview])
+  }, [result])
 
   // 下载生成的图片
   const handleDownload = async () => {
@@ -168,7 +214,7 @@ export default function ImageGenerationPage() {
       const url = window.URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'shime_images.zip';
+      link.download = 'shime.zip';
       
       // 触发下载
       document.body.appendChild(link);

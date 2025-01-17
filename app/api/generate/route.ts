@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from "@/libs/supabase/server";
+import { Client } from "@upstash/qstash";
+
 // ComfyUI API 的基础 URL，如果环境变量未设置则使用默认值
-const COMFY_API_URL = process.env.COMFY_API_URL 
+const COMFY_API_URL = process.env.COMFY_API_URL
+
+// 初始化 QStash 客户端
+const qstash = new Client({
+  baseUrl: process.env.QSTASH_URL!,
+  token: process.env.QSTASH_TOKEN!,
+})
+
+export const dynamic = 'force-dynamic';
 
 /**
  * 处理图片生成的 POST 请求
@@ -33,7 +43,6 @@ export async function POST(request: NextRequest) {
     
     // 添加文本数据
     apiFormData.append('prompt', prompt as string)
-    // apiFormData.append('type', formData.get('type') as string || 'basic')
     
     // 处理参考图片：验证并添加到请求中
     if (referenceImage) {
@@ -82,31 +91,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to update usage count" }, { status: 500 });
     }
 
-    // 调用 ComfyUI API 生成图片
-    const response = await fetch(COMFY_API_URL, {
-      headers: {
-        'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
-      },
-      method: 'POST',
-      body: apiFormData,
-    })
+    // 创建一个任务ID
+    const taskId = crypto.randomUUID();
 
-    // 检查 API 响应状态
-    if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`)
+    // 将任务信息存储到数据库
+    const { error: taskError } = await supabase
+      .from("image_generations")
+      .insert({
+        id: taskId,
+        user_id: user.id,
+        status: "pending",
+        prompt: prompt as string
+      });
+
+    if (taskError) {
+      return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
     }
 
-    // 获取生成的图片数据并转换为 base64
-    const imageBuffer = await response.arrayBuffer()
-    const base64Image = Buffer.from(imageBuffer).toString('base64')
-    const dataUrl = `data:image/png;base64,${base64Image}`
-    
-    // 返回数据 URL
+    // 使用 QStash 发送请求到 ComfyUI API
+    await qstash.publishJSON({
+      url: COMFY_API_URL,
+      body: {
+        prompt: prompt as string,
+        referenceImage: referenceImage instanceof File ? Buffer.from(await referenceImage.arrayBuffer()).toString('base64') : null,
+        taskId
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
+        'Upstash-Callback': `https://www.ycamie.com/api/generate/callback?taskId=${taskId}`,
+        // 'Upstash-Failure-Callback': `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate/failure?taskId=${taskId}`
+      }
+    });
+
+    // 返回任务ID
     return NextResponse.json({
       data: {
-        url: dataUrl
+        status: "pending",
+        taskId
       }
-    })
+    });
 
   } catch (error) {
     // 错误处理
