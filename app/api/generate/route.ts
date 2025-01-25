@@ -37,12 +37,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // 准备发送到 ComfyUI API 的数据
-    const apiFormData = new FormData()
-    
-    // 添加文本数据
-    apiFormData.append('prompt', prompt as string)
     
     // 处理参考图片：验证并添加到请求中
     if (referenceImage) {
@@ -61,9 +55,6 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
-
-      // 将验证通过的图片添加到请求数据中
-      apiFormData.append('file', referenceImage)
     }
 
     const { data: profile } = await supabase
@@ -119,8 +110,10 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
-        'Upstash-Callback': `https://www.ycamie.com/api/generate/callback?taskId=${taskId}`,
-        // 'Upstash-Failure-Callback': `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate/failure?taskId=${taskId}`
+        // 'Upstash-Callback': `https://62d6-154-40-60-12.ngrok-free.app/api/generate/callback`,
+        // 'Upstash-Failure-Callback': `https://62d6-154-40-60-12.ngrok-free.app/api/generate/failure`
+        'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
+        'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`
       }
     });
 

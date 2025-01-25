@@ -70,26 +70,25 @@ export default function ImageGenerationPage() {
   // 轮询任务状态
   const pollStatus = async (taskId: string, maxAttempts = 20) => {
     let attempts = 0;
-    
+    await new Promise(resolve => setTimeout(resolve, 40000)); 
     while (attempts < maxAttempts) {
       try {
-        const statusResponse = await apiClient.get(`/api/generate/status?taskId=${taskId}`);
-        const status = statusResponse.data.data.status;
+        const statusResponse = await apiClient.get(`/generate/status?taskId=${taskId}`);
+        const status = statusResponse.data.status;
 
         if (status === 'completed') {
           return {
             success: true,
-            result: statusResponse.data.data.result
+            result: statusResponse.data.result
           };
         }
 
         if (status === 'failed') {
           return {
             success: false,
-            error: statusResponse.data.data.error || 'Generation failed'
+            error: statusResponse.data.error || 'Generation failed'
           };
         }
-
         // 使用指数退避增加轮询间隔
         const backoffTime = Math.min(1000 * Math.pow(2, attempts), 10000);
         await new Promise(resolve => setTimeout(resolve, backoffTime));
