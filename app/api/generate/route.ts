@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const prompt = formData.get('prompt')
     const referenceImage = formData.get('reference_image')
-
+    const type = formData.get('type')
     // 验证输入：确保提供了 prompt
     if (!prompt) {
       return NextResponse.json(
@@ -92,7 +92,8 @@ export async function POST(request: NextRequest) {
         task_id: taskId,
         user_id: user.id,
         status: "pending",
-        prompt: prompt as string
+        prompt: prompt as string,
+        type: type as string
       });
 
     if (taskError) {
@@ -105,15 +106,16 @@ export async function POST(request: NextRequest) {
       body: {
         prompt: prompt as string,
         referenceImage: referenceImage instanceof File ? Buffer.from(await referenceImage.arrayBuffer()).toString('base64') : null,
-        taskId
+        taskId,
+        type
       },
       headers: {
         'Content-Type': 'application/json',
         'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
-        // 'Upstash-Callback': `https://62d6-154-40-60-12.ngrok-free.app/api/generate/callback`,
-        // 'Upstash-Failure-Callback': `https://62d6-154-40-60-12.ngrok-free.app/api/generate/failure`
-        'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
-        'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`
+        'Upstash-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/callback`,
+        'Upstash-Failure-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/failure`
+        // 'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
+        // 'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`
       }
     });
 

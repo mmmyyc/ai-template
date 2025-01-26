@@ -130,8 +130,9 @@ export default function ImageGenerationPage() {
         formData.append('reference_image', referenceImage)
       }
       
-      const endpoint = type === 'advanced' ? '/generate_advanced' : '/generate'
-      const response = await apiClient.post(endpoint, formData, {
+      formData.append('type', type);
+      toast.success(type + ' Generation started');
+      const response = await apiClient.post('/generate', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -201,7 +202,7 @@ export default function ImageGenerationPage() {
       // 创建 FormData
       const formData = new FormData();
       formData.append('image', imageBlob, 'image.png');
-
+      formData.append('type', generationType);
       // 发送切割请求并下载 zip
       const splitResponse = await apiClient.post('/split-image', formData);
       if (!splitResponse.data?.zipBase64) {
@@ -246,7 +247,7 @@ export default function ImageGenerationPage() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* 左侧控制面板 */}
         <div className="lg:col-span-1">
-          <div className={`card ${generationType === 'advanced' ? 'bg-gradient-to-r from-yellow-100 to-yellow-200' : 'bg-base-100'} shadow transition-all duration-300`}>
+          <div className={`card shadow transition-all duration-300`}>
             <div className="card-body space-y-4">
               {/* Prompt 输入框 */}
               <div className="form-control w-full">

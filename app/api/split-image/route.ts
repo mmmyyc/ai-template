@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.formData();
     const imageData = data.get('image') as File;
-    
+    const type = data.get('type') as string;
     // 创建临时目录
     await mkdir(tempImgDir, { recursive: true });
     
@@ -28,20 +28,32 @@ export async function POST(request: NextRequest) {
     if (!width || !height) {
       throw new Error('Invalid image dimensions');
     }
+    let processImage = image;
+    let adjustedWidth = 640;
+    let adjustedHeight = 640;
+    let sliceWidth = 128;
+    let sliceHeight = 128;
+    if(type === 'advanced'){
+      processImage = image;
+      adjustedWidth = 640;
+      adjustedHeight = 1280;
+      sliceWidth = 128;
+      sliceHeight = 128;
+    }
 
-    const processImage = image;
-    const adjustedWidth = 640;
-    const adjustedHeight = 640;
-    const sliceWidth = 128;
-    const sliceHeight = 128;
     
     // 存储所有切片的 Promise
     const slicePromises = [];
     let sliceIndex = 1;
-    
+    let n = 5;
+    let m = 5;
+    if(type === 'advanced'){
+      n = 10;
+      m = 5;
+    }
     // 切割图片并保存到临时目录
-    for (let row = 0; row < 5; row++) {
-      for (let col = 0; col < 5; col++) {
+    for (let row = 0; row < n; row++) {
+      for (let col = 0; col < m; col++) {
         const left = col * sliceWidth;
         const top = row * sliceHeight;
         
@@ -55,9 +67,10 @@ export async function POST(request: NextRequest) {
               height: Math.round(sliceHeight)
             })
             .toFile(path.join(tempImgDir, `shime${sliceIndex}.png`));
-          
-          slicePromises.push(slicePromise);
-          sliceIndex++;
+          if(row * m + col < 46 ){
+            slicePromises.push(slicePromise);
+            sliceIndex++;
+          }
         }
       }
     }
@@ -75,11 +88,18 @@ export async function POST(request: NextRequest) {
     
     // 使用 adm-zip 处理 zip 文件
     const zip = new AdmZip(tempZipPath);
-    
-    // 删除前25张图片
-    for (let i = 1; i <= 25; i++) {
-      const fileName = `img/shimeji/shime${i}.png`;
-      zip.deleteFile(fileName);
+    if(type === 'basic'){
+      // 删除前25张图片
+      for (let i = 1; i <= 25; i++) {
+        const fileName = `img/shimeji/shime${i}.png`;
+        zip.deleteFile(fileName);
+      }
+    }else if(type === 'advanced'){
+      // 删除前46张图片
+      for (let i = 1; i <= 46; i++) {
+        const fileName = `img/shimeji/shime${i}.png`;
+        zip.deleteFile(fileName);
+      }
     }
     
     // 读取临时目录中的所有切割图片并添加到 zip
