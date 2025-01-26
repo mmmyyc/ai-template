@@ -112,10 +112,10 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
-        'Upstash-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/callback`,
-        'Upstash-Failure-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/failure`
-        // 'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
-        // 'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`
+        // 'Upstash-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/callback`,
+        // 'Upstash-Failure-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/failure`
+        'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
+        'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`
       }
     });
 
