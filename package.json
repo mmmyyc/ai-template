@@ -10,6 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.735.0",
+    "@aws-sdk/s3-request-presigner": "^3.735.0",
     "@headlessui/react": "^1.7.18",
     "@mdx-js/loader": "^2.3.0",
     "@mdx-js/react": "^2.3.0",
@@ -27,6 +29,7 @@
     "@upstash/qstash": "^2.7.20",
     "adm-zip": "^0.5.16",
     "archiver": "^7.0.1",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.6.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

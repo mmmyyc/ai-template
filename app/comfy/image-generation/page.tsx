@@ -185,18 +185,25 @@ export default function ImageGenerationPage() {
     if (!result) return
     
     try {
-      // 获取图片数据
-      const response = await fetch(result);
+      // 获取预签名 URL
+      const { data: { signedUrl } } = await apiClient.post('/get-signed-url', {
+        imageUrl: result
+      });
+
+      if (!signedUrl) {
+        throw new Error('Failed to get signed URL');
+      }
+      // 使用预签名 URL 获取图片数据
+      const response = await fetch(signedUrl);
       const imageBlob = await response.blob();
-      
+      console.log('imageBlob',imageBlob);
+
       // 创建 FormData
       const formData = new FormData();
       formData.append('image', imageBlob, 'image.png');
-      formData.append('overwrite', 'true');  // 添加覆盖参数
-      
+
       // 发送切割请求并下载 zip
       const splitResponse = await apiClient.post('/split-image', formData);
-      
       if (!splitResponse.data?.zipBase64) {
         throw new Error('Invalid response format');
       }

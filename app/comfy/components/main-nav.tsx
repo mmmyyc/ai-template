@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Image, Layers, Send, Settings } from 'lucide-react'
+import { Image, Layers, Send, Settings, History } from 'lucide-react'
 
 export function MainNav() {
   const pathname = usePathname()
   
   const apps = [
     { id: 'image-gen', name: 'DeskPet Generation', icon: Image, href: '/comfy/image-generation' },
+    { id: 'history', name: 'Generation History', icon: History, href: '/comfy/history' },
     // { id: 'text-gen', name: 'Text Generation', icon: Send, href: '/comfy/text-generation' },
     // { id: 'chat', name: 'Chat', icon: Layers, href: '/comfy/chat' },
     // { id: 'settings', name: 'Settings', icon: Settings, href: '/comfy/settings' },
