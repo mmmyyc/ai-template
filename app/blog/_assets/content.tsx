@@ -1,10 +1,10 @@
 import type { JSX } from "react";
 import Image, { StaticImageData } from "next/image";
-import marcImg from "@/app/blog/_assets/images/authors/marc.png";
-import introducingSupabaseImg from "@/public/blog/introducing-supabase/header.png";
-
+import mmmyycImg from "@/app/blog/_assets/images/authors/ycamie.png";
+import introducingYCamieImg from "@/public/landing/three_person.webp";
 // ==================================================================================================================================================================
 // BLOG CATEGORIES 🏷️
+// 博客分类 🏷️
 // ==================================================================================================================================================================
 
 export type categoryType = {
@@ -16,6 +16,12 @@ export type categoryType = {
 };
 
 // These slugs are used to generate pages in the /blog/category/[categoryI].js. It's a way to group articles by category.
+// 这些 slug 用于在 /blog/category/[categoryI].js 中生成页面，是一种按类别对文章进行分组的方式。
+
+// All the blog categories data display in the /blog/category/[categoryI].js pages.
+// 所有博客分类数据都显示在 /blog/category/[categoryI].js 页面中。
+
+// These slugs are used to generate pages in the /blog/category/[categoryI].js. It's a way to group articles by category.
 const categorySlugs: { [key: string]: string } = {
   feature: "feature",
   tutorial: "tutorial",
@@ -25,30 +31,36 @@ const categorySlugs: { [key: string]: string } = {
 export const categories: categoryType[] = [
   {
     // The slug to use in the URL, from the categorySlugs object above.
+    // 在 URL 中使用的 slug，来自上面的 categorySlugs 对象。
     slug: categorySlugs.feature,
     // The title to display the category title (h1), the category badge, the category filter, and more. Less than 60 characters.
+    // 用于显示分类标题(h1)、分类徽章、分类过滤器等的标题。不超过60个字符。
     title: "New Features",
     // A short version of the title above, display in small components like badges. 1 or 2 words
+    // 上述标题的简短版本，显示在徽章等小组件中。1-2个词。
     titleShort: "Features",
     // The description of the category to display in the category page. Up to 160 characters.
+    // 在分类页面中显示的分类描述。最多160个字符。
     description:
-      "Here are the latest features we've added to ShipFast. I'm constantly improving our product to help you ship faster.",
+      "Check out the latest Shimeji desktop pets and features we've added to YCamie. We're constantly expanding our collection to bring you more delightful companions.",
     // A short version of the description above, only displayed in the <Header /> on mobile. Up to 60 characters.
-    descriptionShort: "Latest features added to ShipFast.",
+    // 上述描述的简短版本，仅在移动端的 <Header /> 中显示。最多60个字符。
+    descriptionShort: "Latest Shimeji pets and features on YCamie.",
   },
   {
     slug: categorySlugs.tutorial,
     title: "How Tos & Tutorials",
     titleShort: "Tutorials",
     description:
-      "Learn how to use ShipFast with these step-by-step tutorials. I'll show you how to ship faster and save time.",
+      "Learn how to customize and get the most out of your YCamie Shimeji desktop pets with our easy-to-follow guides and tutorials.",
     descriptionShort:
-      "Learn how to use ShipFast with these step-by-step tutorials.",
+      "Learn how to customize your YCamie Shimeji pets.",
   },
 ];
 
 // ==================================================================================================================================================================
 // BLOG AUTHORS 📝
+// 博客作者 📝
 // ==================================================================================================================================================================
 
 export type authorType = {
@@ -65,6 +77,7 @@ export type authorType = {
 };
 
 // Social icons used in the author's bio.
+// 在作者简介中使用的社交图标。
 const socialIcons: {
   [key: string]: {
     name: string;
@@ -121,42 +134,45 @@ const socialIcons: {
 };
 
 // These slugs are used to generate pages in the /blog/author/[authorId].js. It's a way to show all articles from an author.
+// 这些 slug 用于在 /blog/author/[authorId].js 中生成页面，用于显示某个作者的所有文章。
 const authorSlugs: {
   [key: string]: string;
 } = {
-  marc: "marc",
+  mmmyyc: "mmmyyc",
 };
 
 // All the blog authors data display in the /blog/author/[authorId].js pages.
+// 所有博客作者数据显示在 /blog/author/[authorId].js 页面中。
 export const authors: authorType[] = [
   {
     // The slug to use in the URL, from the authorSlugs object above.
-    slug: authorSlugs.marc,
+    // 在 URL 中使用的 slug，来自上面的 authorSlugs 对象。
+    slug: authorSlugs.mmmyyc,
     // The name to display in the author's bio. Up to 60 characters.
-    name: "Marc Lou",
+    // 在作者简介中显示的名字。最多60个字符。
+    name: "Miyichen",
     // The job to display in the author's bio. Up to 60 characters.
-    job: "Maker of ByeDispute",
+    // 在作者简介中显示的职业。最多60个字符。
+    job: "Founder & Developer",
     // The description of the author to display in the author's bio. Up to 160 characters.
+    // 在作者简介中显示的描述。最多160个字符。
     description:
-      "Marc is a developer and an entrepreneur. He's built 20 startups in the last 3 years. 6 were profitable and 3 were acquired. He's currently building ByeDispute, the #1 Stripe Chargebacks Protection tool.",
-    // The avatar of the author to display in the author's bio and avatar badge. It's better to use a local image, but you can also use an external image (https://...)
-    avatar: marcImg,
+      "I'm a recent Computer Science graduate passionate about programming and innovation. Currently developing YCamie, a desktop pet application that aims to bring more joy and companionship to users.",
+    // The avatar of the author to display in the author's bio and avatar badge.
+    // 在作者简介和头像徽章中显示的作者头像。
+    avatar: mmmyycImg,
     // A list of social links to display in the author's bio.
+    // 在作者简介中显示的社交链接列表。
     socials: [
       {
         name: socialIcons.twitter.name,
         icon: socialIcons.twitter.svg,
-        url: "https://twitter.com/marc_louvion",
-      },
-      {
-        name: socialIcons.linkedin.name,
-        icon: socialIcons.linkedin.svg,
-        url: "https://www.linkedin.com/in/marclouvion/",
+        url: "https://twitter.com/miyichen",
       },
       {
         name: socialIcons.github.name,
         icon: socialIcons.github.svg,
-        url: "https://github.com/Marc-Lou-Org/ship-fast",
+        url: "https://github.com/mmmyyc",
       },
     ],
   },
@@ -164,6 +180,7 @@ export const authors: authorType[] = [
 
 // ==================================================================================================================================================================
 // BLOG ARTICLES 📚
+// 博客文章 📚
 // ==================================================================================================================================================================
 
 export type articleType = {
@@ -182,6 +199,7 @@ export type articleType = {
 };
 
 // These styles are used in the content of the articles. When you update them, all articles will be updated.
+// 这些样式用于文章内容中。当你更新它们时，所有文章都会被更新。
 const styles: {
   [key: string]: string;
 } = {
@@ -191,42 +209,53 @@ const styles: {
   ul: "list-inside list-disc text-base-content/90 leading-relaxed",
   li: "list-item",
   // Altnernatively, you can use the library react-syntax-highlighter to display code snippets.
+  // 或者，你可以使用 react-syntax-highlighter 库来显示代码片段。
   code: "text-sm font-mono bg-neutral text-neutral-content p-6 rounded-box my-4 overflow-x-scroll select-all",
   codeInline:
     "text-sm font-mono bg-base-300 px-1 py-0.5 rounded-box select-all",
 };
 
 // All the blog articles data display in the /blog/[articleId].js pages.
+// 所有博客文章数据显示在 /blog/[articleId].js 页面中。
 export const articles: articleType[] = [
   {
     // The unique slug to use in the URL. It's also used to generate the canonical URL.
-    slug: "introducing-supabase",
+    // 在 URL 中使用的唯一 slug。也用于生成规范 URL。
+    slug: "introducing-YCamie",
     // The title to display in the article page (h1). Less than 60 characters. It's also used to generate the meta title.
-    title: "Introducing Supabase to ShipFast",
+    // 在文章页面显示的标题(h1)。少于60个字符。也用于生成元标题。
+    title: "Getting Started with YCamie Desktop Pets",
     // The description of the article to display in the article page. Up to 160 characters. It's also used to generate the meta description.
+    // 在文章页面显示的文章描述。最多160个字符。也用于生成元描述。
     description:
-      "Supabase is an open-source Firebase alternative. It's a great tool for building a backend for your app. It's now integrated with ShipFast!",
+      "A beginner's guide to creating your first Shimeji desktop pet with YCamie. Learn the basics in just a few minutes!",
     // An array of categories of the article. It's used to generate the category badges, the category filter, and more.
+    // 文章的分类数组。用于生成分类徽章、分类过滤器等。
     categories: [
-      categories.find((category) => category.slug === categorySlugs.feature),
+      categories.find((category) => category.slug === categorySlugs.tutorial),
     ],
     // The author of the article. It's used to generate a link to the author's bio page.
-    author: authors.find((author) => author.slug === authorSlugs.marc),
+    // 文章的作者。用于生成到作者简介页面的链接。
+    author: authors.find((author) => author.slug === authorSlugs.mmmyyc),
     // The date of the article. It's used to generate the meta date.
-    publishedAt: "2023-11-20",
+    // 文章的日期。用于生成元日期。
+    publishedAt: "2025-01-27",
     image: {
       // The image to display in <CardArticle /> components.
-      src: introducingSupabaseImg,
+      // 在 <CardArticle /> 组件中显示的图片。
+      src: introducingYCamieImg,
       // The relative URL of the same image to use in the Open Graph meta tags & the Schema Markup JSON-LD. It should be the same image as the src above.
-      urlRelative: "/blog/introducing-supabase/header.jpg",
-      alt: "Supabase and ShipFast logo combined",
+      // 在 Open Graph 元标签和 Schema Markup JSON-LD 中使用的相同图片的相对 URL。应该与上面的 src 是同一张图片。
+      urlRelative: "/blog/introducing-ycamie/header.jpg",
+      alt: "YCamie desktop pet example",
     },
     // The actual content of the article that will be shown under the <h1> title in the article page.
+    // 在文章页面的 <h1> 标题下显示的实际文章内容。
     content: (
       <>
         <Image
-          src={introducingSupabaseImg}
-          alt="Supabase and ShipFast logo combined"
+          src={introducingYCamieImg}
+          alt="YCamie desktop pet example"
           width={700}
           height={500}
           priority={true}
@@ -234,55 +263,64 @@ export const articles: articleType[] = [
           placeholder="blur"
         />
         <section>
-          <h2 className={styles.h2}>Introduction</h2>
+          <h2 className={styles.h2}>What is YCamie?</h2>
           <p className={styles.p}>
-            Supabase is an open-source Firebase alternative. It&apos;s a great
-            tool for building a backend for your app. It&apos;s now integrated
-            with ShipFast!
+            YCamie is an AI-powered tool that helps you create your own unique Shimeji desktop pets. 
+            With YCamie, you can easily generate custom characters that will accompany you on your screen, 
+            making your desktop experience more lively and fun!
           </p>
         </section>
 
         <section>
-          <h3 className={styles.h3}>1. Create a supabase account</h3>
+          <h3 className={styles.h3}>1. Getting Started</h3>
           <p className={styles.p}>
-            First, go to{" "}
-            <a href="https://supabase.com/" className="link link-primary">
-              Supabase
-            </a>{" "}
-            and create an account. It&apos;s free for up to 10,000 rows per
-            table.
-            <br />
-            Then create a new project and a new table. You can use the following
-            SQL schema:
+            To begin creating your own Shimeji:
           </p>
-
-          <pre className={styles.code}>
-            <code>
-              {`CREATE TABLE public.users (
-  id bigint NOT NULL DEFAULT nextval('users_id_seq'::regclass),
-  email text NOT NULL,
-  password text NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  CONSTRAINT users_pkey PRIMARY KEY (id)
-);`}
-            </code>
-          </pre>
-        </section>
-
-        <section>
-          <h3 className={styles.h3}>2. Add your credentials to ShipFast</h3>
-          <p className={styles.p}>
-            Copy the <span className={styles.codeInline}>API URL</span> and{" "}
-            <span className={styles.codeInline}>API Key</span> from your
-            Supabase project settings and add them to your ShipFast project
-            settings. Add these files to your project:
-          </p>
-
           <ul className={styles.ul}>
-            <li className={styles.li}>.env.local</li>
-            <li className={styles.li}>.env.production</li>
+            <li className={styles.li}>Visit ycamie.com</li>
+            <li className={styles.li}>Create an account and log in</li>
+            <li className={styles.li}>Click the "Try Now" button to enter the generation interface</li>
           </ul>
+        </section>
+
+        <section>
+          <h3 className={styles.h3}>2. Creating Your Shimeji</h3>
+          <p className={styles.p}>
+            The generation process is simple:
+          </p>
+          <ul className={styles.ul}>
+            <li className={styles.li}>Enter a description of the Shimeji you want to create in the text input box</li>
+            <li className={styles.li}>Upload a reference image if you have one</li>
+            <li className={styles.li}>Click the generate button and wait for the process to complete</li>
+            <li className={styles.li}>Preview your generated Shimeji images on the right side</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className={styles.h3}>3. Using Your Shimeji</h3>
+          <p className={styles.p}>
+            Once you're happy with your creation:
+          </p>
+          <ul className={styles.ul}>
+            <li className={styles.li}>Click the download button</li>
+            <li className={styles.li}>Extract the downloaded files</li>
+            <li className={styles.li}>Click "Replace All Files" when prompted</li>
+            <li className={styles.li}>Make sure you have Java 6 or above installed on your computer</li>
+            <li className={styles.li}>Run shimeji.jar to start your desktop pet</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className={styles.h3}>Ready to Go!</h3>
+          <p className={styles.p}>
+            That's all you need to do! Your custom Shimeji will now appear on your screen, 
+            ready to keep you company. Feel free to create more characters and build your own 
+            collection of unique desktop companions!
+          </p>
+          <p className={styles.p}>
+            <span className={styles.codeInline}>Note</span>: Make sure you have Java installed 
+            on your computer (minimum Java 6) to run the Shimeji application.
+          </p>
         </section>
       </>
     ),
