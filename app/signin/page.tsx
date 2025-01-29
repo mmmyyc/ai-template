@@ -146,9 +146,9 @@ export default function Login() {
         </div>
 
         <div className="mt-8 text-center text-sm text-base-content/70">
-          <Link href="/terms" className="link link-hover">Terms</Link>
+          <Link href="/tos" className="link link-hover">Terms</Link>
           {" · "}
-          <Link href="/privacy" className="link link-hover">Privacy Policy</Link>
+          <Link href="/privacy-policy" className="link link-hover">Privacy Policy</Link>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import toast from "react-hot-toast";
+import { downloadGeneratedImage } from "@/app/comfy/utils/download";
 
 interface ImageGeneration {
   id: string;
@@ -41,56 +42,15 @@ export default function HistoryPage() {
     if (!result) return;
     setDownloading(id);
     toast.success('Downloading images');   
+    
     try {
-      // 获取预签名 URL
-      const { data: { signedUrl } } = await apiClient.post('/get-signed-url', {
-        imageUrl: result
+      await downloadGeneratedImage({
+        imageUrl: result,
+        fileName: 'shime.zip'
       });
-
-      if (!signedUrl) {
-        throw new Error('Failed to get signed URL');
-      }
-      // 使用预签名 URL 获取图片数据
-      const response = await fetch(signedUrl);
-      const imageBlob = await response.blob();
-      console.log('imageBlob',imageBlob);
-
-      // 创建 FormData
-      const formData = new FormData();
-      formData.append('image', imageBlob, 'image.png');
-
-      // 发送切割请求并下载 zip
-      const splitResponse = await apiClient.post('/split-image', formData);
-      if (!splitResponse.data?.zipBase64) {
-        throw new Error('Invalid response format');
-      }
-
-      // 将 base64 转换为 Blob
-      const binaryString = atob(splitResponse.data.zipBase64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const zipBlob = new Blob([bytes], { type: 'application/zip' });
-      
-      // 创建下载链接
-      const url = window.URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'shime.zip';
-      
-      // 触发下载
-      document.body.appendChild(link);
-      link.click();
-      
-      // 清理
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      toast.success('Images downloaded successfully');
     } catch (error) {
-      console.error('Error downloading images:', error);
-      toast.error('Failed to download images');
+      // 错误已经在工具函数中处理
+      console.error('Download failed:', error);
     } finally {
       setDownloading(null);
     }
@@ -98,18 +58,20 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold mb-6">Generation History</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="card bg-base-100 shadow-xl">
-              <Skeleton className="h-64 w-full" />
-              <div className="card-body">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+      <div className="min-h-full bg-gradient-to-b from-blue-50 to-white p-6">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-2xl font-bold mb-6">Generation History</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="card bg-base-100 shadow-xl">
+                <Skeleton className="h-64 w-full" />
+                <div className="card-body">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -141,68 +103,70 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Generation History</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {generations.map((gen) => (
-          <div key={gen.id} className="card bg-base-100 shadow-xl">
-            {gen.status === 'completed' ? (
-              <>
-                <figure className="relative h-64">
-                  <Image
-                    src={gen.result}
-                    alt={gen.prompt}
-                    fill
-                    className="object-cover"
-                  />
-                </figure>
-                <div className="absolute top-2 right-2">
-                  <button
-                    onClick={() => handleDownload(gen.result, gen.id)}
-                    disabled={downloading === gen.id}
-                    className="btn btn-circle btn-sm bg-base-100 hover:bg-base-200"
-                  >
-                    {downloading === gen.id ? (
-                      <span className="loading loading-spinner loading-xs"></span>
-                    ) : (
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-4 w-4" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" 
-                        />
-                      </svg>
-                    )}
-                  </button>
+    <div className="min-h-full bg-gradient-to-b from-blue-50 to-white p-6">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Generation History</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {generations.map((gen) => (
+            <div key={gen.id} className="card bg-base-100 shadow-xl">
+              {gen.status === 'completed' ? (
+                <>
+                  <figure className="relative h-64">
+                    <Image
+                      src={gen.result}
+                      alt={gen.prompt}
+                      fill
+                      className="object-cover"
+                    />
+                  </figure>
+                  <div className="absolute top-2 right-2">
+                    <button
+                      onClick={() => handleDownload(gen.result, gen.id)}
+                      disabled={downloading === gen.id}
+                      className="btn btn-circle btn-sm bg-base-100 hover:bg-base-200"
+                    >
+                      {downloading === gen.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="h-4 w-4" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" 
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="h-64 flex items-center justify-center bg-base-200">
+                  {gen.status === 'failed' ? (
+                    <span className="text-error">Generation failed</span>
+                  ) : (
+                    <span className="loading loading-spinner loading-lg"></span>
+                  )}
                 </div>
-              </>
-            ) : (
-              <div className="h-64 flex items-center justify-center bg-base-200">
-                {gen.status === 'failed' ? (
-                  <span className="text-error">Generation failed</span>
-                ) : (
-                  <span className="loading loading-spinner loading-lg"></span>
+              )}
+              <div className="card-body">
+                <p className="text-sm opacity-70">
+                  {new Date(gen.created_at).toLocaleDateString()}
+                </p>
+                <p className="font-medium">{gen.prompt}</p>
+                {gen.error && (
+                  <p className="text-sm text-error">{gen.error}</p>
                 )}
               </div>
-            )}
-            <div className="card-body">
-              <p className="text-sm opacity-70">
-                {new Date(gen.created_at).toLocaleDateString()}
-              </p>
-              <p className="font-medium">{gen.prompt}</p>
-              {gen.error && (
-                <p className="text-sm text-error">{gen.error}</p>
-              )}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

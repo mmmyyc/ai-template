@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import config from "@/config";
 import toast from "react-hot-toast";
 import Image from 'next/image'
+import { downloadGeneratedImage } from "@/app/comfy/utils/download";
 
 export default function ImageGenerationPage() {
   const router = useRouter()
@@ -183,239 +184,238 @@ export default function ImageGenerationPage() {
 
   // 下载生成的图片
   const handleDownload = async () => {
-    if (!result) return
+    if (!result) return;
     
     try {
-      // 获取预签名 URL
-      const { data: { signedUrl } } = await apiClient.post('/get-signed-url', {
-        imageUrl: result
+      await downloadGeneratedImage({
+        imageUrl: result,
+        type: generationType,
+        fileName: 'shime.zip'
       });
-
-      if (!signedUrl) {
-        throw new Error('Failed to get signed URL');
-      }
-      // 使用预签名 URL 获取图片数据
-      const response = await fetch(signedUrl);
-      const imageBlob = await response.blob();
-      console.log('imageBlob',imageBlob);
-
-      // 创建 FormData
-      const formData = new FormData();
-      formData.append('image', imageBlob, 'image.png');
-      formData.append('type', generationType);
-      // 发送切割请求并下载 zip
-      const splitResponse = await apiClient.post('/split-image', formData);
-      if (!splitResponse.data?.zipBase64) {
-        throw new Error('Invalid response format');
-      }
-
-      // 将 base64 转换为 Blob
-      const binaryString = atob(splitResponse.data.zipBase64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const zipBlob = new Blob([bytes], { type: 'application/zip' });
-      
-      // 创建下载链接
-      const url = window.URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'shime.zip';
-      
-      // 触发下载
-      document.body.appendChild(link);
-      link.click();
-      
-      // 清理
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      toast.success('Images downloaded successfully');
     } catch (error) {
-      console.error('Error downloading images:', error);
-      toast.error('Failed to download images');
+      // 错误已经在工具函数中处理
+      console.error('Download failed:', error);
     }
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">DeskPet Generation</h1>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* 标题区域 */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+            DeskPet Generation
+          </h1>
+          <p className="text-gray-600 mt-1 text-sm">Create your unique desktop companion with AI</p>
+        </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* 左侧控制面板 */}
-        <div className="lg:col-span-1">
-          <div className={`card shadow transition-all duration-300`}>
-            <div className="card-body space-y-4">
-              {/* Prompt 输入框 */}
-              <div className="form-control w-full">
-                <label className="label">
-                  <span className={`label-text ${generationType === 'advanced' ? 'text-black font-semibold' : ''}`}>
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* 左侧控制面板 */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm hover:shadow transition-all duration-300">
+              <div className="p-4 space-y-4">
+                {/* Prompt 输入框 */}
+                <div className="space-y-2">
+                  <label className={`block text-sm font-medium ${
+                    generationType === 'advanced' ? 'text-amber-600' : 'text-gray-700'
+                  }`}>
                     {generationType === 'advanced' ? '✨ Advanced Prompt' : 'Prompt'}
-                  </span>
-                </label>
-                <textarea
-                  className={`textarea textarea-bordered min-h-[120px] ${
-                    generationType === 'advanced' ? 'border-[#FFD700] focus:border-[#DAA520]' : ''
-                  }`}
-                  placeholder={generationType === 'advanced' ? "Enter your advanced prompt here..." : "Enter your prompt here..."}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                />
-              </div>
-
-              {/* 参考图片上传 */}
-              <div className="form-control w-full">
-                <label className="label">
-                  <span className={`label-text ${generationType === 'advanced' ? 'text-black font-semibold' : ''}`}>
-                    {generationType === 'advanced' ? '✨ Reference Image' : 'Reference Image'}
-                  </span>
-                </label>
-                <div className={`border-2 border-dashed rounded-lg p-4 ${
-                  generationType === 'advanced' ? 'border-[#FFD700]' : 'border-base-300'
-                }`}>
-                  {referencePreview ? (
-                    <div className="space-y-4">
-                      <div className="relative w-full aspect-square">
-                        <Image
-                          src={referencePreview}
-                          alt="Reference preview"
-                          className="w-full h-full object-contain rounded-lg"
-                          width={512}
-                          height={512}
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          className={`btn btn-outline btn-sm flex-1 ${
-                            generationType === 'advanced' ? 'border-[#FFD700] text-black hover:bg-[#FFD700]' : ''
-                          }`}
-                          onClick={handleClearImage}
-                        >
-                          Remove
-                        </button>
-                        <label className={`btn btn-outline btn-sm flex-1 cursor-pointer ${
-                          generationType === 'advanced' ? 'border-[#FFD700] text-black hover:bg-[#FFD700]' : ''
-                        }`}>
-                          Change
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  ) : (
-                    <label className={`btn btn-outline w-full cursor-pointer ${
-                      generationType === 'advanced' ? 'border-[#FFD700] text-black hover:bg-[#FFD700]' : ''
-                    }`}>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              {/* 生成按钮组 */}
-              <div className="space-y-2">
-                {/* 基础生成按钮 */}
-                <button 
-                  className="btn btn-primary w-full"
-                  onClick={() => {
-                    setGenerationType('basic');
-                    handleGenerate('basic');
-                  }}
-                  disabled={isGenerating}
-                >
-                  {isGenerating && generationType === 'basic' ? (
-                    <span className="loading loading-spinner loading-xs"></span>
-                  ) : (
-                    'Basic Generate'
-                  )}
-                </button>
-
-                {/* 高级生成按钮 - 仅对高级用户显示 */}
-                {userPlan === 'advanced' && (
-                  <button 
-                    className={`btn w-full ${
+                  </label>
+                  <textarea
+                    className={`w-full rounded-lg transition-all duration-200 min-h-[100px] p-3 text-sm ${
                       generationType === 'advanced' 
-                        ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#DAA520] hover:to-[#CD853F]' 
-                        : 'bg-[#FFD700] hover:bg-[#DAA520]'
-                    } text-black font-bold border-[#FFD700] hover:border-[#DAA520]`}
+                        ? 'border-2 border-amber-400 focus:border-amber-500 focus:ring-amber-500'
+                        : 'border border-gray-200 focus:border-blue-500 focus:ring-blue-500'
+                    }`}
+                    placeholder={generationType === 'advanced' 
+                      ? "Describe your dream pet in detail..."
+                      : "Describe your pet idea..."}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                  />
+                </div>
+
+                {/* 参考图片上传 */}
+                <div className="space-y-2">
+                  <label className={`block text-sm font-medium ${
+                    generationType === 'advanced' ? 'text-amber-600' : 'text-gray-700'
+                  }`}>
+                    {generationType === 'advanced' ? '✨ Reference Image' : 'Reference Image'}
+                  </label>
+                  <div className={`rounded-lg transition-all duration-200 ${
+                    generationType === 'advanced'
+                      ? 'border-2 border-dashed border-amber-400'
+                      : 'border-2 border-dashed border-gray-200'
+                  }`}>
+                    {referencePreview ? (
+                      <div className="p-3 space-y-3">
+                        <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+                          <Image
+                            src={referencePreview}
+                            alt="Reference preview"
+                            className="object-contain"
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            className={`flex-1 py-1.5 rounded-lg text-sm transition-all duration-200 ${
+                              generationType === 'advanced'
+                                ? 'text-amber-600 border border-amber-400 hover:bg-amber-50'
+                                : 'text-gray-600 border border-gray-200 hover:bg-gray-50'
+                            }`}
+                            onClick={handleClearImage}
+                          >
+                            Remove
+                          </button>
+                          <label className={`flex-1 py-1.5 text-center rounded-lg text-sm cursor-pointer transition-all duration-200 ${
+                            generationType === 'advanced'
+                              ? 'text-amber-600 border border-amber-400 hover:bg-amber-50'
+                              : 'text-gray-600 border border-gray-200 hover:bg-gray-50'
+                          }`}>
+                            Change
+                            <input
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-gray-50 transition-all duration-200">
+                        <Upload className={`h-6 w-6 mb-2 ${
+                          generationType === 'advanced' ? 'text-amber-500' : 'text-gray-400'
+                        }`} />
+                        <span className={`text-sm ${
+                          generationType === 'advanced' ? 'text-amber-600' : 'text-gray-600'
+                        }`}>
+                          Upload Reference Image
+                        </span>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                {/* 生成按钮组 */}
+                <div className="space-y-2">
+                  <button 
+                    className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isGenerating && generationType === 'basic'
+                        ? 'bg-blue-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
                     onClick={() => {
-                      setGenerationType('advanced');
-                      handleGenerate('advanced');
+                      setGenerationType('basic');
+                      handleGenerate('basic');
                     }}
                     disabled={isGenerating}
                   >
-                    {isGenerating && generationType === 'advanced' ? (
-                      <span className="loading loading-spinner loading-xs"></span>
+                    {isGenerating && generationType === 'basic' ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Generating...
+                      </span>
                     ) : (
-                      <>
-                        <span className="mr-2">✨</span>
-                        Advanced Generate
-                      </>
+                      'Generate Pet'
                     )}
                   </button>
-                )}
+
+                  {userPlan === 'advanced' && (
+                    <button 
+                      className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isGenerating && generationType === 'advanced'
+                          ? 'bg-amber-400 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white'
+                      }`}
+                      onClick={() => {
+                        setGenerationType('advanced');
+                        handleGenerate('advanced');
+                      }}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating && generationType === 'advanced' ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Generating...
+                        </span>
+                      ) : (
+                        <>✨ Advanced Generate</>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* 右侧图片显示区域 */}
-        <div className="lg:col-span-2">
-          <div className="card bg-base-100 shadow">
-            <div className="card-body p-0">
-              {/* 图片加载状态 */}
-              {isGenerating ? (
-                <div className="w-full h-[512px] flex items-center justify-center bg-base-200">
-                  <div className="flex flex-col items-center gap-4">
-                    <span className="loading loading-spinner loading-lg"></span>
-                    <p className="text-base-content/60">Generating your image...</p>
+          {/* 右侧图片显示区域 */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm hover:shadow transition-all duration-300 overflow-hidden">
+              <div className="w-full aspect-[4/3] relative">
+                {isGenerating ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                    <div className="text-center">
+                      <div className="inline-block animate-bounce bg-gradient-to-r from-blue-600 to-purple-600 rounded-full p-3 mb-3">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-600 text-sm font-medium">Creating your perfect pet...</p>
+                      <p className="text-gray-400 text-xs mt-1">This may take a minute</p>
+                    </div>
                   </div>
-                </div>
-              ) : result ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <Image
-                  src={result}
-                  alt="Generated image"
-                  className="w-full h-[512px] object-contain rounded-lg"
-                  onError={() => {
-                    console.error('Image load error')
-                    setResult(null)  // 清除错误的图片URL
-                  }}
-                  width={512}
-                  height={512}
-                />
-              ) : (
-                // 默认占位内容
-                <div className="w-full h-[512px] flex items-center justify-center bg-base-200">
-                  <div className="text-center text-base-content/60">
-                    <p>No image generated yet</p>
-                    <p className="text-sm mt-2">Enter a prompt and click generate to start</p>
+                ) : result ? (
+                  <Image
+                    src={result}
+                    alt="Generated pet"
+                    className="object-contain"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                    <div className="text-center">
+                      <div className="inline-block bg-gray-100 rounded-full p-3 mb-3">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-600 text-sm font-medium">Ready to create your pet</p>
+                      <p className="text-gray-400 text-xs mt-1">Enter a prompt and click generate to start</p>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-            <div className="p-4 flex justify-end">
-              <button 
-                className="btn btn-primary"
-                onClick={handleDownload}
-                disabled={!result || isGenerating}
-              >
-                Download
-              </button>
+                )}
+              </div>
+              
+              {/* 下载按钮 */}
+              <div className="p-4 border-t border-gray-100">
+                <button 
+                  className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    !result || isGenerating
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                  }`}
+                  onClick={handleDownload}
+                  disabled={!result || isGenerating}
+                >
+                  {!result ? 'Generate a pet first' : 'Download Your Pet'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
