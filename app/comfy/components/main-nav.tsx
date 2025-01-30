@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Image, Layers, Send, Settings, History } from 'lucide-react'
 import { DailyLimit } from './daily-limit'
-
+import ButtonAccount from '@/components/ButtonAccount'
 export function MainNav() {
   const pathname = usePathname()
   
@@ -133,11 +133,14 @@ export function MainNav() {
               })}
             </nav>
           </div>
-
           {/* Daily AI Limit */}
-          <div className="mt-auto p-3">
+          <div className="mt-auto">
             <DailyLimit />
           </div>
+          <div className="p-3">
+            <ButtonAccount extraStyle="border-t border-gray-100" />            
+          </div>
+
         </div>
       </div>
     </div>

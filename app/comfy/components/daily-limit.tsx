@@ -8,7 +8,7 @@ export function DailyLimit() {
   const [usedCount, setUsedCount] = useState(0);
   const [maxCount, setMaxCount] = useState(500);
   const [loading, setLoading] = useState(true);
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   useEffect(() => {
     const fetchLimit = async () => {
       try {
@@ -25,6 +25,24 @@ export function DailyLimit() {
     fetchLimit();
   }, []);
 
+  const handleBilling = async () => {
+    setIsLoading(true);
+
+    try {
+      const { url }: { url: string } = await apiClient.post(
+        "/stripe/create-portal",
+        {
+          returnUrl: window.location.href,
+        }
+      );
+
+      window.location.href = url;
+    } catch (e) {
+      console.error(e);
+    }
+
+    setIsLoading(false);
+  };
   if (loading) {
     return null;
   }
@@ -54,12 +72,16 @@ export function DailyLimit() {
         <span className="text-sm font-medium">
           {usedCount}/{maxCount}
         </span>
-        <Link
-          href="/#pricing"
-          className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+        <button
+          onClick={handleBilling}
+          className="text-xs text-purple-600 hover:text-purple-700 font-medium hover:bg-purple-50 px-2 py-1 rounded-lg transition-all duration-200"
         >
-          Upgrade to Pro
-        </Link>
+          {isLoading ? (
+            <span className="loading loading-spinner loading-xs"></span>
+          ) : (
+            "Upgrade to Pro"
+          )}
+        </button>
       </div>
     </div>
   );
