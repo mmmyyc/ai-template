@@ -78,36 +78,25 @@ export async function POST(request: NextRequest) {
     // 等待所有切片处理完成
     await Promise.all(slicePromises);
     
-    // 下载原始的 shimejiee.zip
-    const shimejeeResponse = await fetch('https://kilkakon.com/shimeji/shimejiee.zip');
-    const shimejeeBuffer = await shimejeeResponse.arrayBuffer();
+    // 根据类型使用对应的预处理zip文件
+    const baseZipPath = path.join(process.cwd(), 'public', 
+      type === 'basic' ? 'shimejiee-basic.zip' : 'shimejiee-advanced.zip'
+    );
+    const baseZipBuffer = await readFile(baseZipPath);
     
     // 保存到临时文件
     const tempZipPath = path.join(tempDir, 'shimejiee.zip');
-    await writeFile(tempZipPath, Buffer.from(shimejeeBuffer));
+    await writeFile(tempZipPath, baseZipBuffer);
     
     // 使用 adm-zip 处理 zip 文件
     const zip = new AdmZip(tempZipPath);
-    if(type === 'basic'){
-      // 删除前25张图片
-      for (let i = 1; i <= 25; i++) {
-        const fileName = `img/shimeji/shime${i}.png`;
-        zip.deleteFile(fileName);
-      }
-    }else if(type === 'advanced'){
-      // 删除前46张图片
-      for (let i = 1; i <= 46; i++) {
-        const fileName = `img/shimeji/shime${i}.png`;
-        zip.deleteFile(fileName);
-      }
-    }
     
-    // 读取临时目录中的所有切割图片并添加到 zip
+    // 直接添加新的切割图片到 zip
     const imgFiles = await readdir(tempImgDir);
     for (const file of imgFiles) {
       const imgPath = path.join(tempImgDir, file);
       const imgContent = await readFile(imgPath);
-      zip.addFile(`img/shimeji/${file}`, imgContent);
+      zip.addFile(`shimejiee/img/shimeji/${file}`, imgContent);
     }
     
     // 保存修改后的 zip
