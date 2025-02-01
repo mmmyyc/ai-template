@@ -7,6 +7,7 @@ import CTA from '@/components/CTA'
 import Footer from '@/components/Footer'
 import FeaturesListicle from '@/components/FeaturesListicle'
 import Pricing from "@/components/Pricing";
+import FAQ from "@/components/FAQ";
 
 const LandingPage = () => {
   return (
@@ -27,6 +28,9 @@ const LandingPage = () => {
         
         {/* Price Section */}
         <Pricing />
+
+        {/* FAQ Section */}
+        <FAQ />
       </main>
       {/* Footer */}
       <Footer />

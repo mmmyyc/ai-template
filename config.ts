@@ -25,6 +25,34 @@ const config = {
             ? "price_1Qd6FHQeZYgpkJjDDc6FqLgz"
             : "price_456",
         //  REQUIRED - Name of the plan, displayed on the pricing page
+        name: "Free",
+        // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
+        description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
+        // The price you want to display, the one user will be charged on Stripe.
+        price: 0,
+        // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
+        priceAnchor: 5,
+        features: [
+          {
+            name: "Usage Limit 3 generations per month",
+          },
+          {
+            name: "Shimeji Customization",
+          },
+          { name: "HD Animated Images" },
+          { name: "Fun Interaction" },
+          { name: "Real-time Response" },
+          { name: "25-frame Animation Set" },
+          { name: "Human Character Customization" },
+        ],
+      },
+      {
+        // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
+        priceId:
+          process.env.NODE_ENV === "development"
+            ? "price_1Qd6FHQeZYgpkJjDDc6FqLgz"
+            : "price_456",
+        //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Basic",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
         description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
@@ -33,6 +61,9 @@ const config = {
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
         priceAnchor: 20,
         features: [
+          {
+            name: "Usage Limit 50 generations per month",
+          },
           {
             name: "Shimeji Customization",
           },
@@ -55,6 +86,9 @@ const config = {
         price: 20,
         priceAnchor: 99,
         features: [
+          {
+            name: "Usage Limit 500 generations per month",
+          },
           {
             name: "Shimeji Customization",
           },

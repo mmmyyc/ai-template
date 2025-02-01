@@ -13,22 +13,68 @@ interface FAQItemProps {
 
 const faqList: FAQItemProps[] = [
   {
-    question: "What do I get exactly?",
-    answer: <div className="space-y-2 leading-relaxed">Loreum Ipseum</div>,
+    question: "What features do YCamie Shimeji pets have?",
+    answer: (
+      <div className="space-y-2 leading-relaxed">
+        <p>Our AI model is specially trained to generate high-quality desktop pets. Each Shimeji includes:</p>
+        <ul className="list-disc list-inside">
+          <li>Basic: 25 high-quality animation frames</li>
+          <li>Advanced: 46 premium animation frames</li>
+          <li>Support for both human and animal characters</li>
+          <li>Complete animation system</li>
+        </ul>
+      </div>
+    ),
   },
   {
-    question: "Can I get a refund?",
+    question: "What are the system requirements?",
+    answer: (
+      <div className="space-y-2 leading-relaxed">
+        <p>To run YCamie Shimeji pets, you need:</p>
+        <ul className="list-disc list-inside">
+          <li>Java 6 or above installed on your computer</li>
+          <li>Windows, macOS, or Linux operating system</li>
+        </ul>
+        <p className="text-sm text-gray-600">
+          Note: Without Java installed, your Shimeji pet won't be able to run. You can download Java from java.com
+        </p>
+      </div>
+    ),
+  },
+  {
+    question: "How can I get better generation results?",
+    answer: (
+      <div className="space-y-2 leading-relaxed">
+        <p>For best results, we recommend:</p>
+        <ul className="list-disc list-inside">
+          <li>Use simple and clear descriptions</li>
+          <li>Upload a reference image to improve accuracy</li>
+          <li>Try regenerating if you're not satisfied with the results</li>
+        </ul>
+      </div>
+    ),
+  },
+  {
+    question: "What's your refund policy?",
     answer: (
       <p>
-        Yes! You can request a refund within 7 days of your purchase. Reach out
-        by email.
+        We offer a full refund within 7 days of purchase if you're not satisfied with our service. Please contact us at support@ycamie.com
       </p>
     ),
   },
   {
-    question: "I have another question",
+    question: "Need help with something else?",
     answer: (
-      <div className="space-y-2 leading-relaxed">Cool, contact us by email</div>
+      <div className="space-y-2 leading-relaxed">
+        <p>
+          If you have any questions or suggestions, feel free to reach out through:
+        </p>
+        <ul className="list-disc list-inside">
+          <li>Email us at: support@ycamie.com</li>
+          <li>Join our community discussions</li>
+          <li>Check our documentation</li>
+        </ul>
+      </div>
     ),
   },
 ];
@@ -98,7 +144,7 @@ const FAQ = () => {
     <section className="bg-base-200" id="faq">
       <div className="py-24 px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-12">
         <div className="flex flex-col text-left basis-1/2">
-          <p className="inline-block font-semibold text-primary mb-4">FAQ</p>
+          {/* <p className="inline-block font-semibold text-primary mb-4">FAQ</p> */}
           <p className="sm:text-4xl text-3xl font-extrabold text-base-content">
             Frequently Asked Questions
           </p>

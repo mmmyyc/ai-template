@@ -10,10 +10,10 @@ const Hero = () => {
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 flex flex-col items-start">
             <h1 className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-gray-900">
-              Meet your desktop companion
+              Create Your Own Desktop Pet
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 font-normal leading-relaxed mb-12">
-              Get high-quality Shimeji desktop pets without spending weeks on customization or hundreds of dollars.
+              Get high-quality personalized Shimeji desktop pets without spending weeks or hundreds of dollars.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link 
