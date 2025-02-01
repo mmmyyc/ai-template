@@ -25,7 +25,7 @@ export async function downloadGeneratedImage({
     // 使用预签名 URL 获取图片数据
     const response = await fetch(signedUrl);
     const imageBlob = await response.blob();
-
+    
     // 创建 FormData
     const formData = new FormData();
     formData.append('image', imageBlob, 'image.png');

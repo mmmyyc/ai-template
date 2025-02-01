@@ -9,15 +9,15 @@ const features: {
   svg: JSX.Element;
 }[] = [
   {
-    name: "Interactive Companion",
+    name: "AI 创作",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "Smart window and app recognition",
-            "Cute walking, crawling, and climbing animations",
-            "Mouse drag interaction support",
-            "Rich expression and action system",
+            "每月500次高质量生成额度",
+            "支持人物和宠物角色定制",
+            "46帧高品质动画效果",
+            "持续更新优化生成模型",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -45,15 +45,15 @@ const features: {
     ),
   },
   {
-    name: "Customization",
+    name: "互动体验",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "Hundreds of cute characters to choose from",
-            "Custom actions and expressions support",
-            "Adjustable size and transparency",
-            "Personalized behavior pattern settings",
+            "实时响应的互动效果",
+            "智能窗口识别与追踪",
+            "可爱的行走、爬行动画",
+            "丰富的表情动作系统",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -81,15 +81,15 @@ const features: {
     ),
   },
   {
-    name: "Smart Assistant",
+    name: "个性定制",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "Smart break and hydration reminders",
-            "Work time management",
-            "Auto-adjust interaction frequency",
-            "Behavior adapts to usage scenarios",
+            "自定义角色外观与动作",
+            "可调节大小和透明度",
+            "个性化行为模式设置",
+            "多设备同步支持",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -112,20 +112,20 @@ const features: {
     ),
     svg: (
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
       </svg>
     ),
   },
   {
-    name: "Community",
+    name: "创作社区",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "Share custom characters and actions",
-            "Join community creations and discussions",
-            "Save favorite characters",
-            "Exchange experiences with other users",
+            "分享自定义角色作品",
+            "收藏喜爱的角色模型",
+            "参与社区互动讨论",
+            "获取最新更新动态",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
