@@ -6,7 +6,7 @@ const config = {
   appName: "YCamie",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "Get high-quality Shimeji desktop pets without spending weeks on customization or hundreds of dollars.",
+    "Get high-quality personalized Shimeji desktop pets without spending weeks on customization or hundreds of dollars.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
   domainName: "ycamie.com",
   crisp: {
