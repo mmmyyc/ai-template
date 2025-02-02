@@ -28,6 +28,7 @@ const CTA = () => {
             <Link 
               href="/comfy" 
               className="btn btn-primary btn-lg px-12 rounded-full bg-white hover:bg-blue-50 text-blue-600 border-none"
+              title={`${config.appName} dashboard`}
             >
               <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

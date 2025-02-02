@@ -5,9 +5,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/libs/supabase/server";
 import config from "@/config";
 import React from 'react';
-import ButtonAccount from "@/components/ButtonAccount";
-import ButtonCheckout from "@/components/ButtonCheckout";
-import Link from "next/link";
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {

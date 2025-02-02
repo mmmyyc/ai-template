@@ -70,16 +70,32 @@ const Footer = () => {
               </div>
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
-                <Link href="/docs" className="link link-hover">
+                <Link 
+                  href="/docs" 
+                  className="link link-hover"
+                  title={`${config.appName} documentation`}
+                >
                   Documentation
                 </Link>
-                <Link href="/community" className="link link-hover">
+                <Link 
+                  href="/community" 
+                  className="link link-hover"
+                  title={`${config.appName} community`}
+                >
                   Community
                 </Link>
-                <Link href="/blog" className="link link-hover">
+                <Link 
+                  href="/blog" 
+                  className="link link-hover"
+                  title={`${config.appName} blog`}
+                >
                   Blog
                 </Link>
-                <Link href="/changelog" className="link link-hover">
+                <Link 
+                  href="/changelog" 
+                  className="link link-hover"
+                  title={`${config.appName} changelog`}
+                >
                   Changelog
                 </Link>
               </div>
@@ -91,10 +107,18 @@ const Footer = () => {
               </div>
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
-                <Link href="/privacy-policy" className="link link-hover">
+                  <Link 
+                  href="/privacy-policy" 
+                  className="link link-hover"
+                  title={`${config.appName} privacy policy`}
+                >
                   Privacy Policy
                 </Link>
-                <Link href="/tos" className="link link-hover">
+                <Link 
+                  href="/tos" 
+                  className="link link-hover"
+                  title={`${config.appName} terms of service`}
+                >
                   Terms of Service
                 </Link>
               </div>

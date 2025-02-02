@@ -1,5 +1,4 @@
 import Image from "next/image";
-import TestimonialsAvatars from "./TestimonialsAvatars";
 import config from "@/config";
 import Link from "next/link";
 
@@ -19,6 +18,7 @@ const Hero = () => {
               <Link 
                 href="/comfy" 
                 className="btn btn-primary btn-lg px-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 border-none hover:from-blue-700 hover:to-purple-700 "
+                title={`${config.appName} dashboard`}
               >
                 <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -28,6 +28,7 @@ const Hero = () => {
               <Link 
                 href="/demo" 
                 className="btn btn-outline btn-lg px-8 rounded-full"
+                title={`${config.appName} demo`}
               >
                 Watch Demo
               </Link>

@@ -59,6 +59,7 @@ const cta: JSX.Element = (
     <Link
       href="/comfy"
       className="btn btn-outline rounded-full px-6 hover:bg-blue-50 hover:text-blue-600"
+      title={`${config.appName} dashboard`}
     >
       Try Now
     </Link>
@@ -198,6 +199,7 @@ const HeaderContent = () => {
                 key={link.href}
                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors"
                 onClick={() => setIsOpen(false)}
+                title={link.label}
               >
                 {link.icon}
                 <span>{link.label}</span>
