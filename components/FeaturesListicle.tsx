@@ -9,15 +9,15 @@ const features: {
   svg: JSX.Element;
 }[] = [
   {
-    name: "AI 创作",
+    name: "AI Creation",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "每月500次高质量生成额度",
-            "支持人物和宠物角色定制",
-            "46帧高品质动画效果",
-            "持续更新优化生成模型",
+            "500 high-quality generations per month",
+            "Support for character and pet customization",
+            "46-frame high-quality animation effects",
+            "Continuous model optimization and updates",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -45,15 +45,15 @@ const features: {
     ),
   },
   {
-    name: "互动体验",
+    name: "Interactive Experience",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "实时响应的互动效果",
-            "智能窗口识别与追踪",
-            "可爱的行走、爬行动画",
-            "丰富的表情动作系统",
+            "Real-time responsive interactions",
+            "Smart window detection and tracking",
+            "Adorable walking and climbing animations",
+            "Rich expression and action system",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -81,15 +81,15 @@ const features: {
     ),
   },
   {
-    name: "个性定制",
+    name: "Personalization",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "自定义角色外观与动作",
-            "可调节大小和透明度",
-            "个性化行为模式设置",
-            "多设备同步支持",
+            "Customize character appearance and actions",
+            "Adjustable size and transparency",
+            "Personalized behavior pattern settings",
+            "Multi-device synchronization support",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
@@ -117,15 +117,15 @@ const features: {
     ),
   },
   {
-    name: "创作社区",
+    name: "Creative Community",
     description: (
       <>
         <ul className="space-y-2">
           {[
-            "分享自定义角色作品",
-            "收藏喜爱的角色模型",
-            "参与社区互动讨论",
-            "获取最新更新动态",
+            "Share your custom character creations",
+            "Collect your favorite character models",
+            "Participate in community discussions",
+            "Get the latest update news",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
               <svg
