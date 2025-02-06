@@ -26,11 +26,11 @@ const Hero = () => {
                 Try Now
               </Link>
               <Link 
-                href="/demo" 
+                href="/blog/introducing-YCamie" 
                 className="btn btn-outline btn-lg px-8 rounded-full"
                 title={`${config.appName} demo`}
               >
-                Watch Demo
+                Watch Tutorial
               </Link>
             </div>
 

@@ -1,5 +1,6 @@
 import config from "@/config";
 import ButtonCheckout from "./ButtonCheckout";
+import ButtonSignin from "./ButtonSignin";
 
 // <Pricing/> displays the pricing plans for your app
 // It's your Stripe config in config.js.stripe.plans[] that will be used to display the plans
@@ -89,11 +90,23 @@ const Pricing = () => {
                   </ul>
                 )}
                 <div className="space-y-2">
-                  <ButtonCheckout priceId={plan.priceId} />
+                  {plan.name !== "Free" && (
+                    <>
+                      <ButtonCheckout priceId={plan.priceId} />
+                      <p className="flex items-center justify-center gap-2 text-sm text-center text-base-content/80 font-medium relative">
+                        Get high-quality personalized Shimeji pets
+                      </p>
+                    </>
 
-                  <p className="flex items-center justify-center gap-2 text-sm text-center text-base-content/80 font-medium relative">
-                    Pay monthly. Enjoy unlimited access.
-                  </p>
+                  )}
+                  {plan.name === "Free" && (
+                    <>
+                      <ButtonSignin extraStyle="btn btn-primary btn-block group" />
+                      <p className="flex items-center justify-center gap-2 text-sm text-center text-base-content/80 font-medium relative">
+                        Get started with 3 generations per month free
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
