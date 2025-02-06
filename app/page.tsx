@@ -6,10 +6,12 @@ import Footer from '@/components/Footer'
 import FeaturesListicle from '@/components/FeaturesListicle'
 import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
+import VideoSection from "@/components/VideoSection";
 const LandingPage = () => {
   return (
     <div className="min-h-screen">
       <Header />
+
       <main className="pt-16">
         {/* Hero Section */}
         <Hero />
@@ -23,6 +25,9 @@ const LandingPage = () => {
         {/* CTA Section */}
         <CTA />
 
+        {/* Video Section */}
+        <VideoSection />
+        
         {/* Price Section */}
         <Pricing />
 

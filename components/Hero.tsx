@@ -30,9 +30,10 @@ const Hero = () => {
                 className="btn btn-outline btn-lg px-8 rounded-full"
                 title={`${config.appName} demo`}
               >
-                Watch Tutorial
+                Learn YCamie
               </Link>
             </div>
+
 
             <div className="flex items-center gap-8 text-sm opacity-80 mt-8">
               <div className="flex items-center gap-2">
