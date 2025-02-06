@@ -314,7 +314,7 @@ export const articles: articleType[] = [
     slug: "introducing-YCamie",
     // The title to display in the article page (h1). Less than 60 characters. It's also used to generate the meta title.
     // 在文章页面显示的标题(h1)。少于60个字符。也用于生成元标题。
-    title: "Getting Started with YCamie Desktop Pets",
+    title: "Getting Started with YCamie to Create your Shimeji",
     // The description of the article to display in the article page. Up to 160 characters. It's also used to generate the meta description.
     // 在文章页面显示的文章描述。最多160个字符。也用于生成元描述。
     description:
