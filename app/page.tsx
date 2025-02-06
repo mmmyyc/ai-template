@@ -1,5 +1,3 @@
-import Image from 'next/image'
-import Link from 'next/link'
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import Problem from '@/components/Problem'
@@ -8,7 +6,6 @@ import Footer from '@/components/Footer'
 import FeaturesListicle from '@/components/FeaturesListicle'
 import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
-
 const LandingPage = () => {
   return (
     <div className="min-h-screen">
@@ -25,9 +22,10 @@ const LandingPage = () => {
 
         {/* CTA Section */}
         <CTA />
-        
+
         {/* Price Section */}
         <Pricing />
+
 
         {/* FAQ Section */}
         <FAQ />

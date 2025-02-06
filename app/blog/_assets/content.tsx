@@ -2,10 +2,15 @@ import type { JSX } from "react";
 import Image, { StaticImageData } from "next/image";
 import mmmyycImg from "@/app/blog/_assets/images/authors/ycamie.png";
 import introducingYCamieImg from "@/public/landing/three_person.webp";
+import introducingYCamieImgDashboard from "@/public/blog/introducing-ycamie/dashboard.webp";
+import introducingYCamieImgInput from "@/public/blog/introducing-ycamie/input.png";
+import introducingYCamieImgOutput from "@/public/blog/introducing-ycamie/output.png";
+import Link from "next/link";
 // ==================================================================================================================================================================
 // BLOG CATEGORIES 🏷️
 // 博客分类 🏷️
 // ==================================================================================================================================================================
+
 
 export type categoryType = {
   slug: string;
@@ -246,7 +251,6 @@ export const articles: articleType[] = [
           <li className={styles.li}>Compatible with Windows, macOS, and Linux</li>
           <li className={styles.li}>Basic image editing skills (for customization)</li>
         </ul>
-
         <h2 className={styles.h2}>Image Requirements</h2>
         <p className={styles.p}>
           To create a Shimeji, you'll need to prepare a sprite sheet with specific dimensions:
@@ -366,9 +370,10 @@ export const articles: articleType[] = [
             <li className={styles.li}>Visit ycamie.com</li>
             <li className={styles.li}>Create an account and log in</li>
             <li className={styles.li}>Click the "Try Now" button to enter the generation interface</li>
+            <li className={styles.li}>Then will find the dashboard like the image below</li>
           </ul>
         </section>
-
+        <Image src={introducingYCamieImgDashboard} title="YCamie dashboard" alt="Shimeji Creation Guide" width={700} height={500} className="rounded-box" placeholder="blur" />
         <section>
           <h3 className={styles.h3}>2. Creating Your Shimeji</h3>
           <p className={styles.p}>
@@ -381,24 +386,26 @@ export const articles: articleType[] = [
             <li className={styles.li}>Preview your generated Shimeji images on the right side</li>
           </ul>
         </section>
-
+        <Image src={introducingYCamieImgInput} title="YCamie dashboard" alt="Shimeji Creation Guide" width={700} height={500} className="rounded-box" placeholder="blur" />
         <section>
           <h3 className={styles.h3}>3. Using Your Shimeji</h3>
           <p className={styles.p}>
+
             Once you're happy with your creation:
           </p>
           <ul className={styles.ul}>
             <li className={styles.li}>Click the download button</li>
-            <li className={styles.li}>Extract the downloaded files</li>
-            <li className={styles.li}>Click "Replace All Files" when prompted</li>
+            <li className={styles.li}>Extract the downloaded zip file</li>
             <li className={styles.li}>Make sure you have Java 6 or above installed on your computer</li>
-            <li className={styles.li}>Run shimeji.jar to start your desktop pet</li>
+            <li className={styles.li}>Run Shimeji-ee.jar to start your desktop pet</li>
+            <li className={styles.li}>Your desktop pet will appear and start interacting with your screen</li>
           </ul>
         </section>
-
+        <Image src={introducingYCamieImgOutput} alt="Shimeji Creation Guide" title="Shimeji output" width={700} height={500} className="rounded-box" placeholder="blur" />
         <section>
           <h3 className={styles.h3}>Ready to Go!</h3>
           <p className={styles.p}>
+
             That's all you need to do! Your custom Shimeji will now appear on your screen, 
             ready to keep you company. Feel free to create more characters and build your own 
             collection of unique desktop companions!
@@ -407,8 +414,12 @@ export const articles: articleType[] = [
             <span className={styles.codeInline}>Note</span>: Make sure you have Java installed 
             on your computer (minimum Java 6) to run the Shimeji application.
           </p>
+          <p className={styles.p}>
+            <span className={styles.codeInline}>Note</span>: Now only support windows, if you want to run it on other platforms, you can refer to the <Link href="https://github.com/LavenderSnek/ShimejiEE-cross-platform/releases">source code</Link>
+          </p>
         </section>
       </>
+
     ),
   },
 ];
