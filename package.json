@@ -27,6 +27,7 @@
     "@types/adm-zip": "^0.5.7",
     "@types/archiver": "^6.0.3",
     "@upstash/qstash": "^2.7.20",
+    "@vercel/analytics": "^1.4.1",
     "adm-zip": "^0.5.16",
     "archiver": "^7.0.1",
     "aws-sdk": "^2.1692.0",
