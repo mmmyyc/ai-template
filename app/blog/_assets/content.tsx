@@ -5,6 +5,8 @@ import introducingYCamieImg from "@/public/landing/three_person.webp";
 import introducingYCamieImgDashboard from "@/public/blog/introducing-ycamie/dashboard.webp";
 import introducingYCamieImgInput from "@/public/blog/introducing-ycamie/input.png";
 import introducingYCamieImgOutput from "@/public/blog/introducing-ycamie/output.png";
+
+import howToMakeShimejiImg from "@/public/blog/how-to-make-shimeji/shimeji.png";
 import Link from "next/link";
 // ==================================================================================================================================================================
 // BLOG CATEGORIES 🏷️
@@ -234,79 +236,145 @@ export const articles: articleType[] = [
     author: authors.find((author) => author.slug === authorSlugs.mmmyyc),
     publishedAt: "2024-03-20",
     image: {
-      src: introducingYCamieImg,
-      urlRelative: "/landing/three_person.webp",
+      src: howToMakeShimejiImg,
+      urlRelative: "/blog/how-to-make-shimeji/shimeji.png",
       alt: "Shimeji Creation Guide",
     },
     content: (
       <div className="space-y-8">
-        <h2 className={styles.h2}>What is a Shimeji?</h2>
+        {/* 开场介绍 */}
+        <h2 className={styles.h2}>Introduction to Shimeji Desktop Pets</h2>
         <p className={styles.p}>
-          A Shimeji is an interactive desktop pet that can walk, climb, and perform various animations on your computer screen. Originally created by Yuki Yamada of Group Finity, Shimejis have become popular digital companions that add a fun and playful element to your desktop environment.
+          In today's digital workspace, personalizing your environment has become more important than ever. 
+          A Shimeji is an interactive desktop pet that brings life and personality to your computer screen through 
+          walking, climbing, and various charming animations. Originally created by Yuki Yamada of Group Finity, 
+          these digital companions have evolved into a beloved way to make your desktop experience more engaging and fun.
         </p>
+        <Image src={howToMakeShimejiImg} alt="Shimeji Creation Guide" title="Kiyotaka Ayanokouji Shimeji" width={700} height={500} className="rounded-box" placeholder="blur" />
+        {/* 核心价值 */}
+        <h2 className={styles.h2}>Why Choose a Shimeji?</h2>
+        <ul className={styles.ul}>
+          <li className={styles.li}>Personalized desktop experience with your favorite characters</li>
+          <li className={styles.li}>Interactive animations that respond to your activities</li>
+          <li className={styles.li}>Stress-reducing companion during long work sessions</li>
+          <li className={styles.li}>Customizable behaviors and appearances</li>
+        </ul>
 
-        <h2 className={styles.h2}>System Requirements</h2>
+        {/* 技术要求 */}
+        <h2 className={styles.h2}>Getting Started</h2>
+        <h3 className={styles.h3}>Technical Requirements</h3>
         <ul className={styles.ul}>
           <li className={styles.li}>Java 6 or higher installed on your computer</li>
           <li className={styles.li}>Compatible with Windows, macOS, and Linux</li>
-          <li className={styles.li}>Basic image editing skills (for customization)</li>
+          <li className={styles.li}>Minimum 2GB RAM recommended</li>
+          <li className={styles.li}>Internet connection for AI generation</li>
         </ul>
-        <h2 className={styles.h2}>Image Requirements</h2>
-        <p className={styles.p}>
-          To create a Shimeji, you'll need to prepare a sprite sheet with specific dimensions:
-        </p>
+
+        {/* 图片规格 */}
+        <h2 className={styles.h2}>Technical Specifications</h2>
+        <h3 className={styles.h3}>Image Requirements</h3>
         <ul className={styles.ul}>
-          <li className={styles.li}>Basic version: 640x640 pixels (5x5 grid)</li>
-          <li className={styles.li}>Advanced version: 640x1280 pixels (10x5 grid)</li>
-          <li className={styles.li}>Each frame should be 128x128 pixels</li>
-          <li className={styles.li}>Transparent background (PNG format recommended)</li>
+          <li className={styles.li}>Below are common Shimeji images size, you can refer to them when you create your own Shimeji</li>
+          <li className={styles.li}>Basic version: 25 frames (with basic movements, idle actions, environmental interactions and special behaviors)</li>
+          <li className={styles.li}>Advanced version: 46 frames (with whole functions)</li>
+          <li className={styles.li}>Individual frame size: 128x128 pixels</li>
+          <li className={styles.li}>Format: PNG with transparent background</li>
         </ul>
 
-        <h2 className={styles.h2}>Animation Frames</h2>
-        <p className={styles.p}>
-          Your Shimeji needs different animation frames for various actions:
-        </p>
-        <ul className={styles.ul}>
-          <li className={styles.li}>Walking/Running (frames 1-8)</li>
-          <li className={styles.li}>Sitting (frames 9-12)</li>
-          <li className={styles.li}>Climbing (frames 13-20)</li>
-          <li className={styles.li}>Special actions (frames 21-25 for basic, 21-46 for advanced)</li>
-        </ul>
+        {/* 动画详解 */}
+        <h3 className={styles.h3}>Animation Framework</h3>
+        <div className="space-y-4">
+          <p className={styles.p}>
+            Each Shimeji requires a specific set of animations to function properly:
+          </p>
+          <ul className={styles.ul}>
+            <li className={styles.li}>
+              <strong>Basic Movements (1-8):</strong> Walking and running sequences
+            </li>
+            <li className={styles.li}>
+              <strong>Idle Actions (9-12):</strong> Sitting and standing poses
+            </li>
+            <li className={styles.li}>
+              <strong>Environmental Interactions (13-20):</strong> Climbing and hanging animations
+            </li>
+            <li className={styles.li}>
+              <strong>Special Behaviors (21+):</strong> Unique character-specific actions
+            </li>
+          </ul>
+        </div>
 
-        <h2 className={styles.h2}>Using YCamie to Create Your Shimeji</h2>
+        {/* YCamie 使用指南 */}
+        <h2 className={styles.h2}>Creating with YCamie</h2>
         <p className={styles.p}>
-          YCamie simplifies the Shimeji creation process:
+          YCamie revolutionizes the Shimeji creation process through AI-powered automation:
         </p>
-        <ol className={styles.ul}>
-          <li className={styles.li}>Upload your character image</li>
-          <li className={styles.li}>Choose between basic or advanced version</li>
-          <li className={styles.li}>Let AI generate all required animation frames</li>
-          <li className={styles.li}>Download your customized Shimeji</li>
-        </ol>
 
-        <h2 className={styles.h2}>Tips for Better Results</h2>
-        <ul className={styles.ul}>
-          <li className={styles.li}>Use clear, high-quality character images</li>
-          <li className={styles.li}>Ensure your character has a distinct silhouette</li>
-          <li className={styles.li}>Test different poses to find what works best</li>
-          <li className={styles.li}>Consider the character's personality in animations</li>
-        </ul>
-
-        <h2 className={styles.h2}>Running Your Shimeji</h2>
+        <div className="space-y-4">
+          <h3 className={styles.h3}>Step-by-Step Guide</h3>
+          <ol className={styles.ul}>
+            <li className={styles.li}>
+              <strong>Upload:</strong> Provide your character reference image
+            </li>
+            <li className={styles.li}>
+              <strong>Configure:</strong> Select version and customize settings
+            </li>
+            <li className={styles.li}>
+              <strong>Generate:</strong> Let AI create your animation frames
+            </li>
+            <li className={styles.li}>
+              <strong>Download:</strong> Get your complete Shimeji package
+            </li>
+          </ol>
+        </div>
         <p className={styles.p}>
-          After downloading your Shimeji:
+          you can refer to the blog{" "}
+          <Link 
+            href="/blog/introducing-YCamie"
+            className="font-bold text-blue-600 hover:text-blue-700 underline decoration-2 underline-offset-2"
+          >
+            Introducing YCamie
+          </Link>
+          {" "}for more details
         </p>
-        <ol className={styles.ul}>
-          <li className={styles.li}>Extract the ZIP file</li>
-          <li className={styles.li}>Run the Shimeji-ee.jar file</li>
-          <li className={styles.li}>Your desktop pet will appear and start interacting with your screen</li>
-        </ol>
+        {/* 优化建议 */}
+        <h2 className={styles.h2}>Optimization Tips</h2>
+        <div className="space-y-4">
+          <h3 className={styles.h3}>For Best Results</h3>
+          <ul className={styles.ul}>
+            <li className={styles.li}>Use high-resolution reference images (1024x1024px recommended)</li>
+            <li className={styles.li}>Choose characters with distinct visual features</li>
+            <li className={styles.li}>Provide clear, front-facing character poses</li>
+            <li className={styles.li}>Consider character proportions for better animations</li>
+          </ul>
+        </div>
 
-        <p className={styles.p}>
-          Ready to create your own Shimeji? Try YCamie now and bring your characters to life on your desktop!
-        </p>
+        {/* 安装使用 */}
+        <h2 className={styles.h2}>Installation Guide</h2>
+        <div className="space-y-4">
+          <h3 className={styles.h3}>Quick Setup</h3>
+          <ol className={styles.ul}>
+            <li className={styles.li}>Download and extract the Shimeji package</li>
+            <li className={styles.li}>Verify Java installation on your system</li>
+            <li className={styles.li}>Double-click Shimeji-ee.jar to launch</li>
+            <li className={styles.li}>Right-click the Shimeji icon for additional options</li>
+          </ol>
+        </div>
+
+        {/* 结尾号召 */}
+        <div className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+          <h2 className={styles.h2}>Ready to Start?</h2>
+          <p className={styles.p}>
+            Transform your desktop experience with a personalized AI-generated Shimeji companion. 
+            Join thousands of users who have already brought their favorite characters to life!
+          </p>
+          <div className="mt-4">
+            <a href="/comfy" className="text-blue-600 font-semibold hover:text-blue-700">
+              Create Your Shimeji Now →
+            </a>
+          </div>
+        </div>
       </div>
-    ),
+    )
   },
   {
     // The unique slug to use in the URL. It's also used to generate the canonical URL.
@@ -418,6 +486,19 @@ export const articles: articleType[] = [
             <span className={styles.codeInline}>Note</span>: Now only support windows, if you want to run it on other platforms, you can refer to the <Link href="https://github.com/LavenderSnek/ShimejiEE-cross-platform/releases">source code</Link>
           </p>
         </section>
+          {/* 结尾号召 */}
+          <div className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+          <h2 className={styles.h2}>Ready to Start?</h2>
+          <p className={styles.p}>
+            Transform your desktop experience with a personalized AI-generated Shimeji companion. 
+            Join thousands of users who have already brought their favorite characters to life!
+          </p>
+          <div className="mt-4">
+            <a href="/comfy" className="text-blue-600 font-semibold hover:text-blue-700">
+              Create Your Shimeji Now →
+            </a>
+          </div>
+        </div>
       </>
 
     ),
