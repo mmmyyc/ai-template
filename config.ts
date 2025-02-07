@@ -11,7 +11,7 @@ const config = {
   domainName: "ycamie.com",
   crisp: {
     // Crisp website ID. IF YOU DON'T USE CRISP: just remove this => Then add a support email in this config file (resend.supportEmail) otherwise customer support won't work.
-    id: "",
+    id: "efb4d315-770c-47b4-a1c3-1cfce1e74ba0",
     // Hide Crisp by default, except on route "/". Crisp is toggled with <ButtonSupport/>. If you want to show Crisp on every routes, just remove this below
     onlyShowOnRoutes: ["/"],
   },
