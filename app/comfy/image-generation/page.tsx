@@ -116,7 +116,13 @@ export default function ImageGenerationPage() {
       return
     }
 
+    if (isGenerating) {
+      toast.error('Please wait for the current generation to complete')
+      return
+    }
+
     setIsGenerating(true)
+    setGenerationType(type)
     
     try {
       // 清除之前的结果
@@ -309,11 +315,15 @@ export default function ImageGenerationPage() {
                 <div className="space-y-2">
                   <button 
                     className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isGenerating && generationType === 'basic'
+                      isGenerating
                         ? 'bg-blue-400 cursor-not-allowed'
                         : 'bg-blue-600 hover:bg-blue-700 text-white'
                     }`}
                     onClick={() => {
+                      if (isGenerating) {
+                        toast.error('Please wait for the current generation to complete');
+                        return;
+                      }
                       setGenerationType('basic');
                       handleGenerate('basic');
                     }}
@@ -340,6 +350,10 @@ export default function ImageGenerationPage() {
                           : 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white'
                       }`}
                       onClick={() => {
+                        if (isGenerating) {
+                          toast.error('Please wait for the current generation to complete');
+                          return;
+                        }
                         setGenerationType('advanced');
                         handleGenerate('advanced');
                       }}
