@@ -41,17 +41,25 @@ export default function HistoryPage() {
   const handleDownload = async (result: string, id: string) => {
     if (!result) return;
     setDownloading(id);
-    toast.success('Downloading images');   
     
     try {
-      toast.loading('Downloading images...', { id: 'download' });
-      await downloadGeneratedImage({
-        imageUrl: result,
-        fileName: 'shime.zip'
-      });
+      await toast.promise(
+        downloadGeneratedImage({
+          imageUrl: result,
+          fileName: 'shime.zip'
+        }),
+        {
+          loading: 'Processing your images, please wait...',
+          success: 'Images processed successfully!',
+          error: 'Failed to process images'
+        },
+        {
+          id: 'download',
+          success: { duration: 2000 },
+          error: { duration: 2000 }
+        }
+      );
     } catch (error) {
-      // 错误已经在工具函数中处理
-      toast.error('Download failed:', { id: 'download' });
       console.error('Download failed:', error);
     } finally {
       setDownloading(null);

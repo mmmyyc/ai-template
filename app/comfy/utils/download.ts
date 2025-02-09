@@ -1,5 +1,4 @@
 import apiClient from "@/libs/api";
-import toast from "react-hot-toast";
 
 interface DownloadImageOptions {
   imageUrl: string;
@@ -56,11 +55,8 @@ export async function downloadGeneratedImage({
     // 清理
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-    
-    toast.success('Images downloaded successfully');
   } catch (error) {
     console.error('Error downloading images:', error);
-    toast.error('Failed to download images');
     throw error;
   }
 } 
