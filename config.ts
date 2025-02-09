@@ -91,8 +91,8 @@ const config = {
         isFeatured: true,
         name: "Advanced",
         description: "providing high-quality desktop pets consisting of 46 high-quality pictures",
-        price: 20,
-        priceAnchor: 99,
+        price: 29,
+        priceAnchor: 40,
         features: [
           {
             name: "Usage Limit 500 generations per month",
