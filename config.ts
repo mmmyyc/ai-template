@@ -22,7 +22,7 @@ const config = {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1Qd6FHQeZYgpkJjDDc6FqLgz"
+            ? "price_1QqTDVHbfXTB6MRp5nFk5sgv"
             : "price_456",
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Free",
@@ -35,6 +35,9 @@ const config = {
         features: [
           {
             name: "Usage Limit 3 generations per month",
+          },
+          {
+            name: "AI assistant",
           },
           {
             name: "Shimeji Customization",
@@ -50,14 +53,14 @@ const config = {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1Qd6FHQeZYgpkJjDDc6FqLgz"
+            ? "price_1QqTDVHbfXTB6MRp5nFk5sgv"
             : "price_456",
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Basic",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
         description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
         // The price you want to display, the one user will be charged on Stripe.
-        price: 14,
+        price: 29,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
         priceAnchor: 20,
         features: [
@@ -65,11 +68,16 @@ const config = {
             name: "Usage Limit 50 generations per month",
           },
           {
+            name: "AI assistant",
+          },
+          {
             name: "Shimeji Customization",
           },
+
           { name: "HD Animated Images" },
           { name: "Fun Interaction" },
           { name: "Real-time Response" },
+
           { name: "25-frame Animation Set" },
           { name: "Human Character Customization" },
         ],
@@ -77,7 +85,7 @@ const config = {
       {
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1Qd6iuQeZYgpkJjDCVuW3gEN"
+            ? "price_1QqTIRHbfXTB6MRpNBPE2CGr"
             : "price_456",
         // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
         isFeatured: true,
@@ -90,11 +98,15 @@ const config = {
             name: "Usage Limit 500 generations per month",
           },
           {
+            name: "AI assistant",
+          },
+          {
             name: "Shimeji Customization",
           },
           { name: "HD Animated Images" },
           { name: "Fun Interaction" },
           { name: "Real-time Response" },
+
           { name: "46-frame Premium Animation" },
           { name: "Human Character Customization" },
           { name: "Pet Character Customization" },
