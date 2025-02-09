@@ -54,7 +54,7 @@ const config = {
         priceId:
           process.env.NODE_ENV === "development"
             ? "price_1QqTDVHbfXTB6MRp5nFk5sgv"
-            : "price_456",
+            : "price_1QqTDVHbfXTB6MRp5nFk5sgv",
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Basic",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
@@ -86,13 +86,13 @@ const config = {
         priceId:
           process.env.NODE_ENV === "development"
             ? "price_1QqTIRHbfXTB6MRpNBPE2CGr"
-            : "price_456",
+            : "price_1QqTIRHbfXTB6MRpNBPE2CGr",
         // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
         isFeatured: true,
         name: "Advanced",
         description: "providing high-quality desktop pets consisting of 46 high-quality pictures",
-        price: 29,
-        priceAnchor: 40,
+        price: 39,
+        priceAnchor: 49,
         features: [
           {
             name: "Usage Limit 500 generations per month",
