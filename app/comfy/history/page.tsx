@@ -44,12 +44,14 @@ export default function HistoryPage() {
     toast.success('Downloading images');   
     
     try {
+      toast.loading('Downloading images...', { id: 'download' });
       await downloadGeneratedImage({
         imageUrl: result,
         fileName: 'shime.zip'
       });
     } catch (error) {
       // 错误已经在工具函数中处理
+      toast.error('Download failed:', { id: 'download' });
       console.error('Download failed:', error);
     } finally {
       setDownloading(null);

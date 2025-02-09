@@ -138,7 +138,7 @@ export default function ImageGenerationPage() {
       }
       
       formData.append('type', type);
-      toast.success(type + ' Generation started');
+      toast.loading('Starting image generation...', { id: 'generate' });
       const response = await apiClient.post('/generate', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -147,13 +147,14 @@ export default function ImageGenerationPage() {
 
       if (response.data?.taskId) {
         // 开始轮询检查任务状态
+        toast.loading('Processing your request...', { id: 'generate' });
         const pollResult = await pollStatus(response.data.taskId);
         
         if (pollResult.success) {
           setResult(pollResult.result);
-          toast.success(`${type === 'advanced' ? 'Advanced' : 'Basic'} image generated successfully`);
+          toast.success(`${type === 'advanced' ? 'Advanced' : 'Basic'} image generated successfully`, { id: 'generate' });
         } else {
-          toast.error(pollResult.error);
+          toast.error(pollResult.error, { id: 'generate' });
         }
       } else {
         throw new Error('Invalid response format')
@@ -170,9 +171,9 @@ export default function ImageGenerationPage() {
           ? await error.response.data.text() 
           : error.response?.data?.error || 'Failed to generate image'
         console.error('Error details:', errorMessage)
-        toast.error(errorMessage)
+        toast.error(errorMessage, { id: 'generate' })
       } else {
-        toast.error('Failed to generate image. Please try again.')
+        toast.error('Failed to generate image. Please try again.', { id: 'generate' })
       }
     } finally {
       setIsGenerating(false)
@@ -193,14 +194,17 @@ export default function ImageGenerationPage() {
     if (!result) return;
     
     try {
+      toast.loading('Processing your images, please wait...', { id: 'download' });
       await downloadGeneratedImage({
         imageUrl: result,
         type: generationType,
         fileName: 'shime.zip'
       });
+      toast.success('Images processed successfully!', { id: 'download' });
     } catch (error) {
       // 错误已经在工具函数中处理
       console.error('Download failed:', error);
+      toast.error('Failed to process images', { id: 'download' });
     }
   }
 
