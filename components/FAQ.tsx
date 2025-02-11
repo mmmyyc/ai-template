@@ -20,7 +20,10 @@ const faqList: FAQItemProps[] = [
         <ul className="list-disc list-inside">
           <li>Basic: 25 high-quality animation frames</li>
           <li>Advanced: 46 premium animation frames</li>
-          <li>Support for both human and animal characters</li>
+          <li>Don't worry about the system requirements, our product handles everything automatically for you!</li>
+          <li>Interactive AI Chat</li>
+          <li>Character Customization</li>
+          <li>Customize the pet's appearance and behavior</li>
           <li>Complete animation system</li>
         </ul>
       </div>
@@ -32,12 +35,9 @@ const faqList: FAQItemProps[] = [
       <div className="space-y-2 leading-relaxed">
         <p>To run YCamie Shimeji pets, you need:</p>
         <ul className="list-disc list-inside">
-          <li>Java 6 or above installed on your computer</li>
-          <li>Windows, macOS, or Linux operating system</li>
+          <li>Using YCamie? You're all set! No additional setup required - everything is included in our package.</li>
+          <li>Don't need to install Java 21 or higher installed on your computer</li>
         </ul>
-        <p className="text-sm text-gray-600">
-          Note: Without Java installed, your Shimeji pet won't be able to run. You can download Java from java.com
-        </p>
       </div>
     ),
   },
@@ -70,7 +70,7 @@ const faqList: FAQItemProps[] = [
           If you have any questions or suggestions, feel free to reach out through:
         </p>
         <ul className="list-disc list-inside">
-          <li>Email us at: support@ycamie.com</li>
+          <li>Email us at: mmmmmyyc@gmail.com</li>
           <li>Join our community discussions</li>
           <li>Check our documentation</li>
         </ul>
