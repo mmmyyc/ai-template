@@ -268,8 +268,14 @@ export const articles: articleType[] = [
         {/* 技术要求 */}
         <h2 className={styles.h2}>Getting Started</h2>
         <h3 className={styles.h3}>Technical Requirements</h3>
+        <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-l-4 border-blue-500">
+          <p className="font-medium text-blue-800">
+            ✨ Using YCamie? You're all set! No additional setup required - everything is included in our package.
+          </p>
+        </div>
+        <p className={styles.p}>Else you need to install the following requirements</p>
         <ul className={styles.ul}>
-          <li className={styles.li}>Java 6 or higher installed on your computer</li>
+          <li className={styles.li}>Java 21 or higher installed on your computer</li>
           <li className={styles.li}>Compatible with Windows, macOS, and Linux</li>
           <li className={styles.li}>Minimum 2GB RAM recommended</li>
           <li className={styles.li}>Internet connection for AI generation</li>
@@ -307,7 +313,11 @@ export const articles: articleType[] = [
             </li>
           </ul>
         </div>
-
+        <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-l-4 border-blue-500">
+          <p className="font-medium text-blue-800">
+            ✨ Using YCamie? Don't worry about these specifications - our AI handles everything automatically for you!
+          </p>
+        </div>
         {/* YCamie 使用指南 */}
         <h2 className={styles.h2}>Creating with YCamie</h2>
         <p className={styles.p}>
@@ -331,16 +341,18 @@ export const articles: articleType[] = [
             </li>
           </ol>
         </div>
-        <p className={styles.p}>
-          you can refer to the blog{" "}
-          <Link 
-            href="/blog/introducing-YCamie"
-            className="font-bold text-blue-600 hover:text-blue-700 underline decoration-2 underline-offset-2"
-          >
-            Introducing YCamie
-          </Link>
-          {" "}for more details
-        </p>
+        <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-l-4 border-blue-500">
+          <p className={styles.p}>
+          ✨ you can refer to the blog{" "}
+            <Link 
+              href="/blog/introducing-YCamie"
+              className="font-bold text-blue-600 hover:text-blue-700 underline decoration-2 underline-offset-2"
+            >
+              Introducing YCamie
+            </Link>
+            {" "}for more details
+          </p>
+        </div>
         {/* 优化建议 */}
         <h2 className={styles.h2}>Optimization Tips</h2>
         <div className="space-y-4">
