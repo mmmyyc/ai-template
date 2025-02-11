@@ -5,6 +5,11 @@ import introducingYCamieImg from "@/public/landing/three_person.webp";
 import introducingYCamieImgDashboard from "@/public/blog/introducing-ycamie/dashboard.webp";
 import introducingYCamieImgInput from "@/public/blog/introducing-ycamie/input.png";
 import introducingYCamieImgOutput from "@/public/blog/introducing-ycamie/output.png";
+import introducingYCamieImgfile from "@/public/blog/introducing-ycamie/file.png";
+import introducingYCamieImgInstallStep1 from "@/public/blog/introducing-ycamie/install1.png";
+import introducingYCamieImgInstallStep2 from "@/public/blog/introducing-ycamie/install2.png";
+import introducingYCamieImgInstallStep3 from "@/public/blog/introducing-ycamie/specifiedFolder.png";
+import introducingYCamieImgInstallStep4 from "@/public/blog/introducing-ycamie/runShimeji.png";
 
 import howToMakeShimejiImg from "@/public/blog/how-to-make-shimeji/shimeji.png";
 import Link from "next/link";
@@ -464,9 +469,57 @@ export const articles: articleType[] = [
           <ul className={styles.ul}>
             <li className={styles.li}>Click the download button</li>
             <li className={styles.li}>Extract the downloaded zip file</li>
-            <li className={styles.li}>Make sure you have Java 6 or above installed on your computer</li>
-            <li className={styles.li}>Run Shimeji-ee.jar to start your desktop pet</li>
-            <li className={styles.li}>Your desktop pet will appear and start interacting with your screen</li>
+            <li className={styles.li}>Dont need install Java 6 or above on your computer, we will provide the executable file</li>
+            <Image
+              src={introducingYCamieImgfile}
+              alt="YCamie desktop pet file"
+              width={700}
+              height={500}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
+            <li className={styles.li}>Run Shimeji_windows-x64_1_0_0.exe to start your desktop pet</li>
+            <li className={styles.li}>flow the instruction to install it</li>
+            <Image
+              src={introducingYCamieImgInstallStep1}
+              alt="YCamie desktop pet Install"
+              width={700}
+              height={500}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
+            <li className={styles.li}>Click next to continue</li>
+            <Image
+              src={introducingYCamieImgInstallStep2}
+              alt="YCamie desktop pet Install step2"
+              width={700}
+              height={500}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
+            <li className={styles.li}>Click finish to complete the installation , then you can see the Shimeji icon on your specified folder</li>
+            <Image
+              src={introducingYCamieImgInstallStep3}
+              alt="YCamie desktop pet Install step3"
+              width={700}
+              height={500}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
+            <li className={styles.li}>Run Shimeji.exe to start your desktop pet , and then you can add your Shimeji</li>
+            <Image
+              src={introducingYCamieImgInstallStep4}
+              alt="run shimeji"
+              width={700}
+              height={500}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
           </ul>
         </section>
         <Image src={introducingYCamieImgOutput} alt="Shimeji Creation Guide" title="Shimeji output" width={700} height={500} className="rounded-box" placeholder="blur" />
@@ -479,11 +532,13 @@ export const articles: articleType[] = [
             collection of unique desktop companions!
           </p>
           <p className={styles.p}>
-            <span className={styles.codeInline}>Note</span>: Make sure you have Java installed 
-            on your computer (minimum Java 6) to run the Shimeji application.
+            <span className={styles.codeInline}>Note</span>: It is best not to install on the C drive, because shimeji may not run.
           </p>
           <p className={styles.p}>
-            <span className={styles.codeInline}>Note</span>: Now only support windows, if you want to run it on other platforms, you can refer to the <Link href="https://github.com/LavenderSnek/ShimejiEE-cross-platform/releases">source code</Link>
+            <span className={styles.codeInline}>Note</span>: Now only support windows, if you want to run it on other platforms, you can refer to my github find the {" "} 
+            <Link 
+              className="font-bold text-blue-600 hover:text-blue-700 underline decoration-2 underline-offset-2"
+              href="https://github.com/mmmyyc/ShimejiEE-AI">source code</Link>
           </p>
         </section>
           {/* 结尾号召 */}
