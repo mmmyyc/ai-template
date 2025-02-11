@@ -62,6 +62,7 @@ export const createCheckout = async ({
       mode,
       allow_promotion_codes: true,
       client_reference_id: clientReferenceId,
+      payment_method_types: ['card', 'alipay'],
       line_items: [
         {
           price: priceId,
