@@ -14,6 +14,7 @@ interface ImageGeneration {
   created_at: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   error?: string;
+  type: string;
 }
 
 export default function HistoryPage() {
@@ -38,7 +39,7 @@ export default function HistoryPage() {
     fetchHistory();
   }, []);
 
-  const handleDownload = async (result: string, id: string) => {
+  const handleDownload = async (result: string, id: string, type: string) => {
     if (!result) return;
     setDownloading(id);
     
@@ -46,7 +47,8 @@ export default function HistoryPage() {
       await toast.promise(
         downloadGeneratedImage({
           imageUrl: result,
-          fileName: 'shime.zip'
+          fileName: 'shime.zip',
+          type: type
         }),
         {
           loading: 'Processing your images, please wait...',
@@ -128,10 +130,15 @@ export default function HistoryPage() {
                       fill
                       className="object-cover"
                     />
+                    <div className="absolute top-2 left-2">
+                      <span className={`badge ${gen.type === 'advanced' ? 'badge-warning' : 'badge-primary'} badge-sm`}>
+                        {gen.type === 'advanced' ? 'Advanced' : 'Basic'}
+                      </span>
+                    </div>
                   </figure>
                   <div className="absolute top-2 right-2">
                     <button
-                      onClick={() => handleDownload(gen.result, gen.id)}
+                      onClick={() => handleDownload(gen.result, gen.id, gen.type)}
                       disabled={downloading === gen.id}
                       className="btn btn-circle btn-sm bg-base-100 hover:bg-base-200"
                     >
