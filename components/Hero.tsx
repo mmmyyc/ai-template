@@ -9,10 +9,10 @@ const Hero = () => {
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 flex flex-col items-start">
             <h1 className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-gray-900">
-              Create Your Own Desktop Pet
+              Create Your Own AI Shimeji
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 font-normal leading-relaxed mb-12">
-              Get high-quality personalized Shimeji desktop pets without spending weeks or hundreds of dollars.
+              Get high-quality personalized AI Shimeji desktop pets without spending weeks or hundreds of dollars.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link 
@@ -47,6 +47,12 @@ const Hero = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 High Quality
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Easy to Use
               </div>
             </div>
 

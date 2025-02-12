@@ -45,6 +45,78 @@ const features: {
     ),
   },
   {
+    name: "Personalization",
+    description: (
+      <>
+        <ul className="space-y-2">
+          {[
+            "Customize character appearance and actions",
+            "Chat naturally with your Shimeji using AI technology",
+            "Direct your Shimeji's actions through chat commands",
+            "Feel free to add shimeji",
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-[18px] h-[18px] inline shrink-0 opacity-80"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </>
+    ),
+    svg: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+      </svg>
+    ),
+  },
+  {
+    name: "Extremely Convenient",
+    description: (
+      <>
+        <ul className="space-y-2">
+          {[
+            "One-click installation with no Java required",
+            "Pre-designed animation frames ready to use",
+            "Comprehensive tutorials and documentation",
+            "Easy-to-use interface for all users",
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-[18px] h-[18px] inline shrink-0 opacity-80"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </>
+    ),
+    svg: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+      </svg>
+    ),
+  },
+  {
     name: "Interactive Experience",
     description: (
       <>
@@ -77,78 +149,6 @@ const features: {
     svg: (
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
-      </svg>
-    ),
-  },
-  {
-    name: "Personalization",
-    description: (
-      <>
-        <ul className="space-y-2">
-          {[
-            "Customize character appearance and actions",
-            "Adjustable size and transparency",
-            "Personalized behavior pattern settings",
-            "Multi-device synchronization support",
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-[18px] h-[18px] inline shrink-0 opacity-80"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </>
-    ),
-    svg: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
-      </svg>
-    ),
-  },
-  {
-    name: "Creative Community",
-    description: (
-      <>
-        <ul className="space-y-2">
-          {[
-            "Share your custom character creations",
-            "Collect your favorite character models",
-            "Participate in community discussions",
-            "Get the latest update news",
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-[18px] h-[18px] inline shrink-0 opacity-80"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </>
-    ),
-    svg: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
       </svg>
     ),
   },
