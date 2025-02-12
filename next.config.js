@@ -9,6 +9,7 @@ const nextConfig = {
       "images.unsplash.com",
       "logos-world.net",
       "ycamie.com",
+      "r2.ycamie.com"
     ],
   },
   async headers() { 

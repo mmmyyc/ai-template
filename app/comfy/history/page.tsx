@@ -22,6 +22,7 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [isAnyDownloading, setIsAnyDownloading] = useState(false);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -42,29 +43,19 @@ export default function HistoryPage() {
   const handleDownload = async (result: string, id: string, type: string) => {
     if (!result) return;
     setDownloading(id);
+    setIsAnyDownloading(true);
     
     try {
-      await toast.promise(
-        downloadGeneratedImage({
+        await downloadGeneratedImage({
           imageUrl: result,
           fileName: 'shime.zip',
           type: type
-        }),
-        {
-          loading: 'Processing your images, please wait...',
-          success: 'Images processed successfully!',
-          error: 'Failed to process images'
-        },
-        {
-          id: 'download',
-          success: { duration: 2000 },
-          error: { duration: 2000 }
-        }
-      );
+        })
     } catch (error) {
       console.error('Download failed:', error);
     } finally {
       setDownloading(null);
+      setIsAnyDownloading(false);
     }
   };
 
@@ -139,7 +130,7 @@ export default function HistoryPage() {
                   <div className="absolute top-2 right-2">
                     <button
                       onClick={() => handleDownload(gen.result, gen.id, gen.type)}
-                      disabled={downloading === gen.id}
+                      disabled={downloading === gen.id || isAnyDownloading}
                       className="btn btn-circle btn-sm bg-base-100 hover:bg-base-200"
                     >
                       {downloading === gen.id ? (

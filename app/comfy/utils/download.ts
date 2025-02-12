@@ -1,4 +1,5 @@
 import apiClient from "@/libs/api";
+import toast from "react-hot-toast";
 
 interface DownloadImageOptions {
   imageUrl: string;
@@ -6,23 +7,60 @@ interface DownloadImageOptions {
   fileName?: string;
 }
 
-export async function downloadGeneratedImage({
+// 用于跟踪下载状态的 Map
+const downloadStateMap = new Map<string, boolean>();
+
+// 节流函数
+function throttle<T extends (...args: any[]) => any>(
+  func: T,
+  limit: number
+): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+  let inThrottle: boolean = false;
+  return async function(...args: Parameters<T>): Promise<ReturnType<T>> {
+    if (!inThrottle) {
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+      return func.apply(this, args);
+    }
+    throw new Error('Please wait before starting another download');
+  };
+}
+
+export const downloadGeneratedImage = throttle(async function({
   imageUrl,
   type = 'basic',
   fileName = 'shime.zip'
 }: DownloadImageOptions): Promise<void> {
-  try {
-    // 获取预签名 URL
-    const { data: { signedUrl } } = await apiClient.post('/get-signed-url', {
-      imageUrl
+  // 检查是否已经在下载中
+  if (downloadStateMap.get(imageUrl)) {
+    toast.error('A download is already in progress. Please wait.', {
+      duration: 3000,
+      id: 'download-duplicate'
     });
+    return;
+  }
 
-    if (!signedUrl) {
-      throw new Error('Failed to get signed URL');
-    }
+  // 设置下载状态
+  downloadStateMap.set(imageUrl, true);
+  const loadingToastId = toast.loading('Preparing your download...', {
+    id: 'download-progress',
+    duration: Infinity // 保持 toast 显示直到我们手动关闭
+  });
+
+  try {
+    // // 获取预签名 URL
+    toast.loading('Getting image data... (Step 1/3)', { id: loadingToastId });
+    // const { data: { signedUrl } } = await apiClient.post('/get-signed-url', {
+    //   imageUrl
+    // });
+
+    // if (!signedUrl) {
+    //   throw new Error('Failed to get signed URL');
+    // }
     
-    // 使用预签名 URL 获取图片数据
-    const response = await fetch(signedUrl);
+    // // 使用预签名 URL 获取图片数据
+    // const response = await fetch(signedUrl);
+    const response = await fetch(imageUrl);
     const imageBlob = await response.blob();
     
     // 创建 FormData
@@ -31,35 +69,16 @@ export async function downloadGeneratedImage({
     formData.append('type', type);
     
     // 发送切割请求
+    toast.loading('Processing images... (Step 2/3)', { id: loadingToastId });
     const splitResponse = await apiClient.post('/split-image', formData);
     
-    // 检查响应
     if (!splitResponse.data) {
       throw new Error('Invalid response format');
     }
 
-    // 如果有预处理的签名 URL，直接使用它下载
-    if (splitResponse.data.signedUrl) {
-      const zipResponse = await fetch(splitResponse.data.signedUrl);
-      const zipBlob = await zipResponse.blob();
-      
-      // 创建下载链接
-      const url = window.URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      
-      // 触发下载
-      document.body.appendChild(link);
-      link.click();
-      
-      // 清理
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      return;
-    }
+    toast.loading('Starting download... (Step 3/3)', { id: loadingToastId });
 
-    // 如果没有预处理文件，使用返回的 base64 数据（保持原有逻辑作为后备方案）
+    // 如果没有预处理文件，使用返回的 base64 数据
     if (!splitResponse.data.zipBase64) {
       throw new Error('No zip data available');
     }
@@ -72,21 +91,54 @@ export async function downloadGeneratedImage({
     }
     const zipBlob = new Blob([bytes], { type: 'application/zip' });
     
-    // 创建下载链接
-    const url = window.URL.createObjectURL(zipBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    
-    // 触发下载
-    document.body.appendChild(link);
-    link.click();
-    
-    // 清理
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    await startDownload(zipBlob, fileName);
+
+    toast.success('Download started! Please wait for your browser to complete the download.', {
+      id: loadingToastId,
+      duration: 5000
+    });
+
   } catch (error) {
     console.error('Error downloading images:', error);
+    toast.error(error instanceof Error ? error.message : 'Download failed. Please try again.', {
+      id: loadingToastId,
+      duration: 3000
+    });
     throw error;
+  } finally {
+    // 清理下载状态
+    downloadStateMap.set(imageUrl, false);
   }
+}, 5000); // 5秒内不能重复触发
+
+// 辅助函数：处理文件下载
+async function startDownload(blob: Blob, fileName: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      
+      // 添加下载完成或错误的处理
+      link.onload = () => {
+        window.URL.revokeObjectURL(url);
+        resolve();
+      };
+      
+      link.onerror = () => {
+        window.URL.revokeObjectURL(url);
+        reject(new Error('Download failed'));
+      };
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // 如果 onload 没有触发，也要确保解析 Promise
+      setTimeout(resolve, 1000);
+    } catch (error) {
+      reject(error);
+    }
+  });
 } 

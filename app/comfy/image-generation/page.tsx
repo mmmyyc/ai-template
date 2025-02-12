@@ -226,23 +226,11 @@ export default function ImageGenerationPage() {
     if (!result) return;
 
     try {
-      await toast.promise(
-        downloadGeneratedImage({
+      await downloadGeneratedImage({
           imageUrl: result,
           type: generationType,
           fileName: 'shime.zip'
-        }),
-        {
-          loading: 'Processing your images, please wait...',
-          success: 'Images processed successfully!',
-          error: 'Failed to process images'
-        },
-        {
-          id: 'download',
-          success: { duration: 2000 },
-          error: { duration: 2000 }
-        }
-      );
+        })
     } catch (error) {
       console.error('Download failed:', error);
     }
