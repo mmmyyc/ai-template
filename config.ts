@@ -60,7 +60,7 @@ const config = {
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
         description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
         // The price you want to display, the one user will be charged on Stripe.
-        price: 29,
+        price: 14,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
         priceAnchor: 20,
         features: [
@@ -91,7 +91,7 @@ const config = {
         isFeatured: true,
         name: "Advanced",
         description: "providing high-quality desktop pets consisting of 46 high-quality pictures",
-        price: 39,
+        price: 24,
         priceAnchor: 49,
         features: [
           {
