@@ -53,8 +53,8 @@ const config = {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1QqTDVHbfXTB6MRp5nFk5sgv"
-            : "price_1QqTDVHbfXTB6MRp5nFk5sgv",
+            ? "price_1Qrc5JHbfXTB6MRpjUpZonfp"
+            : "price_1Qrc5JHbfXTB6MRpjUpZonfp",
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Basic",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
@@ -62,7 +62,7 @@ const config = {
         // The price you want to display, the one user will be charged on Stripe.
         price: 14,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
-        priceAnchor: 20,
+        priceAnchor: 29,
         features: [
           {
             name: "Usage Limit 50 generations per month",
@@ -85,14 +85,14 @@ const config = {
       {
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1QqTIRHbfXTB6MRpNBPE2CGr"
-            : "price_1QqTIRHbfXTB6MRpNBPE2CGr",
+            ? "price_1Qrc66HbfXTB6MRp6FpKmgmJ"
+            : "price_1Qrc66HbfXTB6MRp6FpKmgmJ",
         // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
         isFeatured: true,
         name: "Advanced",
         description: "providing high-quality desktop pets consisting of 46 high-quality pictures",
         price: 24,
-        priceAnchor: 49,
+        priceAnchor: 39,
         features: [
           {
             name: "Usage Limit 500 generations per month",
