@@ -228,8 +228,21 @@ export async function POST(req: NextRequest) {
     }
   } catch (e) {
     console.error("stripe error: ", e.message);
+    // 即使发生错误，也返回 200 状态码
+    // 这是因为 Stripe 需要收到 2xx 响应来确认 webhook 已被接收
+    // 我们在这里记录错误，但仍然返回成功响应
+    return NextResponse.json(
+      { 
+        error: e.message,
+        received: true 
+      }, 
+      { status: 200 }
+    );
   }
 
-  // 返回空对象表示处理成功
-  return NextResponse.json({});
+  // 返回成功响应
+  return NextResponse.json(
+    { received: true },
+    { status: 200 }
+  );
 }
