@@ -7,6 +7,23 @@ interface DownloadImageOptions {
   fileName?: string;
 }
 
+interface FileSystemHandle {
+  readonly kind: 'file' | 'directory';
+  readonly name: string;
+}
+
+interface FileSystemFileHandle extends FileSystemHandle {
+  readonly kind: 'file';
+  getFile(): Promise<File>;
+  createWritable(): Promise<FileSystemWritableFileStream>;
+}
+
+interface FileSystemWritableFileStream extends WritableStream {
+  write(data: any): Promise<void>;
+  seek(position: number): Promise<void>;
+  truncate(size: number): Promise<void>;
+}
+
 // 用于跟踪下载状态的 Map
 const downloadStateMap = new Map<string, boolean>();
 
@@ -115,28 +132,44 @@ export const downloadGeneratedImage = throttle(async function({
 async function startDownload(blob: Blob, fileName: string): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
+      // 创建一个新的 Blob 对象，添加类型信息
+      const file = new Blob([blob], { type: 'application/zip' });
       
-      // 添加下载完成或错误的处理
-      link.onload = () => {
+      // 使用 showSaveFilePicker API 来触发"另存为"对话框
+      if ('showSaveFilePicker' in window) {
+        window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{
+            description: 'Zip files',
+            accept: {
+              'application/zip': ['.zip'],
+            },
+          }],
+        }).then(async (handle: FileSystemFileHandle) => {
+          const writable = await handle.createWritable();
+          await writable.write(file);
+          await writable.close();
+          resolve();
+        }).catch((error: Error) => {
+          // 如果用户取消了保存对话框或浏览器不支持，回退到传统方法
+          const url = window.URL.createObjectURL(file);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          link.click();
+          window.URL.revokeObjectURL(url);
+          resolve();
+        });
+      } else {
+        // 对于不支持 showSaveFilePicker 的浏览器，使用传统方法
+        const url = window.URL.createObjectURL(file);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.click();
         window.URL.revokeObjectURL(url);
         resolve();
-      };
-      
-      link.onerror = () => {
-        window.URL.revokeObjectURL(url);
-        reject(new Error('Download failed'));
-      };
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // 如果 onload 没有触发，也要确保解析 Promise
-      setTimeout(resolve, 1000);
+      }
     } catch (error) {
       reject(error);
     }
