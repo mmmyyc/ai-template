@@ -192,20 +192,18 @@ const FeaturesListicle = () => {
   }, [featureSelected, hasClicked]);
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-gray-50 font-sans" id="features">
+    <section className="py-16 bg-base-100 font-sans" id="features">
       <div className="max-w-3xl mx-auto">
         <div className="px-6 md:px-8">
-          <h2 className="font-bold text-3xl lg:text-4xl tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+          <h2 className="font-bold text-3xl lg:text-4xl tracking-tight mb-6 text-base-content">
             Adding Warmth and Companionship to Your Digital Life
           </h2>
-          <div className="text-gray-600 leading-relaxed mb-12 lg:text-lg font-normal">
+          <div className="text-base-content/70 leading-relaxed mb-12 lg:text-lg font-normal">
             We've carefully designed rich interactive features and personalization options to make your desktop more lively. Whether you're working or studying, you'll feel the warmth and joy brought by your cute companion.
           </div>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 px-6 md:px-8 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-6 md:px-8 mb-6">
           {features.map((feature) => (
             <button
               key={feature.name}
@@ -213,17 +211,17 @@ const FeaturesListicle = () => {
                 if (!hasClicked) setHasClicked(true);
                 setFeatureSelected(feature.name);
               }}
-              className={`flex flex-col items-center justify-center gap-3 select-none cursor-pointer p-4 rounded-xl transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center gap-2 select-none cursor-pointer p-3 rounded-xl transition-all duration-200 ${
                 featureSelected === feature.name
-                  ? "bg-blue-50 shadow-sm"
-                  : "hover:bg-gray-50"
+                  ? "bg-primary/10 shadow-sm"
+                  : "hover:bg-base-200"
               }`}
             >
               <span
                 className={`transition-colors duration-200 ${
                   featureSelected === feature.name
-                    ? "text-blue-600"
-                    : "text-gray-400 group-hover:text-gray-600"
+                    ? "text-primary"
+                    : "text-base-content/40 group-hover:text-base-content/60"
                 }`}
               >
                 {feature.svg}
@@ -231,8 +229,8 @@ const FeaturesListicle = () => {
               <span
                 className={`font-medium text-sm transition-colors duration-200 ${
                   featureSelected === feature.name
-                    ? "text-blue-600"
-                    : "text-gray-500"
+                    ? "text-primary"
+                    : "text-base-content/50"
                 }`}
               >
                 {feature.name}
@@ -241,18 +239,16 @@ const FeaturesListicle = () => {
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-          <div className="max-w-3xl mx-auto">
-            <div
-              className="p-8 animate-opacity"
-              key={featureSelected}
-            >
-              <h3 className="font-semibold text-gray-900 text-lg mb-4">
-                {features.find((f) => f.name === featureSelected)["name"]}
-              </h3>
-              <div className="text-gray-600 font-normal">
-                {features.find((f) => f.name === featureSelected)["description"]}
-              </div>
+        <div className="px-6 md:px-8">
+          <div
+            className="p-6 bg-base-200/50 rounded-2xl animate-opacity"
+            key={featureSelected}
+          >
+            <h3 className="font-semibold text-base-content text-lg mb-4">
+              {features.find((f) => f.name === featureSelected)["name"]}
+            </h3>
+            <div className="text-base-content/70 font-normal">
+              {features.find((f) => f.name === featureSelected)["description"]}
             </div>
           </div>
         </div>

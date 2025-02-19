@@ -36,7 +36,7 @@ const Step = ({ emoji, text, description }: { emoji: string; text: string; descr
 
 const Problem = () => {
   return (
-    <section className="bg-gradient-to-b from-neutral to-neutral-800 text-neutral-content font-sans">
+    <section className="bg-base-200 text-base-content font-sans">
       <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
         <h2 className="max-w-3xl mx-auto font-bold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8">
           Loneliness in the Digital Age is Affecting Our Work and Life
@@ -70,13 +70,13 @@ const Problem = () => {
         </div>
 
         <div className="mt-16 md:mt-24 flex flex-wrap justify-center gap-4 text-sm opacity-80">
-          <div className="flex items-center gap-2 bg-neutral-700/30 px-4 py-2 rounded-full">
+          <div className="flex items-center gap-2 bg-base-300 px-4 py-2 rounded-full">
             <span className="font-semibold">76%</span> of people feel lonely when working remotely
           </div>
-          <div className="flex items-center gap-2 bg-neutral-700/30 px-4 py-2 rounded-full">
+          <div className="flex items-center gap-2 bg-base-300 px-4 py-2 rounded-full">
             <span className="font-semibold">52%</span> want a more enjoyable work environment
           </div>
-          <div className="flex items-center gap-2 bg-neutral-700/30 px-4 py-2 rounded-full">
+          <div className="flex items-center gap-2 bg-base-300 px-4 py-2 rounded-full">
             <span className="font-semibold">89%</span> believe a happy work environment boosts efficiency
           </div>
         </div>

@@ -8,16 +8,16 @@ const Hero = () => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 flex flex-col items-start">
-            <h1 className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-gray-900">
+            <h1 className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-base-content">
               Create Your Own AI Shimeji
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 font-normal leading-relaxed mb-12">
+            <p className="text-xl md:text-2xl text-base-content/70 font-normal leading-relaxed mb-12">
               Get high-quality personalized AI Shimeji desktop pets without spending weeks or hundreds of dollars.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link 
                 href="/comfy" 
-                className="btn btn-primary btn-lg px-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 border-none hover:from-blue-700 hover:to-purple-700 "
+                className="btn btn-primary btn-lg px-8 rounded-full"
                 title={`${config.appName} dashboard`}
               >
                 <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,22 +34,21 @@ const Hero = () => {
               </Link>
             </div>
 
-
-            <div className="flex items-center gap-8 text-sm opacity-80 mt-8">
+            <div className="flex items-center gap-8 text-sm text-base-content/70 mt-8">
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 Fully Customizable
               </div>
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 High Quality
               </div>
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 Easy to Use
@@ -75,8 +74,8 @@ const Hero = () => {
                   maxHeight: '500px'
                 }}
               />
-              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-full -z-10"></div>
-              <div className="absolute -top-4 -left-4 w-32 h-32 bg-purple-50 rounded-full -z-10"></div>
+              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full -z-10"></div>
+              <div className="absolute -top-4 -left-4 w-32 h-32 bg-secondary/10 rounded-full -z-10"></div>
             </div>
           </div>
         </div>

@@ -23,14 +23,26 @@ export const metadata = getSEOTags({
 	keywords: "YCamie, desktop pets, personalized Shimeji, animated desktop characters, Shimeji customization"
 });
 
+// 添加主题初始化脚本
+const themeScript = `
+	let theme = localStorage.getItem('theme');
+	if (!theme) {
+		theme = '${config.colors.theme}';
+		localStorage.setItem('theme', theme);
+	}
+	document.documentElement.setAttribute('data-theme', theme);
+`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
 		<html
 			lang="en"
-			data-theme={config.colors.theme}
-			className={font.className}
+			suppressHydrationWarning
 		>
-			<body>
+			<head>
+				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
+			</head>
+			<body className={font.className}>
 				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
 				<ClientLayout>{children}</ClientLayout>
 				<Analytics />

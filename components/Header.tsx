@@ -8,6 +8,7 @@ import Image from "next/image";
 import ButtonSignin from "./ButtonSignin";
 import logo from "@/app/apple-icon.png";
 import config from "@/config";
+import ThemeToggle from './ThemeToggle';
 
 const links: {
   href: string;
@@ -118,7 +119,10 @@ const HeaderContent = () => {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden lg:flex lg:justify-end lg:flex-1">{cta}</div>
+        <div className="hidden lg:flex lg:justify-end lg:flex-1 lg:items-center lg:gap-4">
+          <ThemeToggle />
+          {cta}
+        </div>
 
         {/* Mobile Menu Button */}
         <div className="flex lg:hidden">
