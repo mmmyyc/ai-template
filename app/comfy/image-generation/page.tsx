@@ -25,8 +25,8 @@ export default function ImageGenerationPage() {
 
   // 验证输入是否为英文
   const validatePrompt = (value: string) => {
-    // 英文字符、数字、空格和基本标点的正则表达式
-    const englishRegex = /^[a-zA-Z0-9\s.,!?-]*$/;
+    // 英文字符、数字、空格和常用标点符号的正则表达式
+    const englishRegex = /^[a-zA-Z0-9\s.,!?()'";\-:&@%]*$/;
     if (!englishRegex.test(value)) {
       setPromptError("Please enter English characters only");
       return false;
@@ -361,19 +361,27 @@ export default function ImageGenerationPage() {
 
                 {/* 生成按钮组 */}
                 <div className="space-y-2">
-                  <button 
+                  <button
                     className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       !prompt.trim() || !referenceImage || promptError || isGenerating
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : isGenerating
-                          ? 'bg-blue-400 cursor-not-allowed'
-                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : isGenerating && generationType === 'basic'
+                          ? 'bg-primary cursor-not-allowed'
+                          : 'bg-primary hover:bg-primary-focus text-white'
                     }`}
                     onClick={() => {
+                      if (!referenceImage) {
+                        toast.error('Please upload an image first');
+                        return;
+                      }
+                      if (!prompt.trim()) {
+                        toast.error('Please enter a prompt first');
+                        return;
+                      }
                       setGenerationType('basic');
                       handleGenerate('basic');
                     }}
-                    disabled={!prompt.trim() || !referenceImage || promptError || isGenerating}
+                    disabled={isGenerating}
                   >
                     {isGenerating && generationType === 'basic' ? (
                       <span className="flex items-center justify-center">
@@ -383,10 +391,6 @@ export default function ImageGenerationPage() {
                         </svg>
                         Generating...
                       </span>
-                    ) : !referenceImage ? (
-                      'Upload an image first'
-                    ) : !prompt.trim() ? (
-                      'Enter a prompt first'
                     ) : (
                       'Generate Pet'
                     )}
@@ -402,10 +406,18 @@ export default function ImageGenerationPage() {
                             : 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white'
                       }`}
                       onClick={() => {
+                        if (!referenceImage) {
+                          toast.error('Please upload an image first');
+                          return;
+                        }
+                        if (!prompt.trim()) {
+                          toast.error('Please enter a prompt first');
+                          return;
+                        }
                         setGenerationType('advanced');
                         handleGenerate('advanced');
                       }}
-                      disabled={!prompt.trim() || !referenceImage || promptError || isGenerating}
+                      disabled={isGenerating}
                     >
                       {isGenerating && generationType === 'advanced' ? (
                         <span className="flex items-center justify-center">
@@ -415,10 +427,6 @@ export default function ImageGenerationPage() {
                           </svg>
                           Generating...
                         </span>
-                      ) : !referenceImage ? (
-                        'Upload an image first'
-                      ) : !prompt.trim() ? (
-                        'Enter a prompt first'
                       ) : (
                         <>✨ Advanced Generate</>
                       )}
