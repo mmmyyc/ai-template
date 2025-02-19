@@ -53,11 +53,11 @@ export function DailyLimit() {
         <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
-        <span className="font-medium text-sm">Daily AI Limit</span>
+        <span className="font-medium text-sm">Monthly Generation Limit</span>
       </div>
       
       <div className="text-sm text-gray-500 mb-3">
-        Number of AI-generated words in the last 24 hours
+        Remaining generations this month
       </div>
 
       {/* Progress bar */}
