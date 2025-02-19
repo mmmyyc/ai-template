@@ -71,6 +71,12 @@ export default function ImageGenerationPage() {
       return;
     }
 
+    // 检查文件大小（1MB = 1024 * 1024 bytes）
+    if (file.size > 1024 * 1024) {
+      toast.error('Image size should not exceed 1MB');
+      return;
+    }
+
     if (referencePreview) {
       URL.revokeObjectURL(referencePreview);
     }
@@ -93,6 +99,12 @@ export default function ImageGenerationPage() {
 
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
+      return;
+    }
+
+    // 检查文件大小（1MB = 1024 * 1024 bytes）
+    if (file.size > 1024 * 1024) {
+      toast.error('Image size should not exceed 1MB');
       return;
     }
 
@@ -345,7 +357,7 @@ export default function ImageGenerationPage() {
                         </div>
                         <div>
                           <p className="text-base-content/60">Drag and drop your image here, or click to select</p>
-                          <p className="text-sm text-base-content/40 mt-2">Supports: JPG, PNG, WebP</p>
+                          <p className="text-sm text-base-content/40 mt-2">Supports: JPG, PNG, WebP (Max: 1MB)</p>
                         </div>
                       </div>
                     )}

@@ -100,5 +100,5 @@ const handler = async (request: NextRequest) => {
   }
 };
 
-// export const POST = verifySignatureEdge(handler);
-export const POST = handler;
+export const POST = verifySignatureEdge(handler);
+// export const POST = handler;
