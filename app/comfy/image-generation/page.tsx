@@ -12,13 +12,35 @@ import { downloadGeneratedImage } from "@/app/comfy/utils/download";
 
 export default function ImageGenerationPage() {
   const router = useRouter()
-  const [prompt, setPrompt] = useState('')
+  const [prompt, setPrompt] = useState<string>("")
   const [result, setResult] = useState<string | null>(null)
   const [referenceImage, setReferenceImage] = useState<File | null>(null)
   const [referencePreview, setReferencePreview] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [userPlan, setUserPlan] = useState<'free'| 'basic' | 'advanced'>('free')
   const [generationType, setGenerationType] = useState<'basic' | 'advanced'>('basic')
+
+  // 添加验证提示状态
+  const [promptError, setPromptError] = useState<string>("")
+
+  // 验证输入是否为英文
+  const validatePrompt = (value: string) => {
+    // 英文字符、数字、空格和基本标点的正则表达式
+    const englishRegex = /^[a-zA-Z0-9\s.,!?-]*$/;
+    if (!englishRegex.test(value)) {
+      setPromptError("Please enter English characters only");
+      return false;
+    }
+    setPromptError("");
+    return true;
+  };
+
+  // 处理输入变化
+  const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setPrompt(value);
+    validatePrompt(value);
+  };
 
   // 获取用户计划信息
   useEffect(() => {
@@ -143,9 +165,14 @@ export default function ImageGenerationPage() {
 
   // 处理图片生成
   const handleGenerate = async (type: 'basic' | 'advanced' = 'basic') => {
-    if (!prompt) {
-      toast.error('Please enter a prompt')
-      return
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt");
+      return;
+    }
+
+    if (!validatePrompt(prompt)) {
+      toast.error("Please use English characters only");
+      return;
     }
 
     if (isGenerating) {
@@ -264,13 +291,18 @@ export default function ImageGenerationPage() {
                       generationType === 'advanced' 
                         ? 'border-2 border-amber-400 focus:border-amber-500 focus:ring-amber-500'
                         : 'border border-gray-200 focus:border-blue-500 focus:ring-blue-500'
-                    }`}
+                    } ${promptError ? 'textarea-error' : ''}`}
                     placeholder={generationType === 'advanced' 
                       ? "Describe your dream pet in detail..."
                       : "Describe your pet idea..."}
                     value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
+                    onChange={handlePromptChange}
                   />
+                  {promptError && (
+                    <div className="text-error text-sm mt-1">
+                      {promptError}
+                    </div>
+                  )}
                 </div>
 
                 {/* 参考图片上传 */}
@@ -331,19 +363,17 @@ export default function ImageGenerationPage() {
                 <div className="space-y-2">
                   <button 
                     className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isGenerating
-                        ? 'bg-blue-400 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      !prompt.trim() || !referenceImage || promptError || isGenerating
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : isGenerating
+                          ? 'bg-blue-400 cursor-not-allowed'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
                     }`}
                     onClick={() => {
-                      if (isGenerating) {
-                        toast.error('Please wait for the current generation to complete');
-                        return;
-                      }
                       setGenerationType('basic');
                       handleGenerate('basic');
                     }}
-                    disabled={isGenerating}
+                    disabled={!prompt.trim() || !referenceImage || promptError || isGenerating}
                   >
                     {isGenerating && generationType === 'basic' ? (
                       <span className="flex items-center justify-center">
@@ -353,6 +383,10 @@ export default function ImageGenerationPage() {
                         </svg>
                         Generating...
                       </span>
+                    ) : !referenceImage ? (
+                      'Upload an image first'
+                    ) : !prompt.trim() ? (
+                      'Enter a prompt first'
                     ) : (
                       'Generate Pet'
                     )}
@@ -361,19 +395,17 @@ export default function ImageGenerationPage() {
                   {userPlan === 'advanced' && (
                     <button 
                       className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        isGenerating && generationType === 'advanced'
-                          ? 'bg-amber-400 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white'
+                        !prompt.trim() || !referenceImage || promptError || isGenerating
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : isGenerating && generationType === 'advanced'
+                            ? 'bg-amber-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white'
                       }`}
                       onClick={() => {
-                        if (isGenerating) {
-                          toast.error('Please wait for the current generation to complete');
-                          return;
-                        }
                         setGenerationType('advanced');
                         handleGenerate('advanced');
                       }}
-                      disabled={isGenerating}
+                      disabled={!prompt.trim() || !referenceImage || promptError || isGenerating}
                     >
                       {isGenerating && generationType === 'advanced' ? (
                         <span className="flex items-center justify-center">
@@ -383,6 +415,10 @@ export default function ImageGenerationPage() {
                           </svg>
                           Generating...
                         </span>
+                      ) : !referenceImage ? (
+                        'Upload an image first'
+                      ) : !prompt.trim() ? (
+                        'Enter a prompt first'
                       ) : (
                         <>✨ Advanced Generate</>
                       )}
