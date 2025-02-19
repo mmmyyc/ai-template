@@ -13,6 +13,8 @@ import introducingYCamieImgInstallStep4 from "@/public/blog/introducing-ycamie/r
 
 import howToMakeShimejiImg from "@/public/blog/how-to-make-shimeji/shimeji.png";
 import Link from "next/link";
+import whatIsShimejiImg from "@/public/blog/what-is-shimeji/hero.png";
+
 // ==================================================================================================================================================================
 // BLOG CATEGORIES 🏷️
 // 博客分类 🏷️
@@ -568,6 +570,101 @@ export const articles: articleType[] = [
         </div>
       </>
 
+    ),
+  },
+  {
+    slug: "what-is-shimeji",
+    title: "What Is Shimeji? The Cutest Desktop Pet You Never Knew You Needed",
+    description:
+      "Discover how Shimeji desktop pets can transform your digital workspace into a more engaging and personalized environment with their charming interactions.",
+    categories: [
+      categories.find((category) => category.slug === categorySlugs.tutorial),
+    ],
+    author: authors.find((author) => author.slug === authorSlugs.mmmyyc),
+    publishedAt: "2024-03-25",
+    image: {
+      src: whatIsShimejiImg,
+      urlRelative: "/blog/what-is-shimeji/hero.png",
+      alt: "Shimeji Desktop Pet Example",
+    },
+    content: (
+      <div className="space-y-8">
+        <p className={styles.p}>
+          Imagine having a cute little desktop pet running around your computer screen and bringing life to your digital world. 
+          These virtual companions called Shimeji turn your ordinary screen into an interactive playground through their playful 
+          mischief and adorable behavior.
+        </p>
+
+        <Image 
+          src={whatIsShimejiImg} 
+          alt="Shimeji Desktop Pet Example" 
+          width={700} 
+          height={500} 
+          className="rounded-box" 
+          placeholder="blur" 
+        />
+
+        <h2 className={styles.h2}>What Makes Shimeji Different?</h2>
+        <p className={styles.p}>
+          Shimeji stands out from traditional desktop companions through its amazing flexibility and community-driven development. 
+          Originally created by Yuki Yamada of Group Finity, these desktop pets have evolved into an open-source project where 
+          artists and developers worldwide contribute unique characters with custom behaviors and animations.
+        </p>
+
+        <h3 className={styles.h3}>Key Features</h3>
+        <ul className={styles.ul}>
+          <li className={styles.li}>Multi-monitor support for seamless pet movement</li>
+          <li className={styles.li}>Optimized performance with minimal resource usage</li>
+          <li className={styles.li}>Compatible with all software and live wallpapers</li>
+          <li className={styles.li}>Support for multiple languages</li>
+          <li className={styles.li}>Interactive behaviors with your desktop environment</li>
+        </ul>
+
+        <h2 className={styles.h2}>How Shimeji Enhances Your Workspace</h2>
+        <p className={styles.p}>
+          Your computer screen time becomes more enjoyable with a digital companion at your side. These virtual pets do more than 
+          just entertain - they create an environment where work feels less isolating and more engaging.
+        </p>
+
+        <h3 className={styles.h3}>Benefits</h3>
+        <ul className={styles.ul}>
+          <li className={styles.li}>Creates a more personalized environment</li>
+          <li className={styles.li}>Reduces screen fatigue with pleasant distractions</li>
+          <li className={styles.li}>Adds elements of surprise and delight to routine tasks</li>
+          <li className={styles.li}>Encourages a more relaxed work atmosphere</li>
+        </ul>
+
+        <h2 className={styles.h2}>Popular Characters and Types</h2>
+        <p className={styles.p}>
+          The Shimeji community features an extensive collection of desktop companions, from beloved anime characters to popular 
+          gaming icons. With characters from over 40 different categories, you'll find the perfect companion for your desktop.
+        </p>
+
+        <h3 className={styles.h3}>Popular Categories</h3>
+        <ul className={styles.ul}>
+          <li className={styles.li}>Adventure and Fantasy: Characters from Attack on Titan, Dragon Ball Z, and Genshin Impact</li>
+          <li className={styles.li}>Gaming Universe: Mario, Sonic, and Pokemon characters</li>
+          <li className={styles.li}>Pop Culture: Disney characters, Marvel superheroes, and more</li>
+          <li className={styles.li}>Classic Anime: One Piece, Naruto, and Hunter x Hunter personalities</li>
+        </ul>
+
+        <div className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+          <h2 className={styles.h2}>Ready to Get Your Own Desktop Pet?</h2>
+          <p className={styles.p}>
+            With YCamie, creating your own Shimeji is easier than ever. Our AI-powered platform lets you generate custom desktop 
+            pets in minutes, no technical skills required. Join thousands of users who have already brought their favorite 
+            characters to life!
+          </p>
+          <div className="mt-4">
+            <Link 
+              href="/comfy" 
+              className="text-blue-600 font-semibold hover:text-blue-700"
+            >
+              Create Your Shimeji Now →
+            </Link>
+          </div>
+        </div>
+      </div>
     ),
   },
 ];
