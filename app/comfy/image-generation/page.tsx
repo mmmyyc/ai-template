@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Upload } from 'lucide-react'
 import apiClient from "@/libs/api";
 import { AxiosError } from 'axios'
 import { useRouter } from "next/navigation";
@@ -22,24 +21,80 @@ export default function ImageGenerationPage() {
 
   // 添加验证提示状态
   const [promptError, setPromptError] = useState<string>("")
+  const [wordCount, setWordCount] = useState<number>(0)
+  const MAX_WORDS = 70
 
-  // 验证输入是否为英文
+  // 计算单词数
+  const countWords = (text: string): number => {
+    // 将文本按空格和标点符号分割，过滤掉空字符串
+    return text.trim().split(/[\s.,!?()'";\-:&@%]+/).filter(word => word.length > 0).length;
+  };
+
+  // 验证输入是否为英文和单词限制
   const validatePrompt = (value: string) => {
+    // 更新单词计数
+    const words = countWords(value);
+    setWordCount(words);
+    
+    // 检查单词数限制
+    if (words > MAX_WORDS) {
+      setPromptError(`Word limit exceeded (${words}/${MAX_WORDS})`);
+      return false;
+    }
+
     // 英文字符、数字、空格和常用标点符号的正则表达式
     const englishRegex = /^[a-zA-Z0-9\s.,!?()'";\-:&@%]*$/;
     if (!englishRegex.test(value)) {
       setPromptError("Please enter English characters only");
       return false;
     }
+
     setPromptError("");
     return true;
   };
 
-  // 处理输入变化
+  // 添加文件大小检查函数
+  const checkTotalSize = (text: string, file: File | null): { isValid: boolean; message: string } => {
+    const textSize = new Blob([text]).size;
+    const fileSize = file ? file.size : 0;
+    const totalSize = textSize + fileSize;
+    const maxSize = 1024 * 1024; // 1MB in bytes
+
+    if (totalSize > maxSize) {
+      const textSizeInKB = (textSize / 1024).toFixed(1);
+      const fileSizeInKB = (fileSize / 1024).toFixed(1);
+      const totalSizeInKB = (totalSize / 1024).toFixed(1);
+      const message = `Total size (${totalSizeInKB}KB) exceeds 1MB limit.\nText: ${textSizeInKB}KB\nImage: ${fileSizeInKB}KB`;
+      return { isValid: false, message };
+    }
+    return { isValid: true, message: '' };
+  };
+
+  // 修改handlePromptChange函数
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
+    
+    // 检查单词数
+    const words = countWords(value);
+    if (words > MAX_WORDS) {
+      setPromptError(`Word limit exceeded (${words}/${MAX_WORDS})`);
+      return;
+    }
+
+    // 检查英文字符
+    if (!validatePrompt(value)) {
+      setPrompt(value); // 仍然更新值以显示错误状态
+      return;
+    }
+
+    // 检查总大小
+    const sizeCheck = checkTotalSize(value, referenceImage);
+    if (!sizeCheck.isValid) {
+      toast.error(sizeCheck.message);
+      return;
+    }
+
     setPrompt(value);
-    validatePrompt(value);
   };
 
   // 获取用户计划信息
@@ -61,7 +116,7 @@ export default function ImageGenerationPage() {
     fetchUserPlan();
   }, []);
 
-  // 处理图片上传
+  // 修改handleImageUpload函数
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -71,9 +126,10 @@ export default function ImageGenerationPage() {
       return;
     }
 
-    // 检查文件大小（1MB = 1024 * 1024 bytes）
-    if (file.size > 1024 * 1024) {
-      toast.error('Image size should not exceed 1MB');
+    // 检查总大小
+    const sizeCheck = checkTotalSize(prompt, file);
+    if (!sizeCheck.isValid) {
+      toast.error(sizeCheck.message);
       return;
     }
 
@@ -90,6 +146,7 @@ export default function ImageGenerationPage() {
     e.stopPropagation();
   };
 
+  // 修改handleDrop函数
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -102,9 +159,10 @@ export default function ImageGenerationPage() {
       return;
     }
 
-    // 检查文件大小（1MB = 1024 * 1024 bytes）
-    if (file.size > 1024 * 1024) {
-      toast.error('Image size should not exceed 1MB');
+    // 检查总大小
+    const sizeCheck = checkTotalSize(prompt, file);
+    if (!sizeCheck.isValid) {
+      toast.error(sizeCheck.message);
       return;
     }
 
@@ -175,7 +233,7 @@ export default function ImageGenerationPage() {
     };
   };
 
-  // 处理图片生成
+  // 修改handleGenerate函数
   const handleGenerate = async (type: 'basic' | 'advanced' = 'basic') => {
     if (!prompt.trim()) {
       toast.error("Please enter a prompt");
@@ -188,12 +246,19 @@ export default function ImageGenerationPage() {
     }
 
     if (isGenerating) {
-      toast.error('Please wait for the current generation to complete')
-      return
+      toast.error('Please wait for the current generation to complete');
+      return;
     }
 
-    setIsGenerating(true)
-    setGenerationType(type)
+    // 最终检查总大小
+    const sizeCheck = checkTotalSize(prompt, referenceImage);
+    if (!sizeCheck.isValid) {
+      toast.error(sizeCheck.message);
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationType(type);
     
     try {
       // 清除之前的结果
@@ -297,6 +362,11 @@ export default function ImageGenerationPage() {
                     generationType === 'advanced' ? 'text-amber-600' : 'text-gray-700'
                   }`}>
                     {generationType === 'advanced' ? '✨ Advanced Prompt' : 'Prompt'}
+                    <span className={`ml-2 text-sm ${
+                      wordCount > MAX_WORDS ? 'text-red-500' : 'text-gray-500'
+                    }`}>
+                      ({wordCount}/{MAX_WORDS} words)
+                    </span>
                   </label>
                   <textarea
                     className={`w-full rounded-lg transition-all duration-200 min-h-[100px] p-3 text-sm ${
@@ -305,8 +375,8 @@ export default function ImageGenerationPage() {
                         : 'border border-gray-200 focus:border-blue-500 focus:ring-blue-500'
                     } ${promptError ? 'textarea-error' : ''}`}
                     placeholder={generationType === 'advanced' 
-                      ? "Describe your dream pet in detail..."
-                      : "Describe your pet idea..."}
+                      ? "Describe your dream pet in detail (max 70 words)..."
+                      : "Describe your pet idea (max 70 words)..."}
                     value={prompt}
                     onChange={handlePromptChange}
                   />
@@ -320,36 +390,54 @@ export default function ImageGenerationPage() {
                 {/* 参考图片上传 */}
                 <div className="form-control w-full">
                   <label className="label">
-                    <span className="label-text">Reference Image (Optional)</span>
+                    <span className="label-text">Reference Image</span>
                   </label>
                   <div
-                    className="border-2 border-dashed border-base-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors"
+                    className="border-2 border-dashed border-base-300 rounded-lg p-4 text-center hover:border-primary transition-colors min-h-[300px] flex items-center justify-center"
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
-                    onClick={() => document.getElementById('file-upload')?.click()}
                   >
                     {referencePreview ? (
-                      <div className="relative w-full h-48">
+                      <div className="relative w-full h-[280px] group">
                         <Image
                           src={referencePreview}
                           alt="Reference preview"
                           fill
-                          className="object-contain"
+                          className="object-contain rounded-lg"
                         />
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleClearImage();
-                          }}
-                          className="absolute top-2 right-2 btn btn-circle btn-sm btn-ghost"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                document.getElementById('file-upload')?.click();
+                              }}
+                              className="btn btn-sm btn-primary"
+                            >
+                              Replace
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleClearImage();
+                              }}
+                              className="btn btn-sm btn-error"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('file-upload')?.click()}
+                        className="w-full h-full flex flex-col items-center justify-center space-y-4"
+                      >
                         <div className="flex justify-center">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-base-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -359,7 +447,7 @@ export default function ImageGenerationPage() {
                           <p className="text-base-content/60">Drag and drop your image here, or click to select</p>
                           <p className="text-sm text-base-content/40 mt-2">Supports: JPG, PNG, WebP (Max: 1MB)</p>
                         </div>
-                      </div>
+                      </button>
                     )}
                     <input
                       type="file"
@@ -367,6 +455,9 @@ export default function ImageGenerationPage() {
                       className="hidden"
                       accept="image/*"
                       onChange={handleImageUpload}
+                      onClick={(e) => {
+                        (e.target as HTMLInputElement).value = '';
+                      }}
                     />
                   </div>
                 </div>
@@ -454,7 +545,7 @@ export default function ImageGenerationPage() {
             <div className="bg-white rounded-xl shadow-sm hover:shadow transition-all duration-300 overflow-hidden">
               <div className="w-full aspect-[4/3] relative">
                 {isGenerating ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50">
                     <div className="text-center">
                       <div className="inline-block animate-bounce bg-gradient-to-r from-blue-600 to-purple-600 rounded-full p-3 mb-3">
                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -463,6 +554,31 @@ export default function ImageGenerationPage() {
                       </div>
                       <p className="text-gray-600 text-sm font-medium">Creating your perfect pet...</p>
                       <p className="text-gray-400 text-xs mt-1">This may take a minute</p>
+                      
+                      {/* 提示框 */}
+                      <div className="mt-6 max-w-[280px] mx-auto bg-blue-50/80 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                          <span className="text-xs font-medium text-blue-900">Pro Tip</span>
+                        </div>
+                        <p className="text-xs text-gray-700 mb-2 leading-relaxed">
+                          Keep your description simple and focused on core features
+                        </p>
+                        <div className="space-y-1.5 text-xs">
+                          <div className="flex items-center text-green-700 bg-white/50 rounded-md p-1.5">
+                            <svg className="w-3 h-3 mr-1.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                            </svg>
+                            <code className="text-green-700">cute chibi fox, simple design</code>
+                          </div>
+                          <div className="flex items-center text-red-700 bg-white/50 rounded-md p-1.5">
+                            <svg className="w-3 h-3 mr-1.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                            </svg>
+                            <code className="text-red-700">full body with background</code>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ) : result ? (

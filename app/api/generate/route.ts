@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 处理参考图片：验证并添加到请求中
+    let referenceImageBase64: string | null = null;
     if (referenceImage) {
       // 验证参考图片是否为文件类型
       if (!(referenceImage instanceof File)) {
@@ -55,6 +56,28 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+
+      // 转换图片为 base64
+      referenceImageBase64 = Buffer.from(await referenceImage.arrayBuffer()).toString('base64');
+    }
+    // 创建一个任务ID
+    const taskId = crypto.randomUUID();
+    // 构建请求体并检查大小
+    const requestBody = {
+      prompt: prompt as string,
+      referenceImage: referenceImageBase64,
+      taskId,
+      type
+    };
+
+    const bodySize = Buffer.byteLength(JSON.stringify(requestBody));
+    const maxSize = 1024 * 1024; // 1MB
+
+    if (bodySize > maxSize) {
+      return NextResponse.json(
+        { error: `Request size (${(bodySize / 1024).toFixed(1)}KB) exceeds 1MB limit` },
+        { status: 400 }
+      );
     }
 
     const { data: profile } = await supabase
@@ -82,9 +105,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to update usage count" }, { status: 500 });
     }
 
-    // 创建一个任务ID
-    const taskId = crypto.randomUUID();
-
     // 将任务信息存储到数据库
     const { error: taskError } = await supabase
       .from("image_generations")
@@ -103,12 +123,7 @@ export async function POST(request: NextRequest) {
     // 使用 QStash 发送请求到 ComfyUI API
     await qstash.publishJSON({
       url: COMFY_API_URL,
-      body: {
-        prompt: prompt as string,
-        referenceImage: referenceImage instanceof File ? Buffer.from(await referenceImage.arrayBuffer()).toString('base64') : null,
-        taskId,
-        type
-      },
+      body: requestBody,
       headers: {
         'Content-Type': 'application/json',
         'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
