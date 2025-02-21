@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from "@/libs/supabase/server";
 import { Client } from "@upstash/qstash";
+import sharp from 'sharp';
 
 // ComfyUI API 的基础 URL，如果环境变量未设置则使用默认值
 const COMFY_API_URL = process.env.COMFY_API_URL
@@ -57,8 +58,31 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // 转换图片为 base64
-      referenceImageBase64 = Buffer.from(await referenceImage.arrayBuffer()).toString('base64');
+      try {
+        // 读取图片数据
+        const imageBuffer = Buffer.from(await referenceImage.arrayBuffer());
+        
+        // 使用 sharp 压缩图片
+        const compressedImageBuffer = await sharp(imageBuffer)
+          .resize(800, 800, { // 限制最大尺寸
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .jpeg({ // 转换为 JPEG 格式并压缩
+            quality: 80,
+            mozjpeg: true
+          })
+          .toBuffer();
+
+        // 转换压缩后的图片为 base64
+        referenceImageBase64 = compressedImageBuffer.toString('base64');
+      } catch (error) {
+        console.error('Image compression error:', error);
+        return NextResponse.json(
+          { error: 'Failed to process image' },
+          { status: 400 }
+        );
+      }
     }
     // 创建一个任务ID
     const taskId = crypto.randomUUID();
