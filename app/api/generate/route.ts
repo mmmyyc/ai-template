@@ -62,24 +62,63 @@ export async function POST(request: NextRequest) {
         // 读取图片数据
         const imageBuffer = Buffer.from(await referenceImage.arrayBuffer());
         
-        // 使用 sharp 压缩图片
-        const compressedImageBuffer = await sharp(imageBuffer)
-          .resize(800, 800, { // 限制最大尺寸
-            fit: 'inside',
-            withoutEnlargement: true
-          })
-          .jpeg({ // 转换为 JPEG 格式并压缩
-            quality: 80,
-            mozjpeg: true
-          })
-          .toBuffer();
+        // 获取图片信息
+        const metadata = await sharp(imageBuffer).metadata();
+        let compressedImage = sharp(imageBuffer);
+
+        // 调整图片大小
+        compressedImage = compressedImage.resize(800, 800, {
+          fit: 'inside',
+          withoutEnlargement: true
+        });
+
+        // 根据原始格式选择压缩策略
+        let outputBuffer: Buffer;
+        if (metadata.format === 'png') {
+          outputBuffer = await compressedImage
+            .png({
+              quality: 80,
+              compressionLevel: 9,
+              palette: true
+            })
+            .toBuffer();
+        } else if (metadata.format === 'webp') {
+          outputBuffer = await compressedImage
+            .webp({
+              quality: 75,
+              effort: 6
+            })
+            .toBuffer();
+        } else {
+          // 默认转换为jpeg
+          outputBuffer = await compressedImage
+            .jpeg({
+              quality: 80,
+              mozjpeg: true,
+              chromaSubsampling: '4:2:0'
+            })
+            .toBuffer();
+        }
+
+        // 检查压缩后的大小
+        if (outputBuffer.length > 1024 * 1024) {
+          // 如果还是太大，进一步压缩
+          const quality = Math.floor((1024 * 1024 / outputBuffer.length) * 80);
+          outputBuffer = await compressedImage
+            .jpeg({
+              quality: Math.max(quality, 40), // 不低于40%质量
+              mozjpeg: true,
+              chromaSubsampling: '4:2:0'
+            })
+            .toBuffer();
+        }
 
         // 转换压缩后的图片为 base64
-        referenceImageBase64 = compressedImageBuffer.toString('base64');
+        referenceImageBase64 = outputBuffer.toString('base64');
       } catch (error) {
         console.error('Image compression error:', error);
         return NextResponse.json(
-          { error: 'Failed to process image' },
+          { error: 'Failed to process image. Please try a different image.' },
           { status: 400 }
         );
       }
