@@ -157,55 +157,73 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No available uses left" }, { status: 403 });
     }
 
-    const { error: updateError } = await supabase
-    .from("profiles")
-    .update({
-      available_uses: profile.available_uses - 1,
-    })
-    .eq("id", profile?.id);
-
-    if (updateError) {
-      return NextResponse.json({ error: "Failed to update usage count" }, { status: 500 });
-    }
-
-    // 将任务信息存储到数据库
-    const { error: taskError } = await supabase
-      .from("image_generations")
-      .insert({
-        task_id: taskId,
-        user_id: user.id,
-        status: "pending",
-        prompt: prompt as string,
-        type: type as string
+    try {
+      // 先尝试发送消息队列
+      await qstash.publishJSON({
+        url: COMFY_API_URL,
+        body: requestBody,
+        headers: {
+          'Content-Type': 'application/json',
+          'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
+          'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
+          'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`,
+        },
+        retry: 2,
       });
 
-    if (taskError) {
-      return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
-    }
+      // 消息队列发送成功后，更新用户可用次数
+      const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        available_uses: profile.available_uses - 1,
+      })
+      .eq("id", profile?.id);
 
-    // 使用 QStash 发送请求到 ComfyUI API
-    await qstash.publishJSON({
-      url: COMFY_API_URL,
-      body: requestBody,
-      headers: {
-        'Content-Type': 'application/json',
-        'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
-        'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
-        'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`,
-        'Upstash-Retries': '2',  // 添加重试次数
-        'Upstash-Timeout': '300000'  // 设置5分钟超时 (毫秒)
-      },
-      notBefore: 0, // 立即执行
-      deadline: Math.floor(Date.now() / 1000) + 300 // 5分钟后超时
-    });
-
-    // 返回任务ID
-    return NextResponse.json({
-      data: {
-        status: "pending",
-        taskId
+      if (updateError) {
+        return NextResponse.json({ error: "Failed to update usage count" }, { status: 500 });
       }
-    });
+
+      // 最后创建任务记录
+      const { error: taskError } = await supabase
+        .from("image_generations")
+        .insert({
+          task_id: taskId,
+          user_id: user.id,
+          status: "pending",
+          prompt: prompt as string,
+          type: type as string
+        });
+
+      if (taskError) {
+        return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
+      }
+
+      // 返回任务ID
+      return NextResponse.json({
+        data: {
+          status: "pending",
+          taskId
+        }
+      });
+
+    } catch (error) {
+      // 如果消息队列发送失败，直接返回错误
+      console.error('Generation error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API error')) {
+          return NextResponse.json(
+            { error: 'External API error' },
+            { status: 502 }
+          );
+        }
+      }
+
+      return NextResponse.json(
+        { error: 'Failed to send to message queue' },
+        { status: 500 }
+      );
+    }
 
   } catch (error) {
     // 错误处理
