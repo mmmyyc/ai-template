@@ -17,23 +17,43 @@ const handler = async (request: NextRequest) => {
   try {
     // 获取原始响应数据并解码
     const rawData = await request.json();
-    const decodedData = JSON.parse(atob(rawData.body));
-    console.log("Failure callback - Decoded response:", decodedData);
+    let errorMessage = "Generation failed";
+    
+    try {
+      const decodedData = JSON.parse(atob(rawData.body));
+      console.log("Failure callback - Decoded response:", decodedData);
+      
+      // 确定失败原因
+      if (decodedData.error) {
+        errorMessage = decodedData.error;
+      }
+    } catch (e) {
+      console.log("Failed to decode response body:", e);
+    }
+
+    // 检查是否是超时
+    if (rawData.timeout || errorMessage.includes("timeout")) {
+      errorMessage = "Generation timed out after 5 minutes";
+    }
     
     // 更新任务状态为失败
-    await supabase
+    const { error: updateError } = await supabase
       .from("image_generations")
       .update({
         status: "failed",
-        error: decodedData.error || "Generation failed",
+        error: errorMessage,
         updated_at: new Date().toISOString()
       })
       .eq("task_id", taskId);
 
+    if (updateError) {
+      console.error("Failed to update task status:", updateError);
+    }
+
     return NextResponse.json({
       data: {
         status: "failed",
-        error: decodedData.error || "Generation failed"
+        error: errorMessage
       }
     });
 
@@ -41,7 +61,7 @@ const handler = async (request: NextRequest) => {
     console.error("Failure callback error:", error);
 
     // 确保任务状态被更新为失败
-    await supabase
+    const { error: updateError } = await supabase
       .from("image_generations")
       .update({
         status: "failed",
@@ -49,6 +69,10 @@ const handler = async (request: NextRequest) => {
         updated_at: new Date().toISOString()
       })
       .eq("task_id", taskId);
+
+    if (updateError) {
+      console.error("Failed to update task status:", updateError);
+    }
 
     return NextResponse.json(
       { error: "Internal server error" },
@@ -58,5 +82,5 @@ const handler = async (request: NextRequest) => {
 };
 
 // 使用 QStash Edge Runtime 验证签名
-// export const POST = verifySignatureEdge(handler); 
-export const POST = handler;
+export const POST = verifySignatureEdge(handler); 
+// export const POST = handler;

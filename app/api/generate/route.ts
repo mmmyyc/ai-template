@@ -190,11 +190,13 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Proxy-Authorization': `Basic ${Buffer.from(`${process.env.Token_ID}:${process.env.Token_Secret}`).toString('base64')}`,
-        // 'Upstash-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/callback`,
-        // 'Upstash-Failure-Callback': `https://cbae-157-254-154-72.ngrok-free.app/api/generate/failure`
         'Upstash-Callback': `https://www.ycamie.com/api/generate/callback`,
-        'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`
-      }
+        'Upstash-Failure-Callback': `https://www.ycamie.com/api/generate/failure`,
+        'Upstash-Retries': '2',  // 添加重试次数
+        'Upstash-Timeout': '300000'  // 设置5分钟超时 (毫秒)
+      },
+      notBefore: 0, // 立即执行
+      deadline: Math.floor(Date.now() / 1000) + 300 // 5分钟后超时
     });
 
     // 返回任务ID
