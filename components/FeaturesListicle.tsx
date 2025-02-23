@@ -1,5 +1,5 @@
 "use client";
-
+import { TypingAnimation } from "@/components/magicui/typing-animation";
 import { useState, useEffect, useRef } from "react";
 import type { JSX } from "react";
 
@@ -195,9 +195,7 @@ const FeaturesListicle = () => {
     <section className="py-16 bg-base-100 font-sans" id="features">
       <div className="max-w-3xl mx-auto">
         <div className="px-6 md:px-8">
-          <h2 className="font-bold text-3xl lg:text-4xl tracking-tight mb-6 text-base-content">
-            Adding Warmth and Companionship to Your Digital Life
-          </h2>
+          <TypingAnimation as="h2" className="font-bold text-3xl lg:text-4xl tracking-tight mb-6 text-base-content">Adding Warmth and Companionship to Your Digital Life</TypingAnimation>
           <div className="text-base-content/70 leading-relaxed mb-12 lg:text-lg font-normal">
             We've carefully designed rich interactive features and personalization options to make your desktop more lively. Whether you're working or studying, you'll feel the warmth and joy brought by your cute companion.
           </div>

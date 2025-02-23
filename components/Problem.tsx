@@ -1,5 +1,4 @@
-import React from 'react';
-import TextAnimation from '@/components/animations/text-marquee';
+import { TextAnimate } from "@/components/magicui/text-animate";
 
 const Arrow = ({ extraStyle }: { extraStyle: string }) => {
   return (
@@ -41,22 +40,13 @@ const Problem = () => {
   return (
     <section className="bg-base-200 text-base-content font-sans">
       <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
-        <h2 className="max-w-3xl mx-auto font-bold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8">
-        <TextAnimation
-          as='div'
-          text='Loneliness in the Digital Age is Affecting Our Work and Life '
-          variants={{
-            hidden: { filter: 'blur(10px)', opacity: 0, y: 20 },
-            visible: {
-              filter: 'blur(0px)',
-              opacity: 1,
-              y: 0,
-              transition: { ease: 'linear' },
-            },
-          }}
-          classname='text-4xl font-semibold capitalize '
-        />
-        </h2>
+        <TextAnimate
+          as='h2'
+          by="word"
+          className='max-w-3xl mx-auto font-bold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8 '
+        >
+          Loneliness in the Digital Age is Affecting Our Work and Life
+        </TextAnimate>
         <p className="max-w-xl mx-auto text-lg opacity-90 leading-relaxed font-normal mb-12 md:mb-20">
           Facing cold screens every day, lacking interaction and emotional connection, makes our work monotonous and even affects mental health
         </p>

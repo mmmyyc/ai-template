@@ -1,6 +1,8 @@
 import Image from "next/image";
 import config from "@/config";
 import Link from "next/link";
+import { AuroraText } from "@/components/magicui/aurora-text";
+import { BoxReveal } from "@/components/magicui/box-reveal";
 
 const Hero = () => {
   return (
@@ -8,9 +10,10 @@ const Hero = () => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2 flex flex-col items-start">
-            <h1 className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-base-content">
-              Create Your Own AI Shimeji
-            </h1>
+            <AuroraText
+              className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-base-content"
+              as="h1"
+            >Create Your Own AI Shimeji</AuroraText>
             <p className="text-xl md:text-2xl text-base-content/70 font-normal leading-relaxed mb-12">
               Get high-quality personalized AI Shimeji desktop pets without spending weeks or hundreds of dollars.
             </p>
