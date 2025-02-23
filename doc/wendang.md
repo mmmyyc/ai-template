@@ -6,6 +6,31 @@ YCamie 是一个基于 Next.js 14、TypeScript 和 Supabase 构建的现代化�
 
 ## 项目定位与服务人群
 
+We're excited to officially launch YCamie! 🎉
+
+As longtime fans of desktop pets and AI technology, we created YCamie to make it super easy for anyone to have their own personalized AI companion. Whether you're working remotely and want some company, or you're an anime fan looking to bring your favorite characters to life, YCamie has you covered.
+
+What makes YCamie special:
+- 🤖 AI-powered character creation from just text or images
+- 🎯 One-click installation (no technical setup needed!)
+- 💬 Chat with your companion using natural language
+- ✨ Custom animations and behaviors
+- 🖥️ Works across all your monitors
+
+我们很高兴正式推出 YCamie! 🎉
+
+作为桌面宠物和AI技术的长期爱好者，我们创建了YCamie，让任何人都能轻松拥有自己的个性化AI伴侣。无论您是想在远程工作时获得陪伴，还是想让喜欢的动漫角色栩栩如生，YCamie都能满足您的需求。
+
+YCamie的特色:
+- 🤖 基于文字或图片的AI角色生成
+- 🎯 一键安装（无需复杂设置！）
+- 💬 使用自然语言与伴侣对话
+- ✨ 自定义动画和行为
+- 🖥️ 支持跨显示器使用
+
+We're actively working on new features and would love to hear your feedback! 
+我们正在积极开发新功能，非常期待听到您的反馈！
+
 ### 目标用户群
 - AI虚拟陪伴需求者
 - 动漫爱好者和收藏家
