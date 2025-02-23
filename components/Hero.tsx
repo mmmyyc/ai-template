@@ -2,7 +2,6 @@ import Image from "next/image";
 import config from "@/config";
 import Link from "next/link";
 import { AuroraText } from "@/components/magicui/aurora-text";
-import { BoxReveal } from "@/components/magicui/box-reveal";
 
 const Hero = () => {
   return (
