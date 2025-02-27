@@ -70,7 +70,7 @@ const faqList: FAQItemProps[] = [
           If you have any questions or suggestions, feel free to reach out through:
         </p>
         <ul className="list-disc list-inside">
-          <li>Email us at: mmmmmyyc@gmail.com</li>
+          <li>Email us at: mmmmmyyc@ycamie.com</li>
           <li>Join our community discussions</li>
           <li>Check our documentation</li>
         </ul>

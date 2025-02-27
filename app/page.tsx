@@ -7,6 +7,7 @@ import FeaturesListicle from '@/components/FeaturesListicle'
 import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
 import VideoSection from "@/components/VideoSection";
+import WithWithout from '@/components/WithWithout'
 const LandingPage = () => {
   return (
     <div className="min-h-screen">
@@ -19,6 +20,8 @@ const LandingPage = () => {
         {/* Problem Section */}
         <Problem />
 
+        {/* WithWithout Section */}
+        <WithWithout/>
         {/* FeaturesListicle Section */}
         <FeaturesListicle />
 

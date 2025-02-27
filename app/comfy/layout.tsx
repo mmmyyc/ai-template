@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/libs/supabase/server";
 import config from "@/config";
 import React from 'react';
+import TourProvider from '@/app/comfy/components/TourProvider';
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -31,7 +32,9 @@ export default async function Layout({
       <div className="drawer lg:drawer-open">
         <input id="drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content flex flex-col">
-          {children}
+          <TourProvider>
+            {children}
+          </TourProvider>
         </div>
         
         {/* 侧边栏 */}

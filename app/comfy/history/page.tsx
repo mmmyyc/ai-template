@@ -131,7 +131,7 @@ export default function HistoryPage() {
                     <button
                       onClick={() => handleDownload(gen.result, gen.id, gen.type)}
                       disabled={downloading === gen.id || isAnyDownloading}
-                      className="btn btn-circle btn-sm bg-base-100 hover:bg-base-200"
+                      className="btn btn-circle btn-sm bg-base-100 hover:bg-base-200 download-btn"
                     >
                       {downloading === gen.id ? (
                         <span className="loading loading-spinner loading-xs"></span>
@@ -167,7 +167,7 @@ export default function HistoryPage() {
                 <p className="text-sm opacity-70">
                   {new Date(gen.created_at).toLocaleDateString()}
                 </p>
-                <p className="font-medium">{gen.prompt}</p>
+                <p className="font-medium prompt-text">{gen.prompt}</p>
                 {gen.error && (
                   <p className="text-sm text-error">{gen.error}</p>
                 )}

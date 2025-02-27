@@ -46,11 +46,11 @@ const CTA = () => {
       <div className="relative z-20 hero-content text-center text-base-content p-8">
         <div className="flex flex-col items-center max-w-2xl">
           <h2 className="font-bold text-3xl md:text-5xl tracking-tight mb-8 leading-tight">
-            Add a Touch of Warmth to Your Digital Life
+            Transform Your Desktop with AI Companions
           </h2>
           
           <p className="text-lg md:text-xl opacity-90 mb-12 max-w-xl leading-relaxed">
-            Download your personal desktop companion now and make work full of joy and warmth. Hundreds of adorable characters are waiting to meet you!
+            YCamie brings your favorite characters to life on your screen in minutes. No artistic skills needed - just describe or upload an image, and watch your desktop come alive!
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">

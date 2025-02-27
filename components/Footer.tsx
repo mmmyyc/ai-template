@@ -35,12 +35,7 @@ const Footer = () => {
             </p>
             <p className="mt-2 text-xs text-base-content/40">
               Featured on{" "}
-              <a 
-                href="https://startupfa.me/s/ycamie.com?utm_source=ycamie.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-base-content/60 transition-colors"
-              >
+              <a href="https://startupfa.me/s/ycamie.com?utm_source=ycamie.com" target="_blank">
                 Startup Fame
               </a>
             </p>

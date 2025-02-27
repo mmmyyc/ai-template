@@ -393,7 +393,7 @@ export default function ImageGenerationPage() {
                     <span className="label-text">Reference Image</span>
                   </label>
                   <div
-                    className="border-2 border-dashed border-base-300 rounded-lg p-4 text-center hover:border-primary transition-colors min-h-[300px] flex items-center justify-center"
+                    className="image-upload-area border-2 border-dashed border-base-300 rounded-lg p-4 text-center hover:border-primary transition-colors min-h-[300px] flex items-center justify-center"
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                   >
@@ -465,7 +465,7 @@ export default function ImageGenerationPage() {
                 {/* 生成按钮组 */}
                 <div className="space-y-2">
                   <button
-                    className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    className={`w-full py-2 rounded-lg text-sm font-medium transition-all duration-200 generate-pet-btn ${
                       !prompt.trim() || !referenceImage || promptError || isGenerating
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : isGenerating && generationType === 'basic'

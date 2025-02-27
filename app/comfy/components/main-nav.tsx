@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Image, Layers, Send, Settings, History } from 'lucide-react'
+import { Image, Layers, Send, Settings, History, HelpCircle } from 'lucide-react'
 import { DailyLimit } from './daily-limit'
 import ButtonAccount from '@/components/ButtonAccount'
+
 export function MainNav() {
   const pathname = usePathname()
   
@@ -27,6 +28,16 @@ export function MainNav() {
     // { id: 'chat', name: 'Chat', icon: Layers, href: '/comfy/chat' },
     // { id: 'settings', name: 'Settings', icon: Settings, href: '/comfy/settings' },
   ]
+
+  // 启动新手引导函数
+  const startTutorial = () => {
+    if (typeof window === 'undefined') return;
+    
+    localStorage.removeItem('comfyTourComplete');
+    // 使用自定义事件触发引导
+    const event = new CustomEvent('startComfyTour');
+    window.dispatchEvent(event);
+  }
 
   return (
     <div className="drawer lg:drawer-open">
@@ -131,6 +142,24 @@ export function MainNav() {
                   </Link>
                 )
               })}
+              
+              {/* 新手引导按钮
+              <button
+                onClick={startTutorial}
+                className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 w-full text-left hover:bg-gray-50"
+              >
+                <div className="p-2 rounded-lg transition-colors bg-blue-100 text-blue-600">
+                  <HelpCircle className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                    Onboarding Tour
+                  </div>
+                  <div className="text-xs text-gray-400 group-hover:text-gray-500">
+                    Review feature introduction
+                  </div>
+                </div>
+              </button> */}
             </nav>
           </div>
           {/* Daily AI Limit */}
