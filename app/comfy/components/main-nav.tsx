@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Image, Layers, Send, Settings, History, HelpCircle } from 'lucide-react'
+import { Image, Layers, Send, Settings, History, HelpCircle, ShoppingBag } from 'lucide-react'
 import { DailyLimit } from './daily-limit'
 import ButtonAccount from '@/components/ButtonAccount'
 
@@ -23,6 +23,13 @@ export function MainNav() {
       icon: History, 
       href: '/comfy/history',
       description: 'View your previous generations'
+    },
+    { 
+      id: 'store', 
+      name: 'Shimeji Store', 
+      icon: ShoppingBag, 
+      href: '/store',
+      description: 'Download community creations'
     },
     // { id: 'text-gen', name: 'Text Generation', icon: Send, href: '/comfy/text-generation' },
     // { id: 'chat', name: 'Chat', icon: Layers, href: '/comfy/chat' },

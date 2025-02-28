@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
-import toast from "react-hot-toast";
 import { downloadGeneratedImage } from "@/app/comfy/utils/download";
 
 interface ImageGeneration {
@@ -15,6 +14,7 @@ interface ImageGeneration {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   error?: string;
   type: string;
+  is_shared: boolean;
 }
 
 export default function HistoryPage() {
@@ -23,6 +23,7 @@ export default function HistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [isAnyDownloading, setIsAnyDownloading] = useState(false);
+  const [sharing, setSharing] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -56,6 +57,25 @@ export default function HistoryPage() {
     } finally {
       setDownloading(null);
       setIsAnyDownloading(false);
+    }
+  };
+
+  const handleShare = async (id: string) => {
+    if (sharing) return;
+    setSharing(id);
+    
+    try {
+      await apiClient.post(`/generate/share`, { generationId: id });
+      // 更新本地状态，标记为已分享
+      setGenerations(prev => 
+        prev.map(gen => 
+          gen.id === id ? { ...gen, is_shared: true } : gen
+        )
+      );
+    } catch (error) {
+      console.error('Share failed:', error);
+    } finally {
+      setSharing(null);
     }
   };
 
@@ -127,7 +147,32 @@ export default function HistoryPage() {
                       </span>
                     </div>
                   </figure>
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <button
+                      onClick={() => handleShare(gen.id)}
+                      disabled={sharing === gen.id || gen.is_shared}
+                      title={gen.is_shared ? "Already shared to store" : "Share to store"}
+                      className={`btn btn-circle btn-sm ${gen.is_shared ? 'bg-success text-white' : 'bg-base-100 hover:bg-base-200'}`}
+                    >
+                      {sharing === gen.id ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="h-4 w-4" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" 
+                          />
+                        </svg>
+                      )}
+                    </button>
                     <button
                       onClick={() => handleDownload(gen.result, gen.id, gen.type)}
                       disabled={downloading === gen.id || isAnyDownloading}

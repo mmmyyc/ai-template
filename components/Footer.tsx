@@ -77,32 +77,32 @@ const Footer = () => {
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                 <Link 
-                  href="/docs" 
+                  href="/blog/category/tutorial" 
                   className="link link-hover"
-                  title={`${config.appName} documentation`}
+                  title={`${config.appName} tutorial`}
                 >
-                  Documentation
+                  Tutorial
                 </Link>
-                <Link 
+                {/* <Link 
                   href="/community" 
                   className="link link-hover"
                   title={`${config.appName} community`}
                 >
                   Community
-                </Link>
-                <Link 
+                </Link> */}
+                {/* <Link 
                   href="/blog" 
                   className="link link-hover"
                   title={`${config.appName} blog`}
                 >
                   Blog
-                </Link>
+                </Link> */}
                 <Link 
-                  href="/changelog" 
+                  href="/blog/category/feature" 
                   className="link link-hover"
-                  title={`${config.appName} changelog`}
+                  title={`${config.appName} features`}
                 >
-                  Changelog
+                  Features
                 </Link>
               </div>
             </div>
