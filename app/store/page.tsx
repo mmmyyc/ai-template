@@ -5,6 +5,8 @@ import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { downloadGeneratedImage } from "@/app/comfy/utils/download";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface SharedGeneration {
   id: string;
@@ -28,6 +30,8 @@ export default function StorePage() {
   const itemsPerPage = 9; // 每页显示9个项目，符合3列布局
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
+  const router = useRouter();
+  
   useEffect(() => {
     const fetchSharedItems = async () => {
       try {
@@ -170,6 +174,10 @@ export default function StorePage() {
     );
   };
 
+  const handleCardClick = (id: string) => {
+    router.push(`/store/${id}`);
+  };
+  
   if (loading && currentPage === 1) {
     return (
       <div className="min-h-full bg-gradient-to-b from-blue-50 to-white p-6">
@@ -226,7 +234,11 @@ export default function StorePage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sharedItems.map((item) => (
-            <div key={item.id} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all">
+            <div 
+              key={item.id} 
+              className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all cursor-pointer"
+              onClick={() => handleCardClick(item.id)}
+            >
               <figure className="relative h-64">
                 <Image
                   src={item.result}
@@ -240,9 +252,12 @@ export default function StorePage() {
                   </span>
                 </div>
               </figure>
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => handleDownload(item.result, item.id, item.type)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(item.result, item.id, item.type);
+                  }}
                   disabled={downloading === item.id || isAnyDownloading}
                   className="btn btn-circle btn-sm bg-base-100 hover:bg-base-200 download-btn"
                 >

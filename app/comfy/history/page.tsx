@@ -24,6 +24,7 @@ export default function HistoryPage() {
   const [downloading, setDownloading] = useState<string | null>(null);
   const [isAnyDownloading, setIsAnyDownloading] = useState(false);
   const [sharing, setSharing] = useState<string | null>(null);
+  const [unsharing, setUnsharing] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -76,6 +77,27 @@ export default function HistoryPage() {
       console.error('Share failed:', error);
     } finally {
       setSharing(null);
+    }
+  };
+
+  const handleCancelShare = async (id: string) => {
+    if (unsharing) return;
+    setUnsharing(id);
+    
+    try {
+      await apiClient.delete(`/generate/share`, { 
+        data: { generationId: id } 
+      });
+      // Update local state to mark as unshared
+      setGenerations(prev => 
+        prev.map(gen => 
+          gen.id === id ? { ...gen, is_shared: false } : gen
+        )
+      );
+    } catch (error) {
+      console.error('Unshare failed:', error);
+    } finally {
+      setUnsharing(null);
     }
   };
 
@@ -149,12 +171,12 @@ export default function HistoryPage() {
                   </figure>
                   <div className="absolute top-2 right-2 flex gap-2">
                     <button
-                      onClick={() => handleShare(gen.id)}
-                      disabled={sharing === gen.id || gen.is_shared}
-                      title={gen.is_shared ? "Already shared to store" : "Share to store"}
+                      onClick={() => gen.is_shared ? handleCancelShare(gen.id) : handleShare(gen.id)}
+                      disabled={(sharing === gen.id) || (unsharing === gen.id)}
+                      title={gen.is_shared ? "Cancel sharing" : "Share to store"}
                       className={`btn btn-circle btn-sm ${gen.is_shared ? 'bg-success text-white' : 'bg-base-100 hover:bg-base-200'}`}
                     >
-                      {sharing === gen.id ? (
+                      {sharing === gen.id || unsharing === gen.id ? (
                         <span className="loading loading-spinner loading-xs"></span>
                       ) : (
                         <svg 

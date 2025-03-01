@@ -7,6 +7,59 @@ export async function GET(request: Request) {
   try {
     // 获取URL查询参数
     const url = new URL(request.url);
+    const idParam = url.searchParams.get('id');
+    
+    const supabase = createClient();
+    
+    // 如果提供了ID，获取特定的图像生成
+    if (idParam) {
+      const { data: generation, error } = await supabase
+        .from("image_generations")
+        .select("id, prompt, result, created_at, user_id, type")
+        .eq("id", idParam)
+        .eq("is_shared", true)
+        .eq("status", "completed")
+        .single();
+      
+      if (error) {
+        console.error("Error fetching generation by ID:", error);
+        return NextResponse.json(
+          { error: "Failed to fetch generation" },
+          { status: 500 }
+        );
+      }
+      
+      if (!generation) {
+        return NextResponse.json(
+          { error: "Generation not found or not shared" },
+          { status: 404 }
+        );
+      }
+      
+      // Get user profile for this generation
+      let userName = 'Anonymous';
+      
+      if (generation.user_id) {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("id, name")
+          .eq("id", generation.user_id)
+          .single();
+          
+        if (!profileError && profile) {
+          userName = profile.name || 'Anonymous';
+        }
+      }
+      
+      return NextResponse.json({
+        data: {
+          ...generation,
+          user_name: userName
+        }
+      });
+    }
+    
+    // 如果没有提供ID，按分页获取共享内容（原始功能）
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '50');
     
@@ -16,8 +69,6 @@ export async function GET(request: Request) {
     
     // 计算偏移量
     const offset = (validPage - 1) * validLimit;
-    
-    const supabase = createClient();
     
     // 先获取总数
     const { count, error: countError } = await supabase
@@ -55,12 +106,12 @@ export async function GET(request: Request) {
     if (userIds.length > 0) {
       const { data: profiles, error: profileError } = await supabase
         .from("profiles")
-        .select("id, username, full_name")
+        .select("id, name")
         .in("id", userIds);
         
       if (!profileError && profiles) {
         userProfiles = profiles.reduce<Record<string, string>>((acc, profile) => {
-          acc[profile.id] = profile.username || profile.full_name || 'Anonymous';
+          acc[profile.id] = profile.name || 'Anonymous';
           return acc;
         }, {});
       }
@@ -72,15 +123,14 @@ export async function GET(request: Request) {
       user_name: userProfiles[item.user_id] || 'Anonymous'
     }));
     
-    return NextResponse.json(
-    {
-        data:{
-            shared_items: items_with_names,
-            total: count || 0,
-            page: validPage,
-            limit: validLimit,
-            total_pages: count ? Math.ceil(count / validLimit) : 1
-            }
+    return NextResponse.json({
+      data: {
+        shared_items: items_with_names,
+        total: count || 0,
+        page: validPage,
+        limit: validLimit,
+        total_pages: count ? Math.ceil(count / validLimit) : 1
+      }
     });
 
   } catch (error) {
