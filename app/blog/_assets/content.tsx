@@ -10,6 +10,9 @@ import introducingYCamieImgInstallStep1 from "@/public/blog/introducing-ycamie/i
 import introducingYCamieImgInstallStep2 from "@/public/blog/introducing-ycamie/install2.png";
 import introducingYCamieImgInstallStep3 from "@/public/blog/introducing-ycamie/specifiedFolder.png";
 import introducingYCamieImgInstallStep4 from "@/public/blog/introducing-ycamie/runShimeji.png";
+import introducingYCamieChatWithShimeji from "@/public/blog/introducing-ycamie/chatwithshimeji.jpg";
+import introducingYCamieSettingAPI from "@/public/blog/introducing-ycamie/settingAPI.jpg";
+import introducingYCamieSetCharacter from "@/public/blog/introducing-ycamie/SetCharacter.jpg";
 
 import howToMakeShimejiImg from "@/public/blog/how-to-make-shimeji/shimeji.png";
 import Link from "next/link";
@@ -164,7 +167,7 @@ export const authors: authorType[] = [
     slug: authorSlugs.mmmyyc,
     // The name to display in the author's bio. Up to 60 characters.
     // 在作者简介中显示的名字。最多60个字符。
-    name: "Miyichen",
+    name: "YiChenMi",
     // The job to display in the author's bio. Up to 60 characters.
     // 在作者简介中显示的职业。最多60个字符。
     job: "Founder & Developer",
@@ -621,6 +624,37 @@ export const articles: articleType[] = [
               className="rounded-box"
               placeholder="blur"
             />
+            <li className={styles.li}>You can chat with shimeji, just right-click on shimeji and select chat with shimeji</li>
+            <Image
+              src={introducingYCamieChatWithShimeji}
+              alt="run shimeji"
+              width={350}
+              height={250}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
+            <li className={styles.li}>You can then click this gear to set the API used by the chat.</li>
+            <Image
+              src={introducingYCamieSettingAPI}
+              alt="run shimeji"
+              width={350}
+              height={250}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
+            <li className={styles.li}>You can then click this character button to set the character’s initial information.</li>
+            <Image
+              src={introducingYCamieSetCharacter}
+              alt="run shimeji"
+              width={350}
+              height={250}
+              priority={true}
+              className="rounded-box"
+              placeholder="blur"
+            />
+            <li className={styles.li}>More rich and interesting things are waiting for you to explore.</li>
           </ul>
         </section>
         <Image src={introducingYCamieImgOutput} alt="Shimeji Creation Guide" title="Shimeji output" width={700} height={500} className="rounded-box" placeholder="blur" />
