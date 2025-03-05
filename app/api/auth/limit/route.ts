@@ -35,7 +35,7 @@ export async function GET() {
     // 根据用户计划返回对应的限制
     const max = 
       userData.plan === "basic" ? 50 :     // 基础版用户
-      userData.plan === "advanced" ? 500 :  // 高级版用户
+      userData.plan === "advanced" ? 200 :  // 高级版用户
       3;                                    // 免费版用户
 
     return NextResponse.json({ 

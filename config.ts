@@ -95,7 +95,7 @@ const config = {
         priceAnchor: 39,
         features: [
           {
-            name: "Usage Limit 500 generations per month",
+            name: "Usage Limit 200 generations per month",
           },
           {
             name: "AI assistant",

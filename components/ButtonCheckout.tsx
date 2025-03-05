@@ -27,6 +27,17 @@ const ButtonCheckout = ({
         return;
       }
 
+      if(authData.user.has_access){
+        const { url }: { url: string } = await apiClient.post(
+          "/stripe/create-portal",
+          {
+            returnUrl: window.location.href,
+          }
+        );
+        window.location.href = url;
+        return;
+      }
+
       const { url }: { url: string } = await apiClient.post(
         "/stripe/create-checkout",
         {

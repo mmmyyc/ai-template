@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
             price_id: priceId,
             has_access: true,
             plan: priceId === config.stripe.plans[1].priceId ? "basic" : "advanced",
-            available_uses : (config.stripe.plans[1].priceId ? 50 : 500),
+            available_uses : (config.stripe.plans[1].priceId ? 50 : 200),
           })
           .eq("id", user?.id);
         // Extra: send email with user link, product page, etc...
@@ -146,11 +146,30 @@ export async function POST(req: NextRequest) {
 
       case "customer.subscription.updated": {
         // The customer might have changed the plan (higher or lower plan, cancel soon etc...)
-        // You don't need to do anything here, because Stripe will let us know when the subscription is canceled for good (at the end of the billing cycle) in the "customer.subscription.deleted" event
-        // You can update the user data to show a "Cancel soon" badge for instance
-        // 客户可能改变了计划（升级、降级、即将取消等）
-        // 这里不需要做任何事情，因为当订阅在计费周期结束时被完全取消时，Stripe 会通过 "customer.subscription.deleted" 事件通知我们
-        // 你可以更新用户数据以显示"即将取消"的标记
+        const stripeObject: Stripe.Subscription = event.data.object as Stripe.Subscription;
+        const subscription = await stripe.subscriptions.retrieve(stripeObject.id);
+        const newPriceId = subscription.items.data[0].price.id;
+        const customerId = subscription.customer;
+
+        // 获取用户当前的配置信息
+        const { data: currentProfile } = await supabase
+          .from("profiles")
+          .select("price_id")
+          .eq("customer_id", customerId)
+          .single();
+
+        // 只有当价格ID发生变化时才更新用户计划
+        if (currentProfile && currentProfile.price_id !== newPriceId) {
+          await supabase
+            .from("profiles")
+            .update({ 
+              price_id: newPriceId,
+              has_access: true,
+              plan: newPriceId === config.stripe.plans[1].priceId ? "basic" : "advanced",
+              available_uses: newPriceId === config.stripe.plans[1].priceId ? 50 : 200
+            })
+            .eq("customer_id", customerId);
+        }
         break;
       }
 
@@ -201,7 +220,7 @@ export async function POST(req: NextRequest) {
         await supabase
           .from("profiles")
           .update({ has_access: true , plan: priceId === config.stripe.plans[1].priceId ? "basic" : "advanced" ,
-             available_uses: priceId === config.stripe.plans[1].priceId ? 50 : 500
+             available_uses: priceId === config.stripe.plans[1].priceId ? 50 : 200
             })
           .eq("customer_id", customerId);
 

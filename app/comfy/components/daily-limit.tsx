@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import apiClient from "@/libs/api";
-import Link from 'next/link';
 
 export function DailyLimit() {
   const [usedCount, setUsedCount] = useState(0);
-  const [maxCount, setMaxCount] = useState(500);
+  const [maxCount, setMaxCount] = useState(200);
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   useEffect(() => {
@@ -14,7 +13,7 @@ export function DailyLimit() {
       try {
         const response = await apiClient.get('/auth/limit');
         setUsedCount(response.data.used || 0);
-        setMaxCount(response.data.max || 500);
+        setMaxCount(response.data.max || 200);
       } catch (error) {
         console.error('Failed to fetch AI limit:', error);
       } finally {

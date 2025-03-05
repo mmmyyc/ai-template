@@ -14,7 +14,7 @@ const features: {
       <>
         <ul className="space-y-2">
           {[
-            "500 high-quality generations per month",
+            "200 high-quality generations per month",
             "Support for character and pet customization",
             "46-frame high-quality animation effects",
             "Continuous model optimization and updates",
