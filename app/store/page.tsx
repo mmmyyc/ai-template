@@ -227,7 +227,28 @@ export default function StorePage() {
   return (
     <div className="min-h-full bg-gradient-to-b from-blue-50 to-white p-6">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Shimeji Store</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <button 
+            onClick={() => router.back()} 
+            className="btn btn-circle btn-ghost"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M15 19l-7-7 7-7" 
+              />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold">Shimeji Store</h1>
+        </div>
         <p className="text-gray-600 mb-8">Download amazing Shimeji creations shared by our community members.</p>
         
         {loading && <div className="text-center py-4"><span className="loading loading-spinner loading-md"></span></div>}

@@ -634,7 +634,7 @@ export const articles: articleType[] = [
               className="rounded-box"
               placeholder="blur"
             />
-            <li className={styles.li}>You can then click this gear to set the API used by the chat.</li>
+            <li className={styles.li}>You can then click this gear to set the API used by the chat(now support openai's api key).</li>
             <Image
               src={introducingYCamieSettingAPI}
               alt="run shimeji"
@@ -667,7 +667,7 @@ export const articles: articleType[] = [
             collection of unique desktop companions!
           </p>
           <p className={styles.p}>
-            <span className={styles.codeInline}>Note</span>: It is best not to install on the C drive, because shimeji may not run.
+            <span className={styles.codeInline}>Note</span>: If you encounter the issue that the Shimeji does not appear, please change the desktop resolution to 100% before running Shimeji.
           </p>
           <p className={styles.p}>
             <span className={styles.codeInline}>Note</span>: Now only support windows, if you want to run it on other platforms, you can refer to my github find the {" "} 
