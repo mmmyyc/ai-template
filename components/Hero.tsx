@@ -36,6 +36,23 @@ const Hero = () => {
               </Link>
             </div>
 
+            {/* Product Hunt Badge */}
+            <div className="mt-8">
+              <a 
+                href="https://www.producthunt.com/posts/ycamie?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ycamie" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <img 
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=905992&theme=light&t=1741241257521" 
+                  alt="YCamie - Create Your Own AI Shimeji desktop pets | Product Hunt" 
+                  style={{ width: '250px', height: '54px' }} 
+                  width="250" 
+                  height="54" 
+                />
+              </a>
+            </div>
+
             <div className="flex items-center gap-8 text-sm text-base-content/70 mt-8">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
