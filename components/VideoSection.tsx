@@ -19,8 +19,13 @@ export default function VideoSection() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-base-300">
             {/* 16:9 宽高比容器 */}
             <div className="relative pt-[56.25%]">
-              <iframe width="560" height="315" src="https://www.youtube.com/embed/-9f5yG_NkXM?si=0uDxiUxkAR_GmYmi" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
-              </iframe>
+              <iframe 
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/-9f5yG_NkXM?si=0uDxiUxkAR_GmYmi" 
+                title="Getting Started with YCamie" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen
+              />
             </div>
           </div>
           
