@@ -186,8 +186,11 @@ export async function POST(req: NextRequest) {
 
         await supabase
           .from("profiles")
-          .update({ has_access: false, plan: "free"
-            , available_uses: 3
+          .update({ 
+            has_access: false, 
+            plan: "free",
+            available_uses: 3,
+            price_id: null
           })
           .eq("customer_id", subscription.customer);
         break;
