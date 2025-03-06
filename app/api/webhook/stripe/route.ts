@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
             price_id: priceId,
             has_access: true,
             plan: priceId === config.stripe.plans[1].priceId ? "basic" : "advanced",
-            available_uses : (config.stripe.plans[1].priceId ? 50 : 200),
+            available_uses : (priceId === config.stripe.plans[1].priceId ? 50 : 200),
           })
           .eq("id", user?.id);
         // Extra: send email with user link, product page, etc...
