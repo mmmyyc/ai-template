@@ -6,26 +6,26 @@ import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { downloadGeneratedImage } from "@/app/comfy/utils/download";
-import config from "@/config";
-import { getSEOTags } from "@/libs/seo";
+// import config from "@/config";
+// import { getSEOTags } from "@/libs/seo";
 
-export const metadata = async ({ params }: { params: { id: string } }) => {
-  // 可以根据ID从数据库获取产品信息，这里简化处理
-  const productId = params.id;
+// export const metadata = async ({ params }: { params: { id: string } }) => {
+//   // 可以根据ID从数据库获取产品信息，这里简化处理
+//   const productId = params.id;
   
-  return getSEOTags({
-    title: `Shimeji Pet Details | Download AI Desktop Pet | ${config.appName}`,
-    description: "View and download this unique AI-generated desktop pet. Get your own interactive Shimeji companion that brings life to your desktop environment.",
-    keywords: ["shimeji download", "AI pet", "desktop companion", "interactive pet", "desktop customization"],
-    // 为每个产品页面设置唯一的规范链接
-    canonicalUrlRelative: `/store/${productId}`,
-    openGraph: {
-      title: `Shimeji Pet Details | Download AI Desktop Pet | ${config.appName}`,
-      description: "View and download this unique AI-generated desktop pet. Get your own interactive Shimeji companion that brings life to your desktop environment.",
-      url: `https://${config.domainName}/store/${productId}`,
-    }
-  });
-};
+//   return getSEOTags({
+//     title: `Shimeji Pet Details | Download AI Desktop Pet | ${config.appName}`,
+//     description: "View and download this unique AI-generated desktop pet. Get your own interactive Shimeji companion that brings life to your desktop environment.",
+//     keywords: ["shimeji download", "AI pet", "desktop companion", "interactive pet", "desktop customization"],
+//     // 为每个产品页面设置唯一的规范链接
+//     canonicalUrlRelative: `/store/${productId}`,
+//     openGraph: {
+//       title: `Shimeji Pet Details | Download AI Desktop Pet | ${config.appName}`,
+//       description: "View and download this unique AI-generated desktop pet. Get your own interactive Shimeji companion that brings life to your desktop environment.",
+//       url: `https://${config.domainName}/store/${productId}`,
+//     }
+//   });
+// };
 interface SharedGeneration {
   id: string;
   prompt: string;

@@ -5,20 +5,20 @@ import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { downloadGeneratedImage } from "@/app/comfy/utils/download";
-import { getSEOTags } from "@/libs/seo";
-import config from "@/config";
+// import { getSEOTags } from "@/libs/seo";
+// import config from "@/config";
 
-export const metadata = getSEOTags({
-  title: `Your Generated Pets History | ${config.appName}`,
-  description: "View your previously generated AI desktop pets. Browse your creation history and download your favorite Shimeji characters anytime.",
-  keywords: ["pet history", "generated pets", "AI creations", "desktop pets gallery", "shimeji collection"],
-  canonicalUrlRelative: "/comfy/history",
-  openGraph: {
-    title: `Your AI Pet Creation History | ${config.appName}`,
-    description: "Access all your previously generated desktop pets. Download and manage your Shimeji collection.",
-    url: `https://${config.domainName}/comfy/history`,
-  }
-});
+// export const metadata = getSEOTags({
+//   title: `Your Generated Pets History | ${config.appName}`,
+//   description: "View your previously generated AI desktop pets. Browse your creation history and download your favorite Shimeji characters anytime.",
+//   keywords: ["pet history", "generated pets", "AI creations", "desktop pets gallery", "shimeji collection"],
+//   canonicalUrlRelative: "/comfy/history",
+//   openGraph: {
+//     title: `Your AI Pet Creation History | ${config.appName}`,
+//     description: "Access all your previously generated desktop pets. Download and manage your Shimeji collection.",
+//     url: `https://${config.domainName}/comfy/history`,
+//   }
+// });
 interface ImageGeneration {
   id: string;
   prompt: string;
