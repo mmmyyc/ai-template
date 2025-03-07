@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import { Inter } from 'next/font/google'
 import { MainNav } from './components/main-nav'
 import { redirect } from "next/navigation";
@@ -6,12 +5,19 @@ import { createClient } from "@/libs/supabase/server";
 import config from "@/config";
 import React from 'react';
 import TourProvider from '@/app/comfy/components/TourProvider';
+import { getSEOTags } from "@/libs/seo";
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
+export const metadata =  getSEOTags({
   title: "YCamie - Create AI Desktop Pets & Virtual Companions",
   description: "Generate high-quality AI-powered desktop pets with YCamie. Customize virtual companions featuring intelligent interactions and adorable animations for your workspace.",
-}
+  openGraph: {
+    title: "YCamie - Create AI Desktop Pets & Virtual Companions",
+    description: "Generate high-quality AI-powered desktop pets with YCamie. Customize virtual companions featuring intelligent interactions and adorable animations for your workspace.",
+    url: `https://${config.domainName}/comfy`,
+  },
+  canonicalUrlRelative: "/comfy",
+});
 
 
 export default async function Layout({

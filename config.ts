@@ -8,7 +8,8 @@ const config = {
   appDescription:
     "Get high-quality personalized Shimeji desktop pets without spending weeks on customization or hundreds of dollars.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
-  domainName: "ycamie.com",
+  // domainName: "ycamie.com",
+  domainName: "shimeji.ai",
   crisp: {
     // Crisp website ID. IF YOU DON'T USE CRISP: just remove this => Then add a support email in this config file (resend.supportEmail) otherwise customer support won't work.
     id: "efb4d315-770c-47b4-a1c3-1cfce1e74ba0",

@@ -8,6 +8,11 @@ import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
 import VideoSection from "@/components/VideoSection";
 import WithWithout from '@/components/WithWithout'
+import { getSEOTags } from "@/libs/seo";
+
+export const metadata = getSEOTags({
+  canonicalUrlRelative: "/",
+});
 const LandingPage = () => {
   return (
     <div className="min-h-screen">

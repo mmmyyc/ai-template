@@ -8,6 +8,19 @@ import config from "@/config";
 import toast from "react-hot-toast";
 import Image from 'next/image'
 import { downloadGeneratedImage } from "@/app/comfy/utils/download";
+import { getSEOTags } from "@/libs/seo";
+
+export const metadata = getSEOTags({
+  title: `Create Your Custom AI Desktop Pet | ${config.appName}`,
+  description: "Generate your own unique Shimeji desktop pets with our AI technology. Design custom animated characters that match your style and personality.",
+  keywords: ["create desktop pet", "generate shimeji", "custom AI pet", "AI character generator", "personalized desktop companion"],
+  canonicalUrlRelative: "/comfy/image-generation",
+  openGraph: {
+    title: `Create Your Custom AI Desktop Pet | ${config.appName}`,
+    description: "Generate your own unique Shimeji desktop pets with our AI technology. Start creating now!",
+    url: `https://${config.domainName}/comfy/image-generation`,
+  }
+});
 
 export default function ImageGenerationPage() {
   const router = useRouter()

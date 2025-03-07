@@ -5,9 +5,21 @@ import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { downloadGeneratedImage } from "@/app/comfy/utils/download";
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getSEOTags } from "@/libs/seo";
+import config from "@/config";
 
+export const metadata = getSEOTags({
+  title: `AI Desktop Pets Store | ${config.appName}`,
+  description: "Browse and download high-quality Shimeji desktop pets created with AI. Personalize your PC with adorable animated characters that interact with your desktop.",
+  keywords: ["desktop pets", "shimeji", "AI pets", "digital companions", "desktop customization"],
+  canonicalUrlRelative: "/store",
+  openGraph: {
+    title: `AI Desktop Pets Store | ${config.appName}`,
+    description: "Browse and download high-quality Shimeji desktop pets created with AI. Personalize your PC with adorable animated characters that interact with your desktop.",
+    url: `https://${config.domainName}/store`,
+  }
+});
 interface SharedGeneration {
   id: string;
   prompt: string;
