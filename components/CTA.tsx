@@ -55,7 +55,7 @@ const CTA = () => {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link 
-              href="/comfy" 
+              href="/dashboard" 
               className="btn btn-primary btn-lg px-12 rounded-full"
               title={`${config.appName} dashboard`}
             >

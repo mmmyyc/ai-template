@@ -32,7 +32,7 @@ export default function VideoSection() {
           {/* 视频下方的行动号召 */}
           <div className="text-center mt-8">
             <a 
-              href="/comfy" 
+              href="/dashboard" 
               className="btn btn-primary btn-lg px-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 border-none hover:from-blue-700 hover:to-purple-700"
             >
               Try It Now

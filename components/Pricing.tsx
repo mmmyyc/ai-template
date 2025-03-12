@@ -102,7 +102,7 @@ const Pricing = () => {
                   {plan.name === "Free" && (
                     <>
                       <Link 
-                        href="/comfy" 
+                        href="/dashboard" 
                         className="btn btn-primary btn-block group"
                       >
                         Try Now

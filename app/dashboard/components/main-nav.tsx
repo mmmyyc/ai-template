@@ -14,14 +14,14 @@ export function MainNav() {
       id: 'image-gen', 
       name: 'DeskPet Generation', 
       icon: Image, 
-      href: '/comfy/image-generation',
+      href: '/dashboard/generation',
       description: 'Create your unique desktop companion'
     },
     { 
       id: 'history', 
       name: 'Generation History', 
       icon: History, 
-      href: '/comfy/history',
+      href: '/dashboard/history',
       description: 'View your previous generations'
     },
     { 
@@ -31,9 +31,9 @@ export function MainNav() {
       href: '/store',
       description: 'Download community creations'
     },
-    // { id: 'text-gen', name: 'Text Generation', icon: Send, href: '/comfy/text-generation' },
-    // { id: 'chat', name: 'Chat', icon: Layers, href: '/comfy/chat' },
-    // { id: 'settings', name: 'Settings', icon: Settings, href: '/comfy/settings' },
+    // { id: 'text-gen', name: 'Text Generation', icon: Send, href: '/dashboard/text-generation' },
+    // { id: 'chat', name: 'Chat', icon: Layers, href: '/dashboard/chat' },
+    // { id: 'settings', name: 'Settings', icon: Settings, href: '/dashboard/settings' },
   ]
 
   // 启动新手引导函数
@@ -103,7 +103,7 @@ export function MainNav() {
             <nav className="space-y-1">
               {apps.map((app) => {
                 const isActive = pathname === app.href || 
-                  (app.href === '/comfy/image-generation' && pathname === '/comfy');
+                  (app.href === '/dashboard/generation' && pathname === '/comfy');
                 
                 return (
                   <Link 

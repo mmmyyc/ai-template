@@ -390,7 +390,7 @@ export const articles: articleType[] = [
             Join thousands of users who have already brought their favorite characters to life!
           </p>
           <div className="mt-4">
-            <a href="/comfy" className="text-blue-600 font-semibold hover:text-blue-700">
+            <a href="/dashboard" className="text-blue-600 font-semibold hover:text-blue-700">
               Create Your Shimeji Now →
             </a>
           </div>
@@ -475,7 +475,7 @@ export const articles: articleType[] = [
           </p>
           <div className="mt-4">
             <Link 
-              href="/comfy" 
+              href="/dashboard" 
               className="text-blue-600 font-semibold hover:text-blue-700"
             >
               Start Creating Your AI Companion →
@@ -684,7 +684,7 @@ export const articles: articleType[] = [
             Join thousands of users who have already brought their favorite characters to life!
           </p>
           <div className="mt-4">
-            <a href="/comfy" className="text-blue-600 font-semibold hover:text-blue-700">
+            <a href="/dashboard" className="text-blue-600 font-semibold hover:text-blue-700">
               Create Your Shimeji Now →
             </a>
           </div>
@@ -778,7 +778,7 @@ export const articles: articleType[] = [
           </p>
           <div className="mt-4">
             <Link 
-              href="/comfy" 
+              href="/dashboard" 
               className="text-blue-600 font-semibold hover:text-blue-700"
             >
               Create Your Shimeji Now →
@@ -873,7 +873,7 @@ export const articles: articleType[] = [
           </p>
           <div className="mt-4">
             <Link 
-              href="/comfy" 
+              href="/dashboard" 
               className="text-blue-600 font-semibold hover:text-blue-700"
             >
               Start Creating Your Desktop Companion →

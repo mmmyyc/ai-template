@@ -18,7 +18,7 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps) => {
     setMounted(true);
     
     // 根据不同页面设置不同的步骤
-    if (pathname === '/comfy/image-generation') {
+    if (pathname === '/dashboard/generation') {
       setSteps([
         {
           target: 'body',
@@ -57,7 +57,7 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps) => {
           placement: 'center',
         }
       ]);
-    } else if (pathname === '/comfy/history') {
+    } else if (pathname === '/dashboard/history') {
       setSteps([
         {
           target: 'body',

@@ -18,7 +18,7 @@ const Hero = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link 
-                href="/comfy" 
+                href="/dashboard" 
                 className="btn btn-primary btn-lg px-8 rounded-full"
                 title={`${config.appName} dashboard`}
               >

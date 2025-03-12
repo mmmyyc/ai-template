@@ -58,7 +58,7 @@ const cta: JSX.Element = (
   <div className="flex items-center gap-4">
     <ButtonSignin extraStyle="btn-primary px-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-none" />
     <Link
-      href="/comfy"
+      href="/dashboard"
       className="btn btn-outline rounded-full px-6 hover:bg-blue-50 hover:text-blue-600"
       title={`${config.appName} dashboard`}
     >

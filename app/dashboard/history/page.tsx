@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { downloadGeneratedImage } from "@/app/comfy/utils/download";
+import { downloadGeneratedImage } from "@/app/dashboard/utils/download";
 // import { getSEOTags } from "@/libs/seo";
 // import config from "@/config";
 
@@ -12,11 +12,11 @@ import { downloadGeneratedImage } from "@/app/comfy/utils/download";
 //   title: `Your Generated Pets History | ${config.appName}`,
 //   description: "View your previously generated AI desktop pets. Browse your creation history and download your favorite Shimeji characters anytime.",
 //   keywords: ["pet history", "generated pets", "AI creations", "desktop pets gallery", "shimeji collection"],
-//   canonicalUrlRelative: "/comfy/history",
+//   canonicalUrlRelative: "/dashboard/history",
 //   openGraph: {
 //     title: `Your AI Pet Creation History | ${config.appName}`,
 //     description: "Access all your previously generated desktop pets. Download and manage your Shimeji collection.",
-//     url: `https://${config.domainName}/comfy/history`,
+//     url: `https://${config.domainName}/dashboard/history`,
 //   }
 // });
 interface ImageGeneration {
