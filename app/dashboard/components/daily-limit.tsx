@@ -47,22 +47,22 @@ export function DailyLimit() {
   }
 
   return (
-    <div className="daily-limit p-4 bg-white rounded-lg shadow-sm">
+    <div className="daily-limit p-4 bg-base-100 rounded-lg shadow-sm">
       <div className="flex items-center gap-2 mb-2">
-        <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         <span className="font-medium text-sm">Monthly Generation Limit</span>
       </div>
       
-      <div className="text-sm text-gray-500 mb-3">
+      <div className="text-sm text-base-content/60 mb-3">
         Remaining generations this month
       </div>
 
       {/* Progress bar */}
-      <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
+      <div className="w-full bg-base-200 rounded-full h-2 mb-2">
         <div 
-          className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+          className="bg-primary h-2 rounded-full transition-all duration-300"
           style={{ width: `${(usedCount / maxCount) * 100}%` }}
         />
       </div>
@@ -73,7 +73,7 @@ export function DailyLimit() {
         </span>
         <button
           onClick={handleBilling}
-          className="text-xs text-purple-600 hover:text-purple-700 font-medium hover:bg-purple-50 px-2 py-1 rounded-lg transition-all duration-200"
+          className="text-xs text-primary hover:text-primary-focus font-medium hover:bg-primary/10 px-2 py-1 rounded-lg transition-all duration-200"
         >
           {isLoading ? (
             <span className="loading loading-spinner loading-xs"></span>

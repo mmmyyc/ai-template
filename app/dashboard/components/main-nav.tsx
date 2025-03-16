@@ -72,12 +72,12 @@ export function MainNav() {
       </div> 
       <div className="drawer-side">
         <label htmlFor="drawer" className="drawer-overlay bg-black/30"></label>
-        <div className="w-72 min-h-full bg-white shadow-lg flex flex-col">
+        <div className="w-72 min-h-full bg-base-100 shadow-lg flex flex-col">
           {/* 侧边栏头部 */}
-          <div className="px-6 py-6 border-b border-gray-100">
+          <div className="px-6 py-6 border-b border-base-200">
             <Link 
               href="/" 
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6"
+              className="inline-flex items-center gap-2 text-sm text-base-content/70 hover:text-base-content transition-colors mb-6"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ export function MainNav() {
               </svg>
               Back
             </Link>
-            <h1 className="text-xl font-semibold text-gray-900">
+            <h1 className="text-xl font-semibold text-base-content">
               AI Playground
             </h1>
           </div>
@@ -112,16 +112,16 @@ export function MainNav() {
                     className={`
                       group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200
                       ${isActive 
-                        ? 'bg-blue-50' 
-                        : 'hover:bg-gray-50'
+                        ? 'bg-primary/10' 
+                        : 'hover:bg-base-200'
                       }
                     `}
                   >
                     <div className={`
                       p-2 rounded-lg transition-colors
                       ${isActive 
-                        ? 'bg-blue-100 text-blue-600' 
-                        : 'bg-gray-100 text-gray-400 group-hover:text-gray-600'
+                        ? 'bg-primary/20 text-primary' 
+                        : 'bg-base-200 text-base-content/50 group-hover:text-base-content/70'
                       }
                     `}>
                       <app.icon className="h-4 w-4" />
@@ -130,8 +130,8 @@ export function MainNav() {
                       <div className={`
                         text-sm font-medium transition-colors
                         ${isActive 
-                          ? 'text-blue-600' 
-                          : 'text-gray-700 group-hover:text-gray-900'
+                          ? 'text-primary' 
+                          : 'text-base-content/80 group-hover:text-base-content'
                         }
                       `}>
                         {app.name}
@@ -139,8 +139,8 @@ export function MainNav() {
                       <div className={`
                         text-xs transition-colors
                         ${isActive 
-                          ? 'text-blue-500' 
-                          : 'text-gray-400 group-hover:text-gray-500'
+                          ? 'text-primary/70' 
+                          : 'text-base-content/50 group-hover:text-base-content/60'
                         }
                       `}>
                         {app.description}
@@ -153,16 +153,16 @@ export function MainNav() {
               {/* 新手引导按钮
               <button
                 onClick={startTutorial}
-                className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 w-full text-left hover:bg-gray-50"
+                className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 w-full text-left hover:bg-base-200"
               >
-                <div className="p-2 rounded-lg transition-colors bg-blue-100 text-blue-600">
+                <div className="p-2 rounded-lg transition-colors bg-primary/20 text-primary">
                   <HelpCircle className="h-4 w-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                  <div className="text-sm font-medium text-base-content/80 group-hover:text-base-content">
                     Onboarding Tour
                   </div>
-                  <div className="text-xs text-gray-400 group-hover:text-gray-500">
+                  <div className="text-xs text-base-content/50 group-hover:text-base-content/60">
                     Review feature introduction
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export function MainNav() {
             <DailyLimit />
           </div>
           <div className="p-3">
-            <ButtonAccount extraStyle="border-t border-gray-100" />            
+            <ButtonAccount extraStyle="border-t border-base-200" />            
           </div>
 
         </div>

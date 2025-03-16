@@ -1,9 +1,6 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface PDFFile {
@@ -85,7 +82,7 @@ export default function Dashboard() {
     <div className="container mx-auto p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* PDF Upload Section */}
-        <Card className="p-6">
+        <div className="card bg-base-100 shadow-xl p-6">
           <h2 className="text-2xl font-bold mb-4">PDF Upload</h2>
           <div className="space-y-4">
             <div className="flex items-center justify-center w-full">
@@ -113,21 +110,21 @@ export default function Dashboard() {
               </p>
             )}
           </div>
-        </Card>
+        </div>
 
         {/* Reading Progress Section */}
-        <Card className="p-6">
+        <div className="card bg-base-100 shadow-xl p-6">
           <h2 className="text-2xl font-bold mb-4">Reading Progress</h2>
           <div className="space-y-4">
-            <Progress value={readingProgress} className="w-full" />
+            <progress className="progress progress-primary w-full" value={readingProgress} max="100" />
             <p className="text-sm text-gray-600">
               {readingProgress}% Complete
             </p>
           </div>
-        </Card>
+        </div>
 
         {/* PDF Files List Section */}
-        <Card className="p-6 md:col-span-2">
+        <div className="card bg-base-100 shadow-xl p-6 md:col-span-2">
           <h2 className="text-2xl font-bold mb-4">PDF Files</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pdfFiles.map((pdf) => (
@@ -143,17 +140,17 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-500">Uploaded: {pdf.uploadedAt}</p>
                   </div>
                 </div>
-                <Progress value={pdf.progress} className="mt-4" />
+                <progress className="progress progress-primary w-full mt-4" value={pdf.progress} max="100" />
                 <p className="text-sm text-gray-600 mt-2">
                   Progress: {pdf.progress}%
                 </p>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         {/* Review Curve Section */}
-        <Card className="p-6 md:col-span-2">
+        <div className="card bg-base-100 shadow-xl p-6 md:col-span-2">
           <h2 className="text-2xl font-bold mb-4">Memory Retention Curve</h2>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -170,7 +167,7 @@ export default function Dashboard() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* PDF Detail Modal */}
@@ -190,7 +187,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <h3 className="font-semibold mb-2">Reading Progress</h3>
-                <Progress value={selectedPDFDetail?.progress} className="mb-2" />
+                <progress className="progress progress-primary w-full mb-2" value={selectedPDFDetail?.progress} max="100" />
                 <p className="text-sm text-gray-600">
                   {selectedPDFDetail?.progress}% Complete
                 </p>

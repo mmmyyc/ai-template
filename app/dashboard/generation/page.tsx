@@ -2,11 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import toast from "react-hot-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
 import { 
   BookOpen, 
   MessageCircle, 
@@ -27,6 +22,7 @@ export default function InteractiveLearningPage() {
   const [summary, setSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [qaMessages, setQaMessages] = useState<Array<{role: string, content: string}>>([]);
+  const [activeTab, setActiveTab] = useState<string>("qa");
 
   // 模拟的文本内容
   useEffect(() => {
@@ -140,14 +136,12 @@ export default function InteractiveLearningPage() {
             <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded">
               <p className="font-medium">已选择文本:</p>
               <p className="italic">"{highlightedText}"</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={addAnnotation} 
-                className="mt-2"
+              <button 
+                className="btn btn-outline btn-sm mt-2"
+                onClick={addAnnotation}
               >
                 添加批注
-              </Button>
+              </button>
             </div>
           )}
           
@@ -167,29 +161,38 @@ export default function InteractiveLearningPage() {
 
         {/* 右侧区域：交互功能 */}
         <div className="md:col-span-1">
-          <Tabs defaultValue="qa" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-4">
-              <TabsTrigger value="qa" className="flex items-center">
+          {/* 使用daisyUI tabs */}
+          <div className="w-full">
+            <div className="tabs tabs-boxed mb-4">
+              <a 
+                className={`tab ${activeTab === "qa" ? "tab-active" : ""}`} 
+                onClick={() => setActiveTab("qa")}
+              >
                 <MessageCircle className="mr-1" size={16} />
                 <span>问答</span>
-              </TabsTrigger>
-              <TabsTrigger value="concept" className="flex items-center">
+              </a>
+              <a 
+                className={`tab ${activeTab === "concept" ? "tab-active" : ""}`}
+                onClick={() => setActiveTab("concept")}
+              >
                 <Network className="mr-1" size={16} />
                 <span>概念图谱</span>
-              </TabsTrigger>
-              <TabsTrigger value="memory" className="flex items-center">
+              </a>
+              <a 
+                className={`tab ${activeTab === "memory" ? "tab-active" : ""}`}
+                onClick={() => setActiveTab("memory")}
+              >
                 <LineChart className="mr-1" size={16} />
                 <span>记忆进度</span>
-              </TabsTrigger>
-            </TabsList>
+              </a>
+            </div>
             
-            <TabsContent value="qa">
-              <Card>
-                <CardHeader>
-                  <CardTitle>实时问答</CardTitle>
-                  <CardDescription>随时提问，获取即时解答</CardDescription>
-                </CardHeader>
-                <CardContent>
+            {/* 使用daisyUI card */}
+            {activeTab === "qa" && (
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body">
+                  <h2 className="card-title">实时问答</h2>
+                  <p className="text-sm opacity-70">随时提问，获取即时解答</p>
                   <div className="h-60 overflow-y-auto mb-4 space-y-2 border rounded p-2">
                     {qaMessages.length > 0 ? (
                       qaMessages.map((msg, index) => (
@@ -205,30 +208,29 @@ export default function InteractiveLearningPage() {
                     )}
                   </div>
                   <div className="flex space-x-2">
-                    <Textarea 
+                    <textarea 
+                      className="textarea textarea-bordered flex-1" 
                       placeholder="输入您的问题..."
                       value={userQuestion}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setUserQuestion(e.target.value)}
-                      className="flex-1"
                     />
-                    <Button 
+                    <button 
+                      className="btn btn-primary" 
                       onClick={sendQuestion} 
                       disabled={isLoading || !userQuestion.trim()}
                     >
                       发送
-                    </Button>
+                    </button>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
+              </div>
+            )}
             
-            <TabsContent value="concept">
-              <Card>
-                <CardHeader>
-                  <CardTitle>概念图谱</CardTitle>
-                  <CardDescription>可视化展示关键概念间的关系</CardDescription>
-                </CardHeader>
-                <CardContent>
+            {activeTab === "concept" && (
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body">
+                  <h2 className="card-title">概念图谱</h2>
+                  <p className="text-sm opacity-70">可视化展示关键概念间的关系</p>
                   {conceptMap ? (
                     <div className="h-60 bg-gray-50 border rounded p-2 flex items-center justify-center">
                       <div className="text-center">
@@ -243,28 +245,34 @@ export default function InteractiveLearningPage() {
                     </div>
                   ) : (
                     <div className="h-60 bg-gray-50 border rounded p-2 flex items-center justify-center">
-                      <Button onClick={generateConceptMap} disabled={isLoading}>
+                      <button 
+                        className="btn btn-primary" 
+                        onClick={generateConceptMap} 
+                        disabled={isLoading}
+                      >
                         生成概念图谱
-                      </Button>
+                      </button>
                     </div>
                   )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
+              </div>
+            )}
             
-            <TabsContent value="memory">
-              <Card>
-                <CardHeader>
-                  <CardTitle>记忆进度</CardTitle>
-                  <CardDescription>基于艾宾浩斯记忆曲线的学习进度追踪</CardDescription>
-                </CardHeader>
-                <CardContent>
+            {activeTab === "memory" && (
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body">
+                  <h2 className="card-title">记忆进度</h2>
+                  <p className="text-sm opacity-70">基于艾宾浩斯记忆曲线的学习进度追踪</p>
                   <div className="mb-4">
                     <div className="flex justify-between mb-1">
                       <span className="text-sm font-medium">当前进度</span>
                       <span className="text-sm font-medium">{memoryProgress}%</span>
                     </div>
-                    <Progress value={memoryProgress} className="w-full" />
+                    <progress 
+                      className="progress progress-primary w-full" 
+                      value={memoryProgress} 
+                      max="100"
+                    />
                   </div>
                   
                   <div className="space-y-2">
@@ -295,58 +303,54 @@ export default function InteractiveLearningPage() {
                       <span className="text-gray-500">未开始</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* 底部面板 */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 智能摘要 */}
-        <Card>
-          <CardHeader className="pb-2">
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
             <div className="flex items-center">
               <FileText className="mr-2" size={20} />
-              <CardTitle>智能摘要</CardTitle>
+              <h2 className="card-title">智能摘要</h2>
             </div>
-            <CardDescription>自动生成的内容摘要</CardDescription>
-          </CardHeader>
-          <CardContent>
+            <p className="text-sm opacity-70">自动生成的内容摘要</p>
             <p className="text-sm">{summary}</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* 测试题入口 */}
-        <Card>
-          <CardHeader className="pb-2">
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
             <div className="flex items-center">
               <LightbulbIcon className="mr-2" size={20} />
-              <CardTitle>测试与练习</CardTitle>
+              <h2 className="card-title">测试与练习</h2>
             </div>
-            <CardDescription>根据学习内容生成的测试题</CardDescription>
-          </CardHeader>
-          <CardContent>
+            <p className="text-sm opacity-70">根据学习内容生成的测试题</p>
             <div className="flex flex-col gap-3">
-              <Button variant="outline" className="w-full justify-start">
-                <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs mr-2">初级</span>
+              <button className="btn btn-outline w-full justify-start">
+                <span className="badge badge-info mr-2">初级</span>
                 声调辨识练习 (5题)
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs mr-2">中级</span>
+              </button>
+              <button className="btn btn-outline w-full justify-start">
+                <span className="badge badge-warning mr-2">中级</span>
                 汉字结构分析 (10题)
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs mr-2">高级</span>
+              </button>
+              <button className="btn btn-outline w-full justify-start">
+                <span className="badge badge-success mr-2">高级</span>
                 量词搭配练习 (8题)
-              </Button>
+              </button>
             </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full">开始练习</Button>
-          </CardFooter>
-        </Card>
+            <div className="card-actions justify-end mt-4">
+              <button className="btn btn-primary w-full">开始练习</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

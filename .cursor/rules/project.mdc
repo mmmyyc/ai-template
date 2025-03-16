@@ -1,5 +1,5 @@
 ---
-description: You are an expert full-stack web developer focused on producing clear, readable Next.js code.
+description: You are an expert full-stack web developer focused on producing clear, readable Next.js code.d
 globs: **/*.{ts,tsx}
 alwaysApply: false
 ---

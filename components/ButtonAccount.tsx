@@ -6,7 +6,6 @@ import { Popover, Transition } from "@headlessui/react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/libs/supabase/client";
 import apiClient from "@/libs/api";
-import Image from 'next/image'
 
 interface ButtonAccountProps {
   extraStyle?: string;
@@ -63,7 +62,7 @@ const ButtonAccount = ({ extraStyle = "" }: ButtonAccountProps) => {
     <Popover className={`relative ${extraStyle}`}>
       {({ open }) => (
         <>
-          <Popover.Button className={`w-full bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 ${extraStyle}`}>
+          <Popover.Button className={`w-full bg-base-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 ${extraStyle}`}>
             <div className="p-3 flex items-center gap-2.5">
               <div className="flex items-center gap-2.5 flex-1">
               {user?.user_metadata?.avatar_url ? (
@@ -82,23 +81,23 @@ const ButtonAccount = ({ extraStyle = "" }: ButtonAccountProps) => {
                 )}
 
                 <div className="flex flex-col items-start">
-                  <span className="text-xs font-medium text-gray-700">
+                  <span className="text-xs font-medium text-base-content">
                     {user?.user_metadata?.name || user?.email?.split("@")[0] || "Account"}
                   </span>
-                  <span className="text-[11px] text-gray-400 truncate max-w-[120px]">
+                  <span className="text-[11px] text-base-content/50 truncate max-w-[120px]">
                     {user?.email}
                   </span>
                 </div>
               </div>
 
               {isLoading ? (
-                <span className="loading loading-spinner loading-xs text-blue-400"></span>
+                <span className="loading loading-spinner loading-xs text-primary"></span>
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className={`w-4 h-4 text-gray-400 duration-200 ${
+                  className={`w-4 h-4 text-base-content/50 duration-200 ${
                     open ? "transform rotate-180" : ""
                   }`}
                 >
@@ -121,10 +120,10 @@ const ButtonAccount = ({ extraStyle = "" }: ButtonAccountProps) => {
             leaveTo="transform scale-95 opacity-0"
           >
             <Popover.Panel className="absolute bottom-full right-0 z-10 mb-2 w-screen max-w-[14rem] transform px-2">
-              <div className="overflow-hidden rounded-2xl shadow-lg ring-1 ring-gray-200 bg-white">
+              <div className="overflow-hidden rounded-2xl shadow-lg ring-1 ring-base-200 bg-base-100">
                 <div className="p-2 space-y-0.5">
                   <button
-                    className="flex items-center gap-2 hover:bg-blue-50 duration-200 py-2 px-3 w-full rounded-xl text-xs font-medium text-gray-700 hover:text-blue-600"
+                    className="flex items-center gap-2 hover:bg-primary/10 duration-200 py-2 px-3 w-full rounded-xl text-xs font-medium text-base-content hover:text-primary"
                     onClick={handleBilling}
                   >
                     <svg
@@ -142,7 +141,7 @@ const ButtonAccount = ({ extraStyle = "" }: ButtonAccountProps) => {
                     Billing
                   </button>
                   <button
-                    className="flex items-center gap-2 hover:bg-red-50 text-gray-700 hover:text-red-600 duration-200 py-2 px-3 w-full rounded-xl text-xs font-medium"
+                    className="flex items-center gap-2 hover:bg-error/10 text-base-content hover:text-error duration-200 py-2 px-3 w-full rounded-xl text-xs font-medium"
                     onClick={handleSignOut}
                   >
                     <svg
