@@ -1,4 +1,5 @@
 import { TextAnimate } from "@/components/magicui/text-animate";
+import { useTranslations } from 'next-intl';
 
 const Arrow = ({ extraStyle }: { extraStyle: string }) => {
   return (
@@ -37,6 +38,8 @@ const Step = ({ emoji, text, description }: { emoji: string; text: string; descr
 };
 
 const Problem = () => {
+  const t = useTranslations('HomePage.problem');
+
   return (
     <section className="bg-base-200 text-base-content font-sans">
       <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
@@ -45,45 +48,45 @@ const Problem = () => {
           by="word"
           className='max-w-3xl mx-auto font-bold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8 '
         >
-          Loneliness in the Digital Age is Affecting Our Work and Life
+          {t('title')}
         </TextAnimate>
         <p className="max-w-xl mx-auto text-lg opacity-90 leading-relaxed font-normal mb-12 md:mb-20">
-          Facing cold screens every day, lacking interaction and emotional connection, makes our work monotonous and even affects mental health
+          {t('description')}
         </p>
 
         <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-8 md:gap-12">
           <Step 
             emoji="🖥️" 
-            text="Cold Digital World" 
-            description="Over 8 hours facing screens daily, lacking vitality and interaction"
+            text={t('steps.digital.title')} 
+            description={t('steps.digital.description')}
           />
 
           <Arrow extraStyle="max-md:-scale-x-100 md:-rotate-90" />
 
           <Step 
             emoji="😔" 
-            text="Work Burnout" 
-            description="Feeling lonely and stressed, work passion gradually fading"
+            text={t('steps.burnout.title')} 
+            description={t('steps.burnout.description')}
           />
 
           <Arrow extraStyle="md:-scale-x-100 md:-rotate-90" />
 
           <Step 
             emoji="💔" 
-            text="Decreased Productivity" 
-            description="Difficulty focusing, creative inspiration gradually depleting"
+            text={t('steps.productivity.title')} 
+            description={t('steps.productivity.description')}
           />
         </div>
 
         <div className="mt-16 md:mt-24 flex flex-wrap justify-center gap-4 text-sm opacity-80">
           <div className="flex items-center gap-2 bg-base-300 px-4 py-2 rounded-full">
-            <span className="font-semibold">76%</span> of people feel lonely when working remotely
+            {t('stats.remote')}
           </div>
           <div className="flex items-center gap-2 bg-base-300 px-4 py-2 rounded-full">
-            <span className="font-semibold">52%</span> want a more enjoyable work environment
+            {t('stats.environment')}
           </div>
           <div className="flex items-center gap-2 bg-base-300 px-4 py-2 rounded-full">
-            <span className="font-semibold">89%</span> believe a happy work environment boosts efficiency
+            {t('stats.efficiency')}
           </div>
         </div>
       </div>

@@ -1,3 +1,9 @@
+const createNextIntlPlugin = require('next-intl/plugin');
+
+const withNextIntl = createNextIntlPlugin(
+  './i18n/request.ts'
+);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,7 +15,9 @@ const nextConfig = {
       "images.unsplash.com",
       "logos-world.net",
       "ycamie.com",
-      "r2.ycamie.com"
+      "r2.ycamie.com",
+      "avatars.githubusercontent.com",
+      "replicate.delivery",
     ],
   },
   async headers() { 
@@ -36,7 +44,10 @@ const nextConfig = {
         ],
       },
     ];
-  }
+  },
+  experimental: {
+    serverActions: true,
+  },
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);

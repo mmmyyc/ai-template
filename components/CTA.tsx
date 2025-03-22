@@ -1,6 +1,7 @@
 import Image from "next/image";
 import config from "@/config";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 import ImageMouseTrail from '@/components/animations/mousetrail';
 
@@ -18,12 +19,14 @@ const images = [
 ];
 
 const CTA = () => {
+  const t = useTranslations('CTA');
+  
   return (
     <section className="relative hero overflow-hidden min-h-[90vh] bg-gradient-to-br from-base-300 to-base-200">
       {/* 背景图片 - 调整混合模式和不透明度 */}
       <Image
         src="/landing/three_person.webp"
-        alt="Happy Work Environment"
+        alt={t('backgroundAlt')}
         className="object-cover w-full mix-blend-soft-light opacity-75"
         fill
         priority
@@ -46,11 +49,11 @@ const CTA = () => {
       <div className="relative z-20 hero-content text-center text-base-content p-8">
         <div className="flex flex-col items-center max-w-2xl">
           <h2 className="font-bold text-3xl md:text-5xl tracking-tight mb-8 leading-tight">
-            Transform Your Desktop with AI Companions
+            {t('title')}
           </h2>
           
           <p className="text-lg md:text-xl opacity-90 mb-12 max-w-xl leading-relaxed">
-            YCamie brings your favorite characters to life on your screen in minutes. No artistic skills needed - just describe or upload an image, and watch your desktop come alive!
+            {t('description')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -62,7 +65,7 @@ const CTA = () => {
               <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              Try Now
+              {t('tryNowButton')}
             </Link>
             
             <Link 
@@ -72,7 +75,7 @@ const CTA = () => {
               <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
-              Explore Store
+              {t('exploreStoreButton')}
             </Link>
           </div>
 
@@ -81,19 +84,19 @@ const CTA = () => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Completely Free
+              {t('features.0')}
             </div>
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Regular Updates
+              {t('features.1')}
             </div>
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Official {config.appName} Product
+              {t('features.2', { appName: config.appName })}
             </div>
           </div>
         </div>

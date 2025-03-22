@@ -1,0 +1,321 @@
+{
+  "HomePage": {
+    "title": "AI 游乐场",
+    "back": "返回",
+    "hero": {
+      "title": "创建你的完美桌面伙伴",
+      "subtitle": "使用 AI 技术生成独特的个性化桌面宠物",
+      "tryButton": "立即体验",
+      "watchButton": "观看演示"
+    },
+    "problem": {
+      "title": "数字时代的孤独正在影响我们的工作和生活",
+      "description": "每天面对冰冷的屏幕，缺乏互动和情感连接，使我们的工作变得单调，甚至影响心理健康",
+      "steps": {
+        "digital": {
+          "title": "冰冷的数字世界",
+          "description": "每天面对屏幕超过8小时，缺乏活力和互动"
+        },
+        "burnout": {
+          "title": "工作倦怠",
+          "description": "感到孤独和压力，工作热情逐渐消退"
+        },
+        "productivity": {
+          "title": "生产力下降",
+          "description": "难以集中注意力，创造灵感逐渐枯竭"
+        }
+      },
+      "stats": {
+        "remote": "76% 的人在远程工作时感到孤独",
+        "environment": "52% 的人希望有更愉快的工作环境",
+        "efficiency": "89% 的人认为愉快的工作环境能提高效率"
+      }
+    },
+    "features": {
+      "title": "为什么选择我们的桌面宠物？",
+      "list": {
+        "ai": {
+          "title": "AI 驱动生成",
+          "description": "使用前沿 AI 技术创建独特的宠物"
+        },
+        "customization": {
+          "title": "完全自定义",
+          "description": "个性化定制你的桌面伙伴的每个方面"
+        },
+        "interaction": {
+          "title": "互动行为",
+          "description": "观察你的宠物对你的活动作出反应"
+        }
+      }
+    },
+    "cta": {
+      "title": "准备好迎接你的新朋友了吗？",
+      "description": "今天就开始创建你的完美桌面伙伴",
+      "button": "开始使用"
+    },
+    "pricing": {
+      "title": "简单透明的定价",
+      "description": "选择适合你的方案",
+      "free": {
+        "title": "免费试用",
+        "price": "0",
+        "features": [
+          "每月 5 次生成",
+          "基础自定义",
+          "标准支持"
+        ]
+      },
+      "pro": {
+        "title": "专业版",
+        "price": "9.99",
+        "features": [
+          "无限生成",
+          "高级自定义",
+          "优先支持",
+          "抢先体验新功能"
+        ]
+      }
+    },
+    "faq": {
+      "title": "常见问题",
+      "questions": {
+        "what": {
+          "question": "什么是桌面宠物？",
+          "answer": "桌面宠物是一个生活在你电脑屏幕上的小动画角色，会与你的活动互动。"
+        },
+        "how": {
+          "question": "它是如何工作的？",
+          "answer": "我们的 AI 技术根据你的偏好生成独特的宠物。你可以自定义它们的外观和行为。"
+        },
+        "system": {
+          "question": "支持哪些系统？",
+          "answer": "我们的桌面宠物支持 Windows、macOS 和 Linux 系统。"
+        }
+      }
+    }
+  },
+  "Navigation": {
+    "imageGen": {
+      "title": "桌宠生成",
+      "description": "创建你的专属桌面伙伴"
+    },
+    "history": {
+      "title": "生成历史",
+      "description": "查看你的历史生成记录"
+    },
+    "store": {
+      "title": "桌宠商店",
+      "description": "下载社区创作"
+    },
+    "pricing": "定价",
+    "docs": "文档"
+  },
+  "DailyLimit": {
+    "title": "月度生成限额",
+    "description": "本月剩余生成次数",
+    "upgradeButton": "升级到专业版"
+  },
+  "Account": {
+    "billing": "账单",
+    "logout": "退出登录"
+  },
+  "WithWithout": {
+    "title": "改变您的桌面体验",
+    "without": {
+      "title": "没有Shimeji.ai",
+      "items": [
+        "复杂的宠物创建需要数周的工作",
+        "设置复杂的技术障碍",
+        "有限的自定义选项",
+        "安装麻烦，需要Java环境",
+        "需要艺术技能来创建角色"
+      ]
+    },
+    "with": {
+      "title": "使用Shimeji.ai",
+      "items": [
+        "只需描述或上传图片 - 几分钟内即可完成",
+        "一键安装，无需技术知识",
+        "为您的角色提供独特的动画和自定义行为",
+        "一切包含 - 无需Java或额外软件",
+        "无需艺术技能 - AI为您完成工作"
+      ]
+    }
+  },
+  "CTA": {
+    "backgroundAlt": "愉快的工作环境",
+    "title": "用AI伙伴改变您的桌面体验",
+    "description": "夜神让您喜爱的角色在几分钟内栩栩如生地出现在您的屏幕上。无需艺术技能 - 只需描述或上传图片，看着您的桌面焕发生机！",
+    "tryNowButton": "立即体验",
+    "exploreStoreButton": "探索商店",
+    "features": {
+      "0": "完全免费",
+      "1": "定期更新",
+      "2": "官方{appName}产品"
+    }
+  },
+  "VideoSection": {
+    "title": "了解工作原理",
+    "description": "观看我们的快速教程，了解如何在几分钟内创建自己的桌面宠物",
+    "videoUrl": "https://www.youtube.com/embed/-9f5yG_NkXM?si=0uDxiUxkAR_GmYmi",
+    "videoTitle": "夜神入门指南",
+    "tryNowButton": "立即尝试"
+  },
+  "Pricing": {
+    "title": "快速经济地获取高级夜神宠物",
+    "popularBadge": "热门",
+    "currency": "人民币",
+    "paidPlanSubtext": "获取高质量个性化夜神宠物",
+    "freePlanButton": "立即尝试",
+    "freePlanSubtext": "开始使用，每月免费3次生成",
+    "plans": {
+      "free": {
+        "name": "免费版",
+        "description": "提供25个高质量画面组成的桌面宠物",
+        "features": {
+          "0": "每月使用限制3次生成",
+          "1": "AI助手",
+          "2": "夜神定制",
+          "3": "高清动画图像",
+          "4": "趣味互动",
+          "5": "实时响应",
+          "6": "25帧动画套装",
+          "7": "人物角色定制"
+        }
+      },
+      "basic": {
+        "name": "基础版",
+        "description": "提供25个高质量画面组成的桌面宠物",
+        "features": {
+          "0": "每月使用限制50次生成",
+          "1": "AI助手",
+          "2": "夜神定制",
+          "3": "高清动画图像",
+          "4": "趣味互动",
+          "5": "实时响应",
+          "6": "25帧动画套装",
+          "7": "人物角色定制"
+        }
+      },
+      "advanced": {
+        "name": "高级版",
+        "description": "提供46个高质量画面组成的桌面宠物",
+        "features": {
+          "0": "每月使用限制200次生成",
+          "1": "AI助手",
+          "2": "夜神定制",
+          "3": "高清动画图像",
+          "4": "趣味互动",
+          "5": "实时响应",
+          "6": "46帧高级动画",
+          "7": "人物角色定制",
+          "8": "宠物角色定制",
+          "9": "多设备支持"
+        }
+      }
+    }
+  },
+  "FAQ": {
+    "title": "常见问题",
+    "items": {
+      "0": {
+        "question": "夜神桌面宠物有哪些功能？",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>我们的AI模型专门训练用于生成高质量桌面宠物。每个夜神宠物包括：</p><ul class='list-disc list-inside'><li>基础版：25个高质量动画帧</li><li>高级版：46个高级动画帧</li><li>无需担心系统要求，我们的产品会自动为您处理一切！</li><li>交互式AI聊天</li><li>角色定制</li><li>自定义宠物外观和行为</li><li>完整动画系统</li></ul></div>"
+      },
+      "1": {
+        "question": "系统要求是什么？",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>运行夜神桌面宠物，您需要：</p><ul class='list-disc list-inside'><li>使用夜神？您已准备就绪！无需额外设置 - 我们的软件包中包含一切。</li><li>无需安装Java 21或更高版本</li></ul></div>"
+      },
+      "2": {
+        "question": "如何获得更好的生成结果？",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>为获得最佳效果，我们建议：</p><ul class='list-disc list-inside'><li>使用简单明了的描述</li><li>上传参考图片以提高准确性</li><li>如果对结果不满意，可以尝试重新生成</li></ul></div>"
+      },
+      "3": {
+        "question": "退款政策是什么？",
+        "answer": "<p>如果您对我们的服务不满意，我们提供购买后7天内全额退款。请通过support@ycamie.com联系我们</p>"
+      },
+      "4": {
+        "question": "需要其他帮助？",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>如果您有任何问题或建议，欢迎通过以下方式联系我们：</p><ul class='list-disc list-inside'><li>电子邮件：mmmmmyyc@ycamie.com</li><li>加入我们的社区讨论</li><li>查看我们的文档</li></ul></div>"
+      }
+    }
+  },
+  "Footer": {
+    "description": "为您的数字世界注入欢乐，为工作增添乐趣",
+    "copyright": "版权所有 © {year} - 保留所有权利",
+    "categories": {
+      "product": {
+        "title": "产品",
+        "links": {
+          "0": "功能",
+          "1": "宠物商店",
+          "2": "下载",
+          "3": "支持"
+        }
+      },
+      "resources": {
+        "title": "资源",
+        "links": {
+          "0": "教程",
+          "1": "功能"
+        }
+      },
+      "legal": {
+        "title": "法律",
+        "links": {
+          "0": "隐私政策",
+          "1": "服务条款"
+        }
+      },
+      "social": {
+        "title": "社交媒体",
+        "links": {
+          "0": "GitHub",
+          "1": "Twitter"
+        }
+      }
+    }
+  },
+  "FeaturesListicle": {
+    "title": "为您的数字生活增添温暖和陪伴",
+    "description": "我们精心设计了丰富的互动功能和个性化选项，让您的桌面更加生动活泼。无论您是在工作还是学习，都能感受到可爱伙伴带来的温暖和快乐。",
+    "features": {
+      "aiCreation": {
+        "name": "AI 创作",
+        "bulletPoints": {
+          "0": "每月200次高质量生成",
+          "1": "支持角色和宠物自定义",
+          "2": "46帧高质量动画效果",
+          "3": "持续的模型优化和更新"
+        }
+      },
+      "personalization": {
+        "name": "个性化定制",
+        "bulletPoints": {
+          "0": "自定义角色外观和动作",
+          "1": "使用AI技术与您的夜神自然聊天",
+          "2": "通过聊天命令指导您的夜神行动",
+          "3": "随意添加新的夜神角色"
+        }
+      },
+      "convenience": {
+        "name": "极度便捷",
+        "bulletPoints": {
+          "0": "一键安装，无需Java环境",
+          "1": "预设好的动画帧随时可用",
+          "2": "全面的教程和文档支持",
+          "3": "简单易用的界面适合所有用户"
+        }
+      },
+      "interactiveExperience": {
+        "name": "互动体验",
+        "bulletPoints": {
+          "0": "实时响应互动",
+          "1": "智能窗口检测和跟踪",
+          "2": "可爱的走路和攀爬动画",
+          "3": "丰富的表情和动作系统"
+        }
+      }
+    }
+  }
+} 

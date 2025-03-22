@@ -3,12 +3,13 @@
 import { useState, useEffect, Suspense } from "react";
 import type { JSX } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import Image from "next/image";
 import ButtonSignin from "./ButtonSignin";
 import logo from "@/app/apple-icon.png";
 import config from "@/config";
 import ThemeToggle from './ThemeToggle';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const links: {
   href: string;
@@ -120,7 +121,10 @@ const HeaderContent = () => {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex lg:justify-end lg:flex-1 lg:items-center lg:gap-4">
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </div>
           {cta}
         </div>
 
@@ -211,6 +215,10 @@ const HeaderContent = () => {
             ))}
             <div className="divider my-4"></div>
             <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-center gap-4">
+                <ThemeToggle />
+                <LanguageSwitcher />
+              </div>
               {cta}
             </div>
           </div>

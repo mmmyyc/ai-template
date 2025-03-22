@@ -6,6 +6,7 @@ import { Popover, Transition } from "@headlessui/react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/libs/supabase/client";
 import apiClient from "@/libs/api";
+import { useTranslations } from 'next-intl';
 
 interface ButtonAccountProps {
   extraStyle?: string;
@@ -21,6 +22,7 @@ const ButtonAccount = ({ extraStyle = "" }: ButtonAccountProps) => {
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User>(null);
+  const t = useTranslations('Account');
 
   useEffect(() => {
     const getUser = async () => {
@@ -138,7 +140,7 @@ const ButtonAccount = ({ extraStyle = "" }: ButtonAccountProps) => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Billing
+                    {t('billing')}
                   </button>
                   <button
                     className="flex items-center gap-2 hover:bg-error/10 text-base-content hover:text-error duration-200 py-2 px-3 w-full rounded-xl text-xs font-medium"
@@ -161,7 +163,7 @@ const ButtonAccount = ({ extraStyle = "" }: ButtonAccountProps) => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Logout
+                    {t('logout')}
                   </button>
                 </div>
               </div>

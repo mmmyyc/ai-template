@@ -1,0 +1,321 @@
+{
+  "HomePage": {
+    "title": "AI Playground",
+    "back": "Back",
+    "hero": {
+      "title": "Create Your Perfect Desktop Companion",
+      "subtitle": "Generate unique and personalized desktop pets with AI technology",
+      "tryButton": "Try Now",
+      "watchButton": "Watch Demo"
+    },
+    "problem": {
+      "title": "Loneliness in the Digital Age is Affecting Our Work and Life",
+      "description": "Facing cold screens every day, lacking interaction and emotional connection, makes our work monotonous and even affects mental health",
+      "steps": {
+        "digital": {
+          "title": "Cold Digital World",
+          "description": "Over 8 hours facing screens daily, lacking vitality and interaction"
+        },
+        "burnout": {
+          "title": "Work Burnout",
+          "description": "Feeling lonely and stressed, work passion gradually fading"
+        },
+        "productivity": {
+          "title": "Decreased Productivity",
+          "description": "Difficulty focusing, creative inspiration gradually depleting"
+        }
+      },
+      "stats": {
+        "remote": "76% of people feel lonely when working remotely",
+        "environment": "52% want a more enjoyable work environment",
+        "efficiency": "89% believe a happy work environment boosts efficiency"
+      }
+    },
+    "features": {
+      "title": "Why Choose Our Desktop Pets?",
+      "list": {
+        "ai": {
+          "title": "AI-Powered Generation",
+          "description": "Create unique pets using cutting-edge AI technology"
+        },
+        "customization": {
+          "title": "Full Customization",
+          "description": "Personalize every aspect of your desktop companion"
+        },
+        "interaction": {
+          "title": "Interactive Behavior",
+          "description": "Watch your pet react to your activities"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Meet Your New Friend?",
+      "description": "Start creating your perfect desktop companion today",
+      "button": "Get Started"
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "description": "Choose the plan that works for you",
+      "free": {
+        "title": "Free Trial",
+        "price": "0",
+        "features": [
+          "5 generations per month",
+          "Basic customization",
+          "Standard support"
+        ]
+      },
+      "pro": {
+        "title": "Pro",
+        "price": "9.99",
+        "features": [
+          "Unlimited generations",
+          "Advanced customization",
+          "Priority support",
+          "Early access to new features"
+        ]
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "questions": {
+        "what": {
+          "question": "What is a desktop pet?",
+          "answer": "A desktop pet is a small animated character that lives on your computer screen and interacts with your activities."
+        },
+        "how": {
+          "question": "How does it work?",
+          "answer": "Our AI technology generates unique pets based on your preferences. You can customize their appearance and behavior."
+        },
+        "system": {
+          "question": "What systems are supported?",
+          "answer": "Our desktop pets work on Windows, macOS, and Linux systems."
+        }
+      }
+    }
+  },
+  "Navigation": {
+    "imageGen": {
+      "title": "DeskPet Generation",
+      "description": "Create your unique desktop companion"
+    },
+    "history": {
+      "title": "Generation History",
+      "description": "View your previous generations"
+    },
+    "store": {
+      "title": "Shimeji Store",
+      "description": "Download community creations"
+    },
+    "pricing": "Pricing",
+    "docs": "Documentation"
+  },
+  "DailyLimit": {
+    "title": "Monthly Generation Limit",
+    "description": "Remaining generations this month",
+    "upgradeButton": "Upgrade to Pro"
+  },
+  "Account": {
+    "billing": "Billing",
+    "logout": "Logout"
+  },
+  "WithWithout": {
+    "title": "Transform Your Desktop Experience",
+    "without": {
+      "title": "Without YCamie",
+      "items": [
+        "Complex pet creation requiring weeks of work",
+        "Technical barriers with complicated setup",
+        "Limited customization options",
+        "Installation hassles requiring Java environment",
+        "Need artistic skills to create characters"
+      ]
+    },
+    "with": {
+      "title": "With YCamie",
+      "items": [
+        "Just describe or upload an image - ready in minutes",
+        "One-click install with no technical knowledge needed",
+        "Unique animations and custom behaviors for your character",
+        "Everything included - no Java or extra software needed",
+        "No artistic skills required - AI does the work for you"
+      ]
+    }
+  },
+  "CTA": {
+    "backgroundAlt": "Happy Work Environment",
+    "title": "Transform Your Desktop with AI Companions",
+    "description": "YCamie brings your favorite characters to life on your screen in minutes. No artistic skills needed - just describe or upload an image, and watch your desktop come alive!",
+    "tryNowButton": "Try Now",
+    "exploreStoreButton": "Explore Store",
+    "features": {
+      "0": "Completely Free",
+      "1": "Regular Updates",
+      "2": "Official {appName} Product"
+    }
+  },
+  "VideoSection": {
+    "title": "See How It Works",
+    "description": "Watch our quick tutorial to learn how to create your own desktop pet in minutes",
+    "videoUrl": "https://www.youtube.com/embed/-9f5yG_NkXM?si=0uDxiUxkAR_GmYmi",
+    "videoTitle": "Getting Started with YCamie",
+    "tryNowButton": "Try It Now"
+  },
+  "Pricing": {
+    "title": "Get premium Shimeji pets fast and affordably",
+    "popularBadge": "POPULAR",
+    "currency": "USD",
+    "paidPlanSubtext": "Get high-quality personalized Shimeji pets",
+    "freePlanButton": "Try Now",
+    "freePlanSubtext": "Get started with 3 generations per month free",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "Providing high-quality desktop pets consisting of 25 high-quality pictures",
+        "features": {
+          "0": "Usage Limit 3 generations per month",
+          "1": "AI assistant",
+          "2": "Shimeji Customization",
+          "3": "HD Animated Images",
+          "4": "Fun Interaction",
+          "5": "Real-time Response",
+          "6": "25-frame Animation Set",
+          "7": "Human Character Customization"
+        }
+      },
+      "basic": {
+        "name": "Basic",
+        "description": "Providing high-quality desktop pets consisting of 25 high-quality pictures",
+        "features": {
+          "0": "Usage Limit 50 generations per month",
+          "1": "AI assistant",
+          "2": "Shimeji Customization",
+          "3": "HD Animated Images",
+          "4": "Fun Interaction",
+          "5": "Real-time Response",
+          "6": "25-frame Animation Set",
+          "7": "Human Character Customization"
+        }
+      },
+      "advanced": {
+        "name": "Advanced",
+        "description": "Providing high-quality desktop pets consisting of 46 high-quality pictures",
+        "features": {
+          "0": "Usage Limit 200 generations per month",
+          "1": "AI assistant",
+          "2": "Shimeji Customization",
+          "3": "HD Animated Images",
+          "4": "Fun Interaction",
+          "5": "Real-time Response",
+          "6": "46-frame Premium Animation",
+          "7": "Human Character Customization",
+          "8": "Pet Character Customization",
+          "9": "Multi-device Support"
+        }
+      }
+    }
+  },
+  "FAQ": {
+    "title": "Frequently Asked Questions",
+    "items": {
+      "0": {
+        "question": "What features do YCamie Shimeji pets have?",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>Our AI model is specially trained to generate high-quality desktop pets. Each Shimeji includes:</p><ul class='list-disc list-inside'><li>Basic: 25 high-quality animation frames</li><li>Advanced: 46 premium animation frames</li><li>Don't worry about the system requirements, our product handles everything automatically for you!</li><li>Interactive AI Chat</li><li>Character Customization</li><li>Customize the pet's appearance and behavior</li><li>Complete animation system</li></ul></div>"
+      },
+      "1": {
+        "question": "What are the system requirements?",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>To run YCamie Shimeji pets, you need:</p><ul class='list-disc list-inside'><li>Using YCamie? You're all set! No additional setup required - everything is included in our package.</li><li>Don't need to install Java 21 or higher installed on your computer</li></ul></div>"
+      },
+      "2": {
+        "question": "How can I get better generation results?",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>For best results, we recommend:</p><ul class='list-disc list-inside'><li>Use simple and clear descriptions</li><li>Upload a reference image to improve accuracy</li><li>Try regenerating if you're not satisfied with the results</li></ul></div>"
+      },
+      "3": {
+        "question": "What's your refund policy?",
+        "answer": "<p>We offer a full refund within 7 days of purchase if you're not satisfied with our service. Please contact us at support@ycamie.com</p>"
+      },
+      "4": {
+        "question": "Need help with something else?",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>If you have any questions or suggestions, feel free to reach out through:</p><ul class='list-disc list-inside'><li>Email us at: mmmmmyyc@ycamie.com</li><li>Join our community discussions</li><li>Check our documentation</li></ul></div>"
+      }
+    }
+  },
+  "Footer": {
+    "description": "Fill your digital world with joy, adding fun to your work",
+    "copyright": "Copyright © {year} - All rights reserved",
+    "categories": {
+      "product": {
+        "title": "PRODUCT",
+        "links": {
+          "0": "Features",
+          "1": "Pet Store",
+          "2": "Download",
+          "3": "Support"
+        }
+      },
+      "resources": {
+        "title": "RESOURCES",
+        "links": {
+          "0": "Tutorial",
+          "1": "Features"
+        }
+      },
+      "legal": {
+        "title": "LEGAL",
+        "links": {
+          "0": "Privacy Policy",
+          "1": "Terms of Service"
+        }
+      },
+      "social": {
+        "title": "SOCIAL",
+        "links": {
+          "0": "GitHub",
+          "1": "Twitter"
+        }
+      }
+    }
+  },
+  "FeaturesListicle": {
+    "title": "Adding Warmth and Companionship to Your Digital Life",
+    "description": "We've carefully designed rich interactive features and personalization options to make your desktop more lively. Whether you're working or studying, you'll feel the warmth and joy brought by your cute companion.",
+    "features": {
+      "aiCreation": {
+        "name": "AI Creation",
+        "bulletPoints": {
+          "0": "200 high-quality generations per month",
+          "1": "Support for character and pet customization",
+          "2": "46-frame high-quality animation effects",
+          "3": "Continuous model optimization and updates"
+        }
+      },
+      "personalization": {
+        "name": "Personalization",
+        "bulletPoints": {
+          "0": "Customize character appearance and actions",
+          "1": "Chat naturally with your Shimeji using AI technology",
+          "2": "Direct your Shimeji's actions through chat commands",
+          "3": "Feel free to add shimeji"
+        }
+      },
+      "convenience": {
+        "name": "Extremely Convenient",
+        "bulletPoints": {
+          "0": "One-click installation with no Java required",
+          "1": "Pre-designed animation frames ready to use",
+          "2": "Comprehensive tutorials and documentation",
+          "3": "Easy-to-use interface for all users"
+        }
+      },
+      "interactiveExperience": {
+        "name": "Interactive Experience",
+        "bulletPoints": {
+          "0": "Real-time responsive interactions",
+          "1": "Smart window detection and tracking",
+          "2": "Adorable walking and climbing animations",
+          "3": "Rich expression and action system"
+        }
+      }
+    }
+  }
+} 

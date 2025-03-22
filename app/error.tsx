@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import ButtonSupport from "@/components/ButtonSupport";
 
 // A simple error boundary to show a nice error page if something goes wrong (Error Boundary)

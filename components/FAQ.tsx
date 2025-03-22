@@ -1,85 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { JSX } from "react";
+import { useTranslations } from 'next-intl';
 
-// <FAQ> component is a lsit of <Item> component
-// Just import the FAQ & add your FAQ content to the const faqList arrayy below.
+// Simplified FAQ component that uses translations from i18n
 
-interface FAQItemProps {
-  question: string;
-  answer: JSX.Element;
-}
-
-const faqList: FAQItemProps[] = [
-  {
-    question: "What features do YCamie Shimeji pets have?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>Our AI model is specially trained to generate high-quality desktop pets. Each Shimeji includes:</p>
-        <ul className="list-disc list-inside">
-          <li>Basic: 25 high-quality animation frames</li>
-          <li>Advanced: 46 premium animation frames</li>
-          <li>Don't worry about the system requirements, our product handles everything automatically for you!</li>
-          <li>Interactive AI Chat</li>
-          <li>Character Customization</li>
-          <li>Customize the pet's appearance and behavior</li>
-          <li>Complete animation system</li>
-        </ul>
-      </div>
-    ),
-  },
-  {
-    question: "What are the system requirements?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>To run YCamie Shimeji pets, you need:</p>
-        <ul className="list-disc list-inside">
-          <li>Using YCamie? You're all set! No additional setup required - everything is included in our package.</li>
-          <li>Don't need to install Java 21 or higher installed on your computer</li>
-        </ul>
-      </div>
-    ),
-  },
-  {
-    question: "How can I get better generation results?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>For best results, we recommend:</p>
-        <ul className="list-disc list-inside">
-          <li>Use simple and clear descriptions</li>
-          <li>Upload a reference image to improve accuracy</li>
-          <li>Try regenerating if you're not satisfied with the results</li>
-        </ul>
-      </div>
-    ),
-  },
-  {
-    question: "What's your refund policy?",
-    answer: (
-      <p>
-        We offer a full refund within 7 days of purchase if you're not satisfied with our service. Please contact us at support@ycamie.com
-      </p>
-    ),
-  },
-  {
-    question: "Need help with something else?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>
-          If you have any questions or suggestions, feel free to reach out through:
-        </p>
-        <ul className="list-disc list-inside">
-          <li>Email us at: mmmmmyyc@ycamie.com</li>
-          <li>Join our community discussions</li>
-          <li>Check our documentation</li>
-        </ul>
-      </div>
-    ),
-  },
-];
-
-const FaqItem = ({ item }: { item: FAQItemProps }) => {
+const FaqItem = ({ questionKey, answerKey }: { questionKey: string; answerKey: string }) => {
+  const t = useTranslations('FAQ');
   const accordion = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -96,7 +23,7 @@ const FaqItem = ({ item }: { item: FAQItemProps }) => {
         <span
           className={`flex-1 text-base-content ${isOpen ? "text-primary" : ""}`}
         >
-          {item?.question}
+          {t(questionKey)}
         </span>
         <svg
           className={`flex-shrink-0 w-4 h-4 ml-auto fill-current`}
@@ -133,26 +60,56 @@ const FaqItem = ({ item }: { item: FAQItemProps }) => {
             : { maxHeight: 0, opacity: 0 }
         }
       >
-        <div className="pb-5 leading-relaxed">{item?.answer}</div>
+        <div className="pb-5 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.raw(answerKey) }} />
       </div>
     </li>
   );
 };
 
 const FAQ = () => {
+  const t = useTranslations('FAQ');
+  
+  // 定义FAQ问题的键名列表
+  const faqItems = [
+    { 
+      questionKey: 'items.0.question', 
+      answerKey: 'items.0.answer'
+    },
+    { 
+      questionKey: 'items.1.question', 
+      answerKey: 'items.1.answer'
+    },
+    { 
+      questionKey: 'items.2.question', 
+      answerKey: 'items.2.answer'
+    },
+    { 
+      questionKey: 'items.3.question', 
+      answerKey: 'items.3.answer'
+    },
+    { 
+      questionKey: 'items.4.question', 
+      answerKey: 'items.4.answer'
+    }
+  ];
+
   return (
     <section className="bg-base-200" id="faq">
       <div className="py-24 px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-12">
         <div className="flex flex-col text-left basis-1/2">
           {/* <p className="inline-block font-semibold text-primary mb-4">FAQ</p> */}
           <p className="sm:text-4xl text-3xl font-extrabold text-base-content">
-            Frequently Asked Questions
+            {t('title')}
           </p>
         </div>
 
         <ul className="basis-1/2">
-          {faqList.map((item, i) => (
-            <FaqItem key={i} item={item} />
+          {faqItems.map((item, i) => (
+            <FaqItem 
+              key={i} 
+              questionKey={item.questionKey} 
+              answerKey={item.answerKey} 
+            />
           ))}
         </ul>
       </div>

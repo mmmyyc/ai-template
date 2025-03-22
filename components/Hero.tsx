@@ -1,9 +1,12 @@
 import Image from "next/image";
 import config from "@/config";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import { AuroraText } from "@/components/magicui/aurora-text";
+import { useTranslations } from 'next-intl';
 
 const Hero = () => {
+  const t = useTranslations('HomePage.hero');
+
   return (
     <section className="relative pt-32 pb-24 font-sans">
       <div className="container mx-auto px-6">
@@ -12,9 +15,9 @@ const Hero = () => {
             <AuroraText
               className="font-bold text-4xl md:text-6xl tracking-tight mb-8 text-base-content"
               as="h1"
-            >Create Your Own AI Shimeji</AuroraText>
+            >{t('title')}</AuroraText>
             <p className="text-xl md:text-2xl text-base-content/70 font-normal leading-relaxed mb-12">
-              Get high-quality personalized AI Shimeji desktop pets without spending weeks or hundreds of dollars.
+              {t('subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link 
@@ -25,14 +28,14 @@ const Hero = () => {
                 <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Try Now
+                {t('tryButton')}
               </Link>
               <Link 
                 href="/blog/introducing-YCamie" 
                 className="btn btn-outline btn-lg px-8 rounded-full"
                 title={`${config.appName} demo`}
               >
-                Learn YCamie
+                {t('watchButton')}
               </Link>
             </div>
 

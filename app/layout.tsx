@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import { Viewport } from "next";
 import { getSEOTags } from "@/libs/seo";
-import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import "./globals.css";
 import { GoogleAnalytics } from '@next/third-parties/google'
@@ -35,16 +34,13 @@ const themeScript = `
 
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
-		<html
-			lang="en"
-			suppressHydrationWarning
-		>
+		<html suppressHydrationWarning>
 			<head>
 				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
+				<link rel="icon" href="/favicon.ico" sizes="any" />
 			</head>
 			<body className={font.className}>
-				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
-				<ClientLayout>{children}</ClientLayout>
+				{children}
 				<Analytics />
 				<GoogleAnalytics gaId="G-4KMJNL5ZMF" />
 			</body>
