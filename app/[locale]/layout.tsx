@@ -46,7 +46,9 @@ export default async function LocaleLayout({
 	return (
 		<NextIntlClientProvider messages={messages} locale={locale}>
 			{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
-			<ClientLayout>{children}</ClientLayout>
+			<ClientLayout>
+				{children}
+			</ClientLayout>
 		</NextIntlClientProvider>
 	);
 }

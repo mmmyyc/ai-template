@@ -1,4 +1,9 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: Best practices for using Axios for HTTP requests
 globs: app/api/**/*.ts
 alwaysApply: false
