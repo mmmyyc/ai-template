@@ -668,8 +668,13 @@ export function FriendlyEditor({
   return (
     <div
       ref={popupRef}
-      className="absolute z-50 w-80 bg-white border rounded-lg shadow-lg"
-      style={{ left: editorPosition.x, top: editorPosition.y }}
+      className={cn("absolute z-50 w-80 bg-white border rounded-lg shadow-lg", className)}
+      style={{ 
+        left: editorPosition.x, 
+        top: editorPosition.y, 
+        maxHeight: "80vh", // 限制最大高度为视口高度的80%
+        overflow: "hidden" // 超出部分隐藏
+      }}
       data-selector-ui="true"
     >
       <div
@@ -686,7 +691,7 @@ export function FriendlyEditor({
         </Button>
       </div>
 
-      <ScrollArea className="h-[70vh] max-h-[500px]">
+      <ScrollArea className="max-h-[calc(80vh-56px)]">
         <div className="p-4 space-y-6">
           <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="w-full grid grid-cols-4">

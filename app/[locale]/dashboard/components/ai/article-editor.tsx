@@ -385,11 +385,33 @@ export default function ArticleEditor({
             
             // 获取元素位置
             const elementRect = bestElement.getBoundingClientRect();
-            const containerRect = contentContainerRef.current?.getBoundingClientRect();
-            
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            // 计算最佳位置 - 优先放在元素右侧，如果空间不足则放左侧
+            let posX = elementRect.right + 10;
+            // 检查是否会超出右边界
+            if (posX + 340 > windowWidth) {
+              // 如果放右边会超出，尝试放左边
+              posX = Math.max(10, elementRect.left - 350);
+              // 如果左右都放不下，就居中显示
+              if (posX < 0) {
+                posX = Math.max(10, (windowWidth - 340) / 2);
+              }
+            }
+
+            // 计算最佳Y位置 - 尽量与元素顶部对齐，但不超出上下边界
+            let posY = elementRect.top;
+            // 确保不超出顶部
+            posY = Math.max(10, posY);
+            // 确保不超出底部(考虑编辑器高度约500px)
+            if (posY + 500 > windowHeight) {
+              posY = Math.max(10, windowHeight - 520);
+            }
+
             const position = {
-              x: Math.min(elementRect.right - (containerRect?.left || 0) + 10, (containerRect?.width || window.innerWidth) - 340),
-              y: Math.max(elementRect.top - (containerRect?.top || 0), 10)
+              x: posX,
+              y: posY
             };
             
             // 设置位置和显示编辑器
@@ -854,7 +876,7 @@ export default function ArticleEditor({
           originalClasses={originalClasses}
           onClose={handleCloseEditor}
           onApplyChanges={handleApplyChanges}
-          className="z-50"
+          className="z-50 fixed"
         />
       )}
 
