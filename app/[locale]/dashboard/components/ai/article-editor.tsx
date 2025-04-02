@@ -11,7 +11,10 @@ import {
   Edit,
   Eye,
   Code,
-  Trash2
+  Trash2,
+  Download,
+  FileDown,
+  ImageDown
 } from "lucide-react" 
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -23,6 +26,13 @@ import {
   hasSavedHtml,
   clearSavedHtml
 } from "@/app/[locale]/dashboard/utils/localStorage"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import html2canvas from 'html2canvas'
 
 interface ArticleEditorProps {
   initialContent?: string
@@ -84,7 +94,7 @@ export default function ArticleEditor({
 
   // 添加对内容容器的引用
   const contentContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // 基本的元素交互函数
   const handleSelectElement = useCallback((element: HTMLElement, position: { x: number; y: number }) => {
     // 跳过不可选择的元素
@@ -134,10 +144,13 @@ export default function ArticleEditor({
       current = current.parentElement as HTMLElement;
     }
     
+    // 使用当前元素的实际类名，确保与DOM同步
+    const currentClassNames = bestElement.className || "";
+    
     // 设置选中元素
     setSelectedElement(bestElement);
     setSelectedElementPath(elementPath);
-    setOriginalClasses(bestElement.className || "");
+    setOriginalClasses(currentClassNames);
     setIsSelecting(false);
     
     // 设置编辑器位置
@@ -152,14 +165,24 @@ export default function ArticleEditor({
     console.log('选中元素:', {
       path: elementPath,
       tagName: bestElement.tagName,
-      className: bestElement.className,
+      className: currentClassNames,
     });
   }, []);
 
   const handleStartSelecting = useCallback(() => {
     // 先清除可能的旧状态
     setSelectedElement(null);
+    setSelectedElementPath(null);
     setShowEditor(false);
+    
+    // 确保当前DOM与HTML同步
+    if (contentContainerRef.current) {
+      const container = contentContainerRef.current.querySelector('[data-selector-layer], .html-content-wrapper');
+      if (container) {
+        // 强制使用最新的HTML内容
+        container.innerHTML = localHtmlContent;
+      }
+    }
     
     // 添加小延时以确保DOM已更新
     setTimeout(() => {
@@ -169,8 +192,8 @@ export default function ArticleEditor({
         contentContainer: contentContainerRef.current ? true : false,
         selectorReady: true
       });
-    }, 50);
-  }, []);
+    }, 100);
+  }, [localHtmlContent]);
 
   const handleCancelSelecting = useCallback(() => {
     setIsSelecting(false);
@@ -370,10 +393,13 @@ export default function ArticleEditor({
               current = current.parentElement as HTMLElement;
             }
             
+            // 使用当前实际的类名
+            const currentClassNames = bestElement.className || "";
+            
             console.log('选中元素路径:', elementPath);
             console.log('最终选中元素:', {
               tagName: bestElement.tagName,
-              className: bestElement.className,
+              className: currentClassNames,
               text: bestElement.textContent?.substring(0, 20),
               html: bestElement.outerHTML.substring(0, 100)
             });
@@ -381,7 +407,7 @@ export default function ArticleEditor({
             // 保存选中元素的路径和元素本身
             setSelectedElementPath(elementPath);
             setSelectedElement(bestElement);
-            setOriginalClasses(bestElement.className || "");
+            setOriginalClasses(currentClassNames);
             
             // 获取元素位置
             const elementRect = bestElement.getBoundingClientRect();
@@ -433,7 +459,7 @@ export default function ArticleEditor({
               // 显示元素轮廓
               target.style.outline = '2px dashed #3b82f6';
               target.style.outlineOffset = '2px';
-              target.style.cursor = 'pointer';
+                target.style.cursor = 'pointer';
             }
           }}
           onMouseOutCapture={(e) => { 
@@ -449,15 +475,17 @@ export default function ArticleEditor({
             }
           }}
         >
+          <div key={`render-key-${renderKey}`}>
           {parsed}
+          </div>
         </div>
       );
     } catch (error) {
       console.error("HTML parsing error:", error);
       return <div className="text-red-500">HTML parsing error: {String(error)}</div>;
     }
-  }, [localHtmlContent, isSelecting, contentContainerRef]);
-
+  }, [localHtmlContent, isSelecting, contentContainerRef, renderKey]);
+  
   // 更新为更精确的handleApplyChanges函数，适应单层结构
   const handleApplyChanges = useCallback((newClasses: string) => {
     if (selectedElement && selectedElementPath) {
@@ -475,8 +503,8 @@ export default function ArticleEditor({
       
       try {
         // 1. 更新当前DOM中的元素
-        selectedElement.className = newClasses;
-        
+      selectedElement.className = newClasses;
+      
         // 2. 更新HTML字符串，使用精确替换
         // 为了保证更新准确性，直接从DOM中获取更新后的HTML
         if (contentContainerRef.current) {
@@ -486,15 +514,15 @@ export default function ArticleEditor({
             const updatedHtml = container.innerHTML;
             
             // 更新HTML内容状态
-            setLocalHtmlContent(updatedHtml);
+          setLocalHtmlContent(updatedHtml);
             // 强制重新渲染
-            setRenderKey(prev => prev + 1);
+          setRenderKey(prev => prev + 1);
             // 保存到本地存储
-            saveHtmlToLocalStorage(updatedHtml);
-            
+          saveHtmlToLocalStorage(updatedHtml);
+          
             console.log('通过DOM获取并更新HTML成功');
             setProcessingFeedback('样式应用成功');
-          } else {
+        } else {
             console.error('无法找到内容容器');
             setProcessingFeedback('无法找到内容容器');
           }
@@ -519,6 +547,29 @@ export default function ArticleEditor({
       setProcessingFeedback('没有选中元素');
     }
   }, [selectedElement, selectedElementPath, originalClasses, contentContainerRef]);
+
+  // 添加一个函数来强制重新渲染HTML内容
+  const refreshContent = useCallback(() => {
+    if (contentContainerRef.current) {
+      // 取消选择模式
+      setIsSelecting(false);
+      // 强制重新解析和渲染HTML内容
+      setRenderKey(prev => prev + 1);
+    }
+  }, []);
+  
+  // 每次应用更改后确保重新渲染
+  useEffect(() => {
+    if (renderKey > 0) {
+      // 确保在DOM更新后重新应用事件监听
+      const timer = setTimeout(() => {
+        // 确保重新初始化所有事件处理和状态
+        console.log('重新初始化内容完成，renderKey:', renderKey);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [renderKey]);
 
   // Toggle selection mode
   useEffect(() => {
@@ -738,6 +789,249 @@ export default function ArticleEditor({
     console.log('已清除本地存储的HTML内容');
   };
 
+  // 改进下载HTML功能，添加PPT模式下的样式
+  const handleDownloadHtml = () => {
+    try {
+      // 创建Blob对象，根据当前活动的预览标签页使用不同的样式
+      const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chinese Learning - 中国古代发明</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      padding: 1rem;
+      max-width: ${activePreviewTab === "ppt" ? "1200px" : "none"};
+      margin: 0 auto;
+      background-color: #f9f9f9;
+    }
+    
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    
+    h1, h2, h3 {
+      color: #222;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    
+    h1 {
+      font-size: 2.25rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .content-wrapper {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* PPT模式特定样式 */
+    ${activePreviewTab === "ppt" ? `
+    .flex {
+      display: flex;
+    }
+    
+    .justify-between {
+      justify-content: space-between;
+    }
+    
+    .items-center {
+      align-items: center;
+    }
+    
+    .grid {
+      display: grid;
+    }
+    
+    .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .border {
+      border: 1px solid #e5e7eb;
+    }
+    
+    .rounded-md {
+      border-radius: 0.375rem;
+    }
+    
+    .p-4 {
+      padding: 1rem;
+    }
+    
+    .mb-8 {
+      margin-bottom: 2rem;
+    }
+    
+    .bg-white {
+      background-color: white;
+    }
+    
+    .gap-4 {
+      gap: 1rem;
+    }
+    
+    .prose {
+      max-width: 65ch;
+      color: #374151;
+    }
+    
+    .prose a {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+    
+    .text-red-500 {
+      color: #ef4444;
+    }
+    
+    .text-blue-500 {
+      color: #3b82f6;
+    }
+    
+    .text-green-500 {
+      color: #10b981;
+    }
+    
+    .text-yellow-500 {
+      color: #f59e0b;
+    }
+    ` : ''}
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+    ${localHtmlContent}
+  </div>
+</body>
+</html>`;
+
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      
+      // 创建下载链接
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(blob);
+      
+      // 根据当前标签页设置不同的文件名
+      const filePrefix = activePreviewTab === "ppt" ? "presentation" : "article";
+      downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.html`;
+      
+      // 触发下载
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      
+      // 清理
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(downloadLink.href);
+      
+      console.log('成功下载HTML内容');
+      setProcessingFeedback('HTML内容已下载');
+      setTimeout(() => setProcessingFeedback(null), 2000);
+    } catch (error) {
+      console.error('下载HTML时出错:', error);
+      setProcessingFeedback('下载失败');
+      setTimeout(() => setProcessingFeedback(null), 2000);
+    }
+  };
+
+  // 使用html2canvas下载图片 - 简化版本
+  const handleDownloadImage = () => {
+    setProcessingFeedback('正在生成图片...');
+    
+    // 获取要截图的元素
+    if (!contentContainerRef.current) {
+      setProcessingFeedback('无法找到内容容器');
+      setTimeout(() => setProcessingFeedback(null), 2000);
+      return;
+    }
+    
+    // 找到具体需要截图的元素
+    const contentElement = contentContainerRef.current.querySelector('.prose') as HTMLElement;
+    if (!contentElement) {
+      setProcessingFeedback('无法找到内容元素');
+      setTimeout(() => setProcessingFeedback(null), 2000);
+      return;
+    }
+
+    try {
+      // 简化的html2canvas调用
+      html2canvas(contentElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        // 禁用一些高级功能以提高兼容性
+        foreignObjectRendering: false
+      }).then(canvas => {
+        try {
+          // 尝试使用toBlob API而不是toDataURL
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              throw new Error('无法创建图片Blob');
+            }
+            
+            // 使用URL.createObjectURL创建链接
+            const url = URL.createObjectURL(blob);
+            
+            // 创建下载链接
+            const downloadLink = document.createElement('a');
+            const filePrefix = activePreviewTab === "ppt" ? "presentation" : "article";
+            downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
+            downloadLink.href = url;
+            
+            // 触发下载
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // 释放URL对象
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            
+            setProcessingFeedback('图片已下载');
+            setTimeout(() => setProcessingFeedback(null), 2000);
+          }, 'image/png');
+        } catch (blobError) {
+          console.error('创建Blob时出错:', blobError);
+          
+          // 如果toBlob失败，回退到toDataURL
+          try {
+            const imgData = canvas.toDataURL('image/png');
+            
+            const downloadLink = document.createElement('a');
+            const filePrefix = activePreviewTab === "ppt" ? "presentation" : "article";
+            downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
+            downloadLink.href = imgData;
+            
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            setProcessingFeedback('图片已下载');
+            setTimeout(() => setProcessingFeedback(null), 2000);
+          } catch (dataUrlError) {
+            throw new Error(`无法创建下载链接: ${dataUrlError.message}`);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('下载图片时出错:', error);
+      setProcessingFeedback(`下载图片失败: ${error instanceof Error ? error.message : String(error)}`);
+      setTimeout(() => setProcessingFeedback(null), 3000);
+    }
+  };
+
   return (
     <div className="article-editor-container border border-neutral-200 rounded-lg shadow-sm bg-base-100 dark:bg-gray-950 dark:border-neutral-800">
       <div className="bg-base-200 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between">
@@ -782,6 +1076,31 @@ export default function ArticleEditor({
                 <h3 className="text-sm font-medium" data-no-select>AI 生成预览</h3>
                 <div className="flex items-center space-x-2" data-no-select>
                   {isSelecting && <ElementSelector onSelectElement={handleSelectElement} data-no-select />}
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        title="下载选项"
+                        data-no-select
+                      >
+                        <Download className="h-3.5 w-3.5 mr-1" />
+                        <span>下载</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleDownloadHtml}>
+                        <FileDown className="h-3.5 w-3.5 mr-2" />
+                        下载为 HTML
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleDownloadImage}>
+                        <ImageDown className="h-3.5 w-3.5 mr-2" />
+                        下载为图片
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   
                   <Button
                     onClick={handleClearStorage}

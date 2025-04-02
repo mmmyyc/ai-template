@@ -104,99 +104,93 @@ export async function generateSlideComponent(text: string): Promise<{
 }
 
 /**
- * 从Markdown响应中提取HTML内容
+ * 从Markdown响应中提取HTML内容 (改进版)
  * @param markdown Markdown格式的文本
  * @returns 提取的HTML内容
  */
 function extractHtmlFromMarkdown(markdown: string): string {
-  // 尝试提取HTML代码块
+  const originalMarkdown = markdown.trim();
+
+  // 1. 尝试提取HTML代码块
   const htmlBlockRegex = /```(?:html)?\s*\n([\s\S]*?)```/g;
-  let matches = htmlBlockRegex.exec(markdown);
-  
-  // 如果找到了HTML代码块
+  let matches = htmlBlockRegex.exec(originalMarkdown);
   if (matches && matches[1]) {
+    console.log("提取到HTML代码块");
     return matches[1].trim();
   }
-  
-  // 尝试匹配任何代码块
-  const anyCodeBlockRegex = /```([\s\S]*?)```/g;
-  matches = anyCodeBlockRegex.exec(markdown);
+
+  // 2. 尝试提取任何包含HTML标签的代码块
+  const anyCodeBlockRegex = /```[a-zA-Z]*\s*\n([\s\S]*?)```/g;
+  matches = anyCodeBlockRegex.exec(originalMarkdown);
   if (matches && matches[1]) {
     const code = matches[1].trim();
-    // 检查是否包含HTML标签
     if (code.includes('<') && code.includes('>')) {
+      console.log("提取到包含HTML标签的代码块");
       return code;
     }
   }
+
+  // 3. 移除开头的Markdown标题行
+  let contentWithoutHeading = originalMarkdown.replace(/^#+\s+.*\n*/, '');
   
-  // 检查是否已经包含格式化的HTML标签（包括常见的嵌套结构）
-  if (markdown.includes('<h1>') || markdown.includes('<ul>') || 
-      markdown.includes('<ol>') || markdown.includes('<li>') ||
-      markdown.includes('<br/>') || markdown.includes('<br>')) {
-    return markdown;
+  // 4. 检查移除标题后是否以HTML标签开头
+  if (contentWithoutHeading.startsWith('<')) {
+    console.log("移除标题后，内容以HTML标签开头");
+    return contentWithoutHeading;
   }
   
-  // 如果没有找到HTML块，可能响应本身就是HTML
-  if (markdown.includes('<html') || markdown.includes('<body') || 
-      (markdown.includes('<div') && markdown.includes('</div>')) ||
-      (markdown.includes('<p') && markdown.includes('</p>'))) {
-    return markdown;
+  // 5. 检查原始输入是否像HTML（包含关键标签），但可能混有Markdown
+  // 这种情况比较模糊，保守起见直接返回原始输入，避免错误转换
+  if (originalMarkdown.includes('<') && originalMarkdown.includes('>')) {
+    // 进一步检查，如果不是以 < 开头，但包含 <html>, <body>, <style> 等标签，很可能是HTML
+    if (!originalMarkdown.startsWith('<') && 
+        (originalMarkdown.includes('<html') || originalMarkdown.includes('<body') || originalMarkdown.includes('<style') || originalMarkdown.includes('<script'))
+    ) {
+      console.log("检测到类似HTML结构，直接返回原始内容");
+      return originalMarkdown;
+    }
+    // 如果只是包含一些<p>, <div>等，且不是以<开头，也可能是混合内容或误判
+    // 暂时也返回原始内容
+    console.log("检测到混合内容或不明确的HTML，返回原始内容");
+    return originalMarkdown;
   }
-  
-  // 如果原始响应不包含HTML标签，将文本转换为基本HTML
-  return convertTextToHtml(markdown);
+
+  // 6. 如果以上都不是，则假定是纯Markdown或文本，进行转换
+  console.log("未检测到HTML，按Markdown转换");
+  return convertTextToHtml(originalMarkdown);
 }
 
 /**
- * 将纯文本转换为基本HTML
- * @param text 纯文本内容
- * @returns HTML内容
+ * 将纯文本或基本Markdown转换为HTML
+ * @param text 输入文本
+ * @returns 转换后的HTML字符串
  */
 function convertTextToHtml(text: string): string {
-  // 简单地将文本分成段落
-  const paragraphs = text.split('\n\n').filter(p => p.trim());
-  
-  if (paragraphs.length === 0) {
-    return `<p>${escapeHtml(text)}</p>`;
+  let html = text
+    .replace(/&/g, '&amp;') // 处理&符号
+    .replace(/</g, '&lt;')  // 处理<符号
+    .replace(/>/g, '&gt;')  // 处理>符号
+    .replace(/"/g, '&quot;') // 处理引号
+    .replace(/'/g, '&#39;'); // 处理单引号
+
+  // 基本Markdown转换
+  html = html
+    .replace(/^# (.*?)$/gm, '<h1>$1</h1>')
+    .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
+    .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/^[-*+] (.*?)$/gm, '<li>$1</li>') // 列表项
+    .replace(/(\n){2,}/g, '<br/><br/>') // 段落换行
+    .replace(/\n/g, '<br/>'); // 单行换行
+    
+  // 包裹列表项 (兼容旧环境)
+  if (html.includes('<li>')) {
+    // 使用 [\s\S] 代替 . 和 s 标志来匹配包括换行符在内的任何字符
+    html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>').replace(/<\/ul>\s*<ul>/g, '');
   }
-  
-  let html = '';
-  let foundTitle = false;
-  
-  for (const paragraph of paragraphs) {
-    const trimmed = paragraph.trim();
-    
-    // 检查是否为标题(#开头)
-    if (!foundTitle && trimmed.startsWith('#')) {
-      const level = trimmed.match(/^#+/)[0].length;
-      const content = trimmed.replace(/^#+\s+/, '');
-      html += `<h${level}>${escapeHtml(content)}</h${level}>\n`;
-      foundTitle = true;
-      continue;
-    }
-    
-    // 检查是否为列表项（- 或 * 或 1. 开头）
-    if (trimmed.match(/^[-*]\s+/) || trimmed.match(/^\d+\.\s+/)) {
-      const lines = trimmed.split('\n');
-      const isOrdered = lines[0].match(/^\d+\.\s+/);
-      
-      html += isOrdered ? '<ol>\n' : '<ul>\n';
-      
-      for (const line of lines) {
-        if (line.trim()) {
-          const content = line.replace(/^[-*\d.]\s+/, '');
-          html += `  <li>${escapeHtml(content)}</li>\n`;
-        }
-      }
-      
-      html += isOrdered ? '</ol>\n' : '</ul>\n';
-      continue;
-    }
-    
-    // 普通段落
-    html += `<p>${escapeHtml(trimmed)}</p>\n`;
-  }
-  
+
   return html;
 }
 

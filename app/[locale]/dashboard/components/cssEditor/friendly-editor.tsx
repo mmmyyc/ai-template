@@ -133,6 +133,16 @@ export function FriendlyEditor({
   const [borderRadius, setBorderRadius] = useState<string>("")
   const [hasBorder, setHasBorder] = useState(false)
   const [shadow, setShadow] = useState<string>("")
+  const [marginTop, setMarginTop] = useState<number>(0);
+  const [marginRight, setMarginRight] = useState<number>(0);
+  const [marginBottom, setMarginBottom] = useState<number>(0);
+  const [marginLeft, setMarginLeft] = useState<number>(0);
+  const [paddingTop, setPaddingTop] = useState<number>(0);
+  const [paddingRight, setPaddingRight] = useState<number>(0);
+  const [paddingBottom, setPaddingBottom] = useState<number>(0);
+  const [paddingLeft, setPaddingLeft] = useState<number>(0);
+  const [showMarginPreview, setShowMarginPreview] = useState(false);
+  const [showPaddingPreview, setShowPaddingPreview] = useState(false);
 
   // Initialize state from current classes
   useEffect(() => {
@@ -280,6 +290,10 @@ export function FriendlyEditor({
       const paddingClass = classes.find((c: string) => c.startsWith("p-") && c.length <= 4) // 只匹配p-1到p-12这样的类
       const paddingXClass = classes.find((c: string) => c.startsWith("px-"))
       const paddingYClass = classes.find((c: string) => c.startsWith("py-"))
+      const paddingTopClass = classes.find((c: string) => c.startsWith("pt-"))
+      const paddingRightClass = classes.find((c: string) => c.startsWith("pr-"))
+      const paddingBottomClass = classes.find((c: string) => c.startsWith("pb-"))
+      const paddingLeftClass = classes.find((c: string) => c.startsWith("pl-"))
       
       if (paddingClass) {
         paddingValue = Number.parseInt(paddingClass.replace("p-", ""))
@@ -298,6 +312,33 @@ export function FriendlyEditor({
       
       if (!isNaN(paddingValue)) {
         setPadding(paddingValue)
+      }
+
+      // 设置各个方向的padding值
+      if (paddingTopClass) {
+        const value = Number.parseInt(paddingTopClass.replace("pt-", ""));
+        if (!isNaN(value)) setPaddingTop(value);
+      }
+      
+      if (paddingRightClass) {
+        const value = Number.parseInt(paddingRightClass.replace("pr-", ""));
+        if (!isNaN(value)) setPaddingRight(value);
+      }
+      
+      if (paddingBottomClass) {
+        const value = Number.parseInt(paddingBottomClass.replace("pb-", ""));
+        if (!isNaN(value)) setPaddingBottom(value);
+      }
+      
+      if (paddingLeftClass) {
+        const value = Number.parseInt(paddingLeftClass.replace("pl-", ""));
+        if (!isNaN(value)) setPaddingLeft(value);
+      } else if (paddingClass) {
+        // 如果有整体padding，且没有单独方向的设置，则应用到所有方向
+        setPaddingTop(paddingValue);
+        setPaddingRight(paddingValue);
+        setPaddingBottom(paddingValue);
+        setPaddingLeft(paddingValue);
       }
 
       // Extract margin - 支持所有方向的外边距
@@ -392,6 +433,40 @@ export function FriendlyEditor({
       if (shadowClass) {
         setShadow(shadowClass)
       }
+
+      // 解析各个方向的margin
+      const marginTopClass = classes.find((c: string) => c.startsWith("mt-"));
+      const marginRightClass = classes.find((c: string) => c.startsWith("mr-"));
+      const marginBottomClass = classes.find((c: string) => c.startsWith("mb-"));
+      const marginLeftClass = classes.find((c: string) => c.startsWith("ml-"));
+      
+      // 设置各个方向的margin值
+      if (marginTopClass) {
+        const value = Number.parseInt(marginTopClass.replace("mt-", ""));
+        if (!isNaN(value)) setMarginTop(value);
+      }
+      
+      if (marginRightClass) {
+        const value = Number.parseInt(marginRightClass.replace("mr-", ""));
+        if (!isNaN(value)) setMarginRight(value);
+      }
+      
+      if (marginBottomClass) {
+        const value = Number.parseInt(marginBottomClass.replace("mb-", ""));
+        if (!isNaN(value)) setMarginBottom(value);
+      }
+      
+      if (marginLeftClass) {
+        const value = Number.parseInt(marginLeftClass.replace("ml-", ""));
+        if (!isNaN(value)) setMarginLeft(value);
+      }
+      
+      console.log("解析margin方向值:", {
+        top: marginTopClass, 
+        right: marginRightClass, 
+        bottom: marginBottomClass, 
+        left: marginLeftClass
+      });
     }
   }, [element])
 
@@ -567,10 +642,18 @@ export function FriendlyEditor({
     }
 
     // Update padding
-    replaceOrAddClass("p-", padding > 0 ? `p-${padding}` : null)
+    replaceOrAddClass("p-", null) // 移除整体的padding
+    replaceOrAddClass("pt-", paddingTop > 0 ? `pt-${paddingTop}` : null) // 上内边距
+    replaceOrAddClass("pr-", paddingRight > 0 ? `pr-${paddingRight}` : null) // 右内边距
+    replaceOrAddClass("pb-", paddingBottom > 0 ? `pb-${paddingBottom}` : null) // 下内边距
+    replaceOrAddClass("pl-", paddingLeft > 0 ? `pl-${paddingLeft}` : null) // 左内边距
 
-    // Update margin
-    replaceOrAddClass("m-", margin > 0 ? `m-${margin}` : null)
+    // Update margin - 分别处理四个方向
+    replaceOrAddClass("m-", null) // 移除整体的margin
+    replaceOrAddClass("mt-", marginTop > 0 ? `mt-${marginTop}` : null) // 上边距
+    replaceOrAddClass("mr-", marginRight > 0 ? `mr-${marginRight}` : null) // 右边距
+    replaceOrAddClass("mb-", marginBottom > 0 ? `mb-${marginBottom}` : null) // 下边距
+    replaceOrAddClass("ml-", marginLeft > 0 ? `ml-${marginLeft}` : null) // 左边距
 
     // Update display
     if (display) {
@@ -655,7 +738,15 @@ export function FriendlyEditor({
     fontWeight,
     textAlignment,
     padding,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
     margin,
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
     display,
     flexDirection,
     justifyContent,
@@ -824,14 +915,182 @@ export function FriendlyEditor({
                 </>
               )}
 
-              <div className="space-y-2">
-                <Label>Padding: {padding}</Label>
-                <Slider value={[padding]} min={0} max={12} step={1} onValueChange={(value) => setPadding(value[0])} />
+              <div className="space-y-4 mt-6">
+                <div className="flex justify-between items-center mb-2">
+                  <Label className="font-medium">Margin</Label>
+                  <Button variant="outline" size="sm" onClick={() => setShowMarginPreview(!showMarginPreview)} className="h-6 px-2 text-xs">
+                    {showMarginPreview ? "Hide Preview" : "Show Preview"}
+                  </Button>
               </div>
 
-              <div className="space-y-2">
-                <Label>Margin: {margin}</Label>
-                <Slider value={[margin]} min={0} max={12} step={1} onValueChange={(value) => setMargin(value[0])} />
+                {showMarginPreview && (
+                  <div className="mb-4">
+                    <div className="relative w-full h-28 bg-gray-100 border rounded-md overflow-hidden">
+                      {/* 外部margin预览框 */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        {/* 顶部margin区域 */}
+                        <div 
+                          className="absolute top-0 left-0 right-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
+                          style={{ height: `${marginTop * 4}px` }}
+                        >
+                          {marginTop > 0 && `mt-${marginTop}`}
+                        </div>
+                        
+                        {/* 右侧margin区域 */}
+                        <div 
+                          className="absolute top-0 right-0 bottom-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
+                          style={{ width: `${marginRight * 4}px` }}
+                        >
+                          {marginRight > 0 && `mr-${marginRight}`}
+                        </div>
+                        
+                        {/* 底部margin区域 */}
+                        <div 
+                          className="absolute bottom-0 left-0 right-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
+                          style={{ height: `${marginBottom * 4}px` }}
+                        >
+                          {marginBottom > 0 && `mb-${marginBottom}`}
+                        </div>
+                        
+                        {/* 左侧margin区域 */}
+                        <div 
+                          className="absolute top-0 left-0 bottom-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
+                          style={{ width: `${marginLeft * 4}px` }}
+                        >
+                          {marginLeft > 0 && `ml-${marginLeft}`}
+                        </div>
+                        
+                        {/* 内部内容区域 */}
+                        <div 
+                          className="bg-white border border-gray-300 rounded" 
+                          style={{ 
+                            width: `calc(100% - ${(marginLeft + marginRight) * 4}px)`, 
+                            height: `calc(100% - ${(marginTop + marginBottom) * 4}px)`,
+                            padding: `${padding * 4}px`
+                          }}
+                        >
+                          <div className="w-full h-full flex items-center justify-center bg-gray-50 text-xs">
+                            Content
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Top: {marginTop}</Label>
+                    <Slider value={[marginTop]} min={0} max={12} step={1} onValueChange={(value) => setMarginTop(value[0])} />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Right: {marginRight}</Label>
+                    <Slider value={[marginRight]} min={0} max={12} step={1} onValueChange={(value) => setMarginRight(value[0])} />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Bottom: {marginBottom}</Label>
+                    <Slider value={[marginBottom]} min={0} max={12} step={1} onValueChange={(value) => setMarginBottom(value[0])} />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Left: {marginLeft}</Label>
+                    <Slider value={[marginLeft]} min={0} max={12} step={1} onValueChange={(value) => setMarginLeft(value[0])} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 mt-6">
+                <div className="flex justify-between items-center mb-2">
+                  <Label className="font-medium">Padding</Label>
+                  <Button variant="outline" size="sm" onClick={() => setShowPaddingPreview(!showPaddingPreview)} className="h-6 px-2 text-xs">
+                    {showPaddingPreview ? "Hide Preview" : "Show Preview"}
+                  </Button>
+                </div>
+                
+                {showPaddingPreview && (
+                  <div className="mb-4">
+                    <div className="relative w-full h-28 bg-gray-100 border rounded-md overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div 
+                          className="bg-white border border-gray-300 rounded" 
+                          style={{ 
+                            width: `calc(100% - ${(marginLeft + marginRight) * 4}px)`, 
+                            height: `calc(100% - ${(marginTop + marginBottom) * 4}px)`
+                          }}
+                        >
+                          {/* 顶部padding区域 */}
+                          <div 
+                            className="absolute top-0 left-0 right-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                            style={{ height: `${paddingTop * 4}px` }}
+                          >
+                            {paddingTop > 0 && `pt-${paddingTop}`}
+                          </div>
+                          
+                          {/* 右侧padding区域 */}
+                          <div 
+                            className="absolute top-0 right-0 bottom-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                            style={{ width: `${paddingRight * 4}px` }}
+                          >
+                            {paddingRight > 0 && `pr-${paddingRight}`}
+                          </div>
+                          
+                          {/* 底部padding区域 */}
+                          <div 
+                            className="absolute bottom-0 left-0 right-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                            style={{ height: `${paddingBottom * 4}px` }}
+                          >
+                            {paddingBottom > 0 && `pb-${paddingBottom}`}
+                          </div>
+                          
+                          {/* 左侧padding区域 */}
+                          <div 
+                            className="absolute top-0 left-0 bottom-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                            style={{ width: `${paddingLeft * 4}px` }}
+                          >
+                            {paddingLeft > 0 && `pl-${paddingLeft}`}
+                          </div>
+                          
+                          {/* 内容区域 */}
+                          <div 
+                            className="absolute bg-gray-50 flex items-center justify-center text-xs"
+                            style={{ 
+                              top: `${paddingTop * 4}px`, 
+                              right: `${paddingRight * 4}px`, 
+                              bottom: `${paddingBottom * 4}px`, 
+                              left: `${paddingLeft * 4}px` 
+                            }}
+                          >
+                            Content
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Top: {paddingTop}</Label>
+                    <Slider value={[paddingTop]} min={0} max={12} step={1} onValueChange={(value) => setPaddingTop(value[0])} />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Right: {paddingRight}</Label>
+                    <Slider value={[paddingRight]} min={0} max={12} step={1} onValueChange={(value) => setPaddingRight(value[0])} />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Bottom: {paddingBottom}</Label>
+                    <Slider value={[paddingBottom]} min={0} max={12} step={1} onValueChange={(value) => setPaddingBottom(value[0])} />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs text-gray-600">Left: {paddingLeft}</Label>
+                    <Slider value={[paddingLeft]} min={0} max={12} step={1} onValueChange={(value) => setPaddingLeft(value[0])} />
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
