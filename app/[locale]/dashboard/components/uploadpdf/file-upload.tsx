@@ -3,13 +3,14 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Upload, File, Loader2 } from "lucide-react"
+import { Upload, File } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardFooter, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FeatureList } from "@/app/[locale]/dashboard/components/uploadpdf/feature-list"
-import { ProcessedDocument } from "@/app/[locale]/dashboard/components/uploadpdf/processed-document"
-import { LoadingState } from "@/app/[locale]/dashboard/components/uploadpdf/loading-state"
+import { ProcessedDocument } from "@/components/processed-document"
+import { LoadingState } from "@/components/loading-state"
+import { Loader2 } from "lucide-react"
+import { FeatureList } from "./feature-list"
 
 export function FileUpload() {
   const [file, setFile] = useState<File | null>(null)
@@ -17,6 +18,7 @@ export function FileUpload() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("upload")
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -70,6 +72,7 @@ export function FileUpload() {
 
       const result = await processResponse.json()
       setResult(result)
+      setActiveTab("result") // Switch to result tab after successful processing
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred")
     } finally {
@@ -79,10 +82,14 @@ export function FileUpload() {
   }
 
   return (
-    <Tabs defaultValue="upload" className="w-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="upload">Upload</TabsTrigger>
-        <TabsTrigger value="result" disabled={!result}>
+        <TabsTrigger value="upload" className="flex items-center gap-2">
+          <Upload className="h-4 w-4" />
+          Upload
+        </TabsTrigger>
+        <TabsTrigger value="result" disabled={!result} className="flex items-center gap-2">
+          <File className="h-4 w-4" />
           Result
         </TabsTrigger>
       </TabsList>
@@ -146,8 +153,19 @@ export function FileUpload() {
       <TabsContent value="result">
         {isProcessing ? (
           <LoadingState message="Processing your document..." />
+        ) : !result ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center p-6">
+              <div className="text-center space-y-2">
+                <p className="text-muted-foreground">No document has been processed yet.</p>
+                <Button variant="outline" onClick={() => setActiveTab("upload")}>
+                  Upload a document
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
-          result && <ProcessedDocument result={result} />
+          <ProcessedDocument result={result} />
         )}
       </TabsContent>
     </Tabs>

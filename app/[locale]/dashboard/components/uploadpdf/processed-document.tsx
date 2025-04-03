@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Copy, FileText, Clock, Layers } from "lucide-react"
+import { Copy, FileText, Image, Layers } from "lucide-react"
 import { LoadingState } from "@/components/loading-state"
 
 interface ProcessedDocumentProps {
@@ -32,35 +32,35 @@ export function ProcessedDocument({ result, isLoading = false }: ProcessedDocume
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Processed Document</CardTitle>
-        <CardDescription>The extracted content from your PDF document.</CardDescription>
+        <CardTitle>处理后的文档</CardTitle>
+        <CardDescription>从PDF文档中提取的结构化内容</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="text">
+        <Tabs defaultValue="document">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="text">Extracted Text</TabsTrigger>
-            <TabsTrigger value="structure">Document Structure</TabsTrigger>
-            <TabsTrigger value="raw">Raw JSON</TabsTrigger>
+            <TabsTrigger value="document">完整文档</TabsTrigger>
+            <TabsTrigger value="structure">文档结构</TabsTrigger>
+            <TabsTrigger value="raw">原始数据</TabsTrigger>
           </TabsList>
-          <TabsContent value="text" className="mt-4">
+          <TabsContent value="document" className="mt-4">
             <div className="relative">
               <Button
                 variant="outline"
                 size="sm"
                 className="absolute right-2 top-2"
-                onClick={() => copyToClipboard(result.text || "")}
+                onClick={() => copyToClipboard(result.combinedMarkdown || "")}
               >
                 <Copy className="h-4 w-4 mr-2" />
-                {copied ? "Copied!" : "Copy"}
+                {copied ? "已复制!" : "复制"}
               </Button>
               <div className="p-4 border rounded-md bg-muted/50 whitespace-pre-wrap max-h-[500px] overflow-y-auto">
-                {result.text || "No text content extracted"}
+                {result.combinedMarkdown || "未提取到文本内容"}
               </div>
             </div>
           </TabsContent>
           <TabsContent value="structure" className="mt-4">
             <div className="p-4 border rounded-md bg-muted/50 max-h-[500px] overflow-y-auto">
-              <div dangerouslySetInnerHTML={{ __html: result.markdown || "No structured content available" }} />
+              <div dangerouslySetInnerHTML={{ __html: result.combinedMarkdown || "无可用的结构化内容" }} />
             </div>
           </TabsContent>
           <TabsContent value="raw" className="mt-4">
@@ -69,13 +69,13 @@ export function ProcessedDocument({ result, isLoading = false }: ProcessedDocume
                 variant="outline"
                 size="sm"
                 className="absolute right-2 top-2"
-                onClick={() => copyToClipboard(JSON.stringify(result.raw || result, null, 2))}
+                onClick={() => copyToClipboard(JSON.stringify(result, null, 2))}
               >
                 <Copy className="h-4 w-4 mr-2" />
-                {copied ? "Copied!" : "Copy"}
+                {copied ? "已复制!" : "复制"}
               </Button>
               <pre className="p-4 border rounded-md bg-muted/50 overflow-x-auto max-h-[500px] overflow-y-auto">
-                {JSON.stringify(result.raw || result, null, 2)}
+                {JSON.stringify(result, null, 2)}
               </pre>
             </div>
           </TabsContent>
@@ -89,17 +89,15 @@ export function ProcessedDocument({ result, isLoading = false }: ProcessedDocume
           </div>
           <div className="flex items-center">
             <Layers className="h-4 w-4 mr-2 text-primary" />
-            <span className="text-sm text-muted-foreground">{result.metadata?.pageCount || 0} pages</span>
+            <span className="text-sm text-muted-foreground">{result.metadata?.pageCount || 0} 页</span>
           </div>
           <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-2 text-primary" />
-            <span className="text-sm text-muted-foreground">
-              Processed in {result.metadata?.processingTime || "0s"}
-            </span>
+            <Image className="h-4 w-4 mr-2 text-primary" />
+            <span className="text-sm text-muted-foreground">{result.metadata?.imageCount || 0} 图片</span>
           </div>
         </div>
         <Button variant="outline" onClick={() => window.print()}>
-          Print Results
+          打印结果
         </Button>
       </CardFooter>
     </Card>
