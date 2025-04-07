@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Bold,
@@ -17,6 +17,7 @@ import {
   Redo,
   Sparkles,
   RefreshCw,
+  Upload,
 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
@@ -48,6 +49,7 @@ export default function MarkdownEditor({
   height = "100%",
 }: MarkdownEditorProps) {
   const [markdownContent, setMarkdownContent] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 初始化Tiptap编辑器
   const editor = useEditor({
@@ -104,6 +106,42 @@ export default function MarkdownEditor({
       }
     }
   }, [editor, onAIAction])
+
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.name.endsWith('.md')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        if (editor && content !== null) {
+          // Replace editor content with file content
+          editor.commands.setContent(content, true); // true to parse markdown
+          
+          // Get the markdown after setting content
+          const markdown = editor.storage.markdown.getMarkdown();
+          setMarkdownContent(markdown);
+          if (onChange) {
+            onChange(markdown);
+          }
+        }
+      };
+      reader.onerror = (error) => {
+        console.error("Error reading file:", error);
+        // Handle error (e.g., show a notification)
+      };
+      reader.readAsText(file);
+    }
+    // Reset file input value to allow uploading the same file again
+    if(fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Trigger file input click
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   // Add global styles to prevent focus outline
   useEffect(() => {
@@ -310,6 +348,25 @@ export default function MarkdownEditor({
           <Redo className="h-4 w-4" />
         </Button>
         
+        {/* Upload Button */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".md"
+          onChange={handleFileUpload}
+          style={{ display: 'none' }}
+          aria-hidden="true"
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={triggerFileInput}
+          title="Upload Markdown (.md)"
+        >
+          <Upload className="h-4 w-4" />
+        </Button>
+
         {showAIButton && (
           <>
             <div className="h-6 w-px bg-neutral-200 mx-1 dark:bg-neutral-800" />
