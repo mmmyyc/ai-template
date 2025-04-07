@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -101,8 +101,8 @@ const colorOptions = [
   { value: "yellow", label: "Yellow" },
   { value: "green", label: "Green" },
   { value: "blue", label: "Blue" },
-  // { value: "purple", label: "Purple" },
-  // { value: "pink", label: "Pink" },
+  { value: "purple", label: "Purple" },
+  { value: "pink", label: "Pink" },
   // { value: "white", label: "White" },
   // { value: "black", label: "Black" }
 ]
@@ -157,9 +157,12 @@ export function FriendlyEditor({
   const [paddingLeft, setPaddingLeft] = useState<number>(0);
   const [showMarginPreview, setShowMarginPreview] = useState(false);
   const [showPaddingPreview, setShowPaddingPreview] = useState(false);
+  const [showRawCss, setShowRawCss] = useState(false);
 
   // Find the target element inside the iframe
   useEffect(() => {
+    console.log("FriendlyEditor: Finding element with path:", elementPath, "Original classes:", originalClasses);
+    
     if (iframeRef.current && iframeRef.current.contentDocument && elementPath) {
       const iframeDoc = iframeRef.current.contentDocument;
       const foundElement = findElementByPath(elementPath, iframeDoc);
@@ -168,200 +171,193 @@ export function FriendlyEditor({
         // Re-initialize classes from the found element if they differ from originalClasses
         const actualClasses = foundElement.className.split(' ').filter(Boolean);
         setCurrentClasses(actualClasses);
-         console.log("FriendlyEditor: Target element found in iframe:", foundElement, "Actual classes:", actualClasses);
+        console.log("FriendlyEditor: Target element found in iframe:", foundElement, "Actual classes:", actualClasses);
       } else {
         console.error("FriendlyEditor: Could not find element in iframe with path:", elementPath);
+        // Even if element isn't found, we should still initialize with originalClasses
+        setCurrentClasses(originalClasses.split(" ").filter(Boolean));
         setTargetElement(null); // Reset if not found
       }
     } else {
       // Reset if iframe/path is not available
-       setTargetElement(null);
+      console.error("FriendlyEditor: iframeRef or elementPath not available", { 
+        iframeAvailable: !!iframeRef.current, 
+        contentDocAvailable: !!(iframeRef.current && iframeRef.current.contentDocument),
+        path: elementPath
+      });
+      // Still initialize with original classes
+      setCurrentClasses(originalClasses.split(" ").filter(Boolean));
+      setTargetElement(null);
     }
-  }, [elementPath, iframeRef]); // Rerun if path or iframe ref changes
+  }, [elementPath, iframeRef, originalClasses]); // Rerun if path or iframe ref changes
 
-  // Initialize state from current classes
+  // Initialize state from current classes or originalClasses
   useEffect(() => {
-    if (targetElement) {
-      // Use currentClasses state which should be up-to-date AFTER targetElement is set
-      const classes = targetElement.className.split(" ").filter(Boolean);
-      setCurrentClasses(classes);
-
-      console.log("FriendlyEditor: Initializing styles from target element:", targetElement, "Classes:", classes);
+    const classes = targetElement 
+      ? targetElement.className.split(" ").filter(Boolean)
+      : currentClasses; // Use currentClasses as fallback which contains originalClasses
       
-      // Determine default tab based on actual classes found
-      let newDefaultTab = "text";
-      if (classes.includes("flex") || classes.some((c: string) => c.startsWith("grid"))) {
-        newDefaultTab = "layout";
-      } else if (
-        classes.some((c: string) => c.startsWith("bg-")) ||
-        classes.some(
-          (c: string) =>
-            c.startsWith("text-") &&
-            !["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", 
-             "left", "center", "right", "justify"].includes(c.substring(5))
-        )
-      ) {
-        newDefaultTab = "colors";
-      } else if (classes.some((c: string) => c.startsWith("shadow-")) || classes.some((c: string) => c.startsWith("rounded"))) {
-        newDefaultTab = "effects";
-      }
-      setDefaultTab(newDefaultTab);
-      console.log("FriendlyEditor: Default tab set to:", newDefaultTab);
+    console.log("FriendlyEditor: Initializing styles from classes:", classes);
+    
+    // Initialize all style properties from classes
+    initializeStylePropertiesFromClasses(classes);
+  }, [targetElement, currentClasses]); // Re-initialize when targetElement or currentClasses change
 
-      // Extract text color
-      const textColorClass = classes.find(
+  // New function to initialize style properties from classes
+  const initializeStylePropertiesFromClasses = (classes: string[]) => {
+    // Determine default tab based on classes
+    let newDefaultTab = "text";
+    if (classes.includes("flex") || classes.some((c: string) => c.startsWith("grid"))) {
+      newDefaultTab = "layout";
+    } else if (
+      classes.some((c: string) => c.startsWith("bg-")) ||
+      classes.some(
         (c: string) =>
           c.startsWith("text-") &&
           !["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", 
            "left", "center", "right", "justify"].includes(c.substring(5))
       )
-      if (textColorClass) {
-        const parts = textColorClass.split("-")
-        if (parts.length === 3) {
-          setTextColor(parts[1])
-          setTextColorIntensity(Number.parseInt(parts[2]))
-        } else if (parts.length === 2) {
-          setTextColor(parts[1])
-          setTextColorIntensity(500)
-        }
-      } else {
-         setTextColor("")
-      }
-      console.log("FriendlyEditor: Initial Text Color:", textColorClass || 'none');
-
-      // Extract background color
-      const bgColorClass = classes.find((c: string) => c.startsWith("bg-"))
-      if (bgColorClass) {
-        const parts = bgColorClass.split("-")
-         if (parts.length === 3) {
-          setBgColor(parts[1])
-          setBgColorIntensity(Number.parseInt(parts[2]))
-        } else if (parts.length === 2) {
-          setBgColor(parts[1])
-          setBgColorIntensity(500)
-        }
-      } else {
-        setBgColor("")
-      }
-      console.log("FriendlyEditor: Initial BG Color:", bgColorClass || 'none');
-
-      // Extract Font Size
-      const fontSizeClass = classes.find((c: string) => c.startsWith("text-") && fontSizeOptions.includes(c.substring(5)))
-      setFontSize(fontSizeClass ? fontSizeClass.substring(5) : "")
-      console.log("FriendlyEditor: Initial Font Size:", fontSizeClass || 'none');
-
-      // Extract Font Weight
-      const fontWeightClass = classes.find((c: string) => fontWeightOptions.some(option => option.value === c))
-      setFontWeight(fontWeightClass || "")
-      console.log("FriendlyEditor: Initial Font Weight:", fontWeightClass || 'none');
-
-      // Extract Text Alignment
-      const textAlignClass = classes.find((c: string) => textAlignOptions.some(option => option.value === c))
-      setTextAlignment(textAlignClass || "")
-      console.log("FriendlyEditor: Initial Text Align:", textAlignClass || 'none');
-
-      // Extract Padding (this logic seems complex, ensure it works)
-      const ptClass = classes.find((c: string) => c.startsWith("pt-"));
-      setPaddingTop(ptClass ? Number.parseInt(ptClass.substring(3)) : 0);
-      const prClass = classes.find((c: string) => c.startsWith("pr-"));
-      setPaddingRight(prClass ? Number.parseInt(prClass.substring(3)) : 0);
-      const pbClass = classes.find((c: string) => c.startsWith("pb-"));
-      setPaddingBottom(pbClass ? Number.parseInt(pbClass.substring(3)) : 0);
-      const plClass = classes.find((c: string) => c.startsWith("pl-"));
-      setPaddingLeft(plClass ? Number.parseInt(plClass.substring(3)) : 0);
-      const pxClass = classes.find((c: string) => c.startsWith("px-"));
-      if (pxClass) {
-        const val = Number.parseInt(pxClass.substring(3));
-        if (!prClass) setPaddingRight(val);
-        if (!plClass) setPaddingLeft(val);
-      }
-      const pyClass = classes.find((c: string) => c.startsWith("py-"));
-      if (pyClass) {
-        const val = Number.parseInt(pyClass.substring(3));
-        if (!ptClass) setPaddingTop(val);
-        if (!pbClass) setPaddingBottom(val);
-      }
-      const pClass = classes.find((c: string) => c.startsWith("p-") && !c.startsWith("pt-") && !c.startsWith("pr-") && !c.startsWith("pb-") && !c.startsWith("pl-") && !c.startsWith("px-") && !c.startsWith("py-"));
-      if (pClass) {
-        const val = Number.parseInt(pClass.substring(2));
-        if (!ptClass && !pyClass) setPaddingTop(val);
-        if (!prClass && !pxClass) setPaddingRight(val);
-        if (!pbClass && !pyClass) setPaddingBottom(val);
-        if (!plClass && !pxClass) setPaddingLeft(val);
-      }
-      console.log("FriendlyEditor: Initial Padding (T,R,B,L):", paddingTop, paddingRight, paddingBottom, paddingLeft);
-
-      // Extract Margin
-      const mtClass = classes.find((c: string) => c.startsWith("mt-"));
-      setMarginTop(mtClass ? Number.parseInt(mtClass.substring(3)) : 0);
-      const mrClass = classes.find((c: string) => c.startsWith("mr-"));
-      setMarginRight(mrClass ? Number.parseInt(mrClass.substring(3)) : 0);
-      const mbClass = classes.find((c: string) => c.startsWith("mb-"));
-      setMarginBottom(mbClass ? Number.parseInt(mbClass.substring(3)) : 0);
-      const mlClass = classes.find((c: string) => c.startsWith("ml-"));
-      setMarginLeft(mlClass ? Number.parseInt(mlClass.substring(3)) : 0);
-      const mxClass = classes.find((c: string) => c.startsWith("mx-"));
-      if (mxClass) {
-        const val = Number.parseInt(mxClass.substring(3));
-        if (!mrClass) setMarginRight(val);
-        if (!mlClass) setMarginLeft(val);
-      }
-      const myClass = classes.find((c: string) => c.startsWith("my-"));
-      if (myClass) {
-        const val = Number.parseInt(myClass.substring(3));
-        if (!mtClass) setMarginTop(val);
-        if (!mbClass) setMarginBottom(val);
-      }
-      const mClass = classes.find((c: string) => c.startsWith("m-") && !c.startsWith("mt-") && !c.startsWith("mr-") && !c.startsWith("mb-") && !c.startsWith("ml-") && !c.startsWith("mx-") && !c.startsWith("my-"));
-      if (mClass) {
-        const val = Number.parseInt(mClass.substring(2));
-        if (!mtClass && !myClass) setMarginTop(val);
-        if (!mrClass && !mxClass) setMarginRight(val);
-        if (!mbClass && !myClass) setMarginBottom(val);
-        if (!mlClass && !mxClass) setMarginLeft(val);
-      }
-      console.log("FriendlyEditor: Initial Margin (T,R,B,L):", marginTop, marginRight, marginBottom, marginLeft);
-
-      // Extract Display
-      const displayClass = classes.find((c: string) => displayOptions.some(option => option.value === c))
-      setDisplay(displayClass || "")
-      console.log("FriendlyEditor: Initial Display:", displayClass || 'none');
-
-      // Extract Flex Direction
-      const flexDirectionClass = classes.find((c: string) => flexDirectionOptions.some(option => option.value === c))
-      setFlexDirection(flexDirectionClass || "")
-      console.log("FriendlyEditor: Initial Flex Direction:", flexDirectionClass || 'none');
-
-      // Extract Justify Content
-      const justifyContentClass = classes.find((c: string) => justifyOptions.some(option => option.value === c))
-      setJustifyContent(justifyContentClass || "")
-      console.log("FriendlyEditor: Initial Justify Content:", justifyContentClass || 'none');
-
-      // Extract Align Items
-      const alignItemsClass = classes.find((c: string) => alignOptions.some(option => option.value === c))
-      setAlignItems(alignItemsClass || "")
-      console.log("FriendlyEditor: Initial Align Items:", alignItemsClass || 'none');
-
-      // Extract Border Radius
-      const borderRadiusClass = classes.find((c: string) => borderRadiusOptions.some(option => option.value === c))
-      setBorderRadius(borderRadiusClass || "")
-      console.log("FriendlyEditor: Initial Border Radius:", borderRadiusClass || 'none');
-
-      // Extract Shadow
-      const shadowClass = classes.find((c: string) => shadowOptions.some(option => option.value === c))
-      setShadow(shadowClass || "")
-      console.log("FriendlyEditor: Initial Shadow:", shadowClass || 'none');
-
-      // Check for Border
-      setHasBorder(classes.includes("border"))
-      console.log("FriendlyEditor: Initial Border:", hasBorder);
-
-    } else {
-        console.log("FriendlyEditor: Target element not available for style initialization.");
-        // Optionally reset all style states here if targetElement becomes null
+    ) {
+      newDefaultTab = "colors";
+    } else if (classes.some((c: string) => c.startsWith("shadow-")) || classes.some((c: string) => c.startsWith("rounded"))) {
+      newDefaultTab = "effects";
     }
-  // Only depend on targetElement. The class parsing logic runs *inside* this effect.
-  }, [targetElement]);
+    setDefaultTab(newDefaultTab);
+    
+    // Extract text color
+    const textColorClass = classes.find(
+      (c: string) =>
+        c.startsWith("text-") &&
+        !["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", 
+         "left", "center", "right", "justify"].includes(c.substring(5))
+    )
+    if (textColorClass) {
+      const parts = textColorClass.split("-")
+      if (parts.length === 3) {
+        setTextColor(parts[1])
+        setTextColorIntensity(Number.parseInt(parts[2]))
+      } else if (parts.length === 2) {
+        setTextColor(parts[1])
+        setTextColorIntensity(500)
+      }
+    } else {
+       setTextColor("")
+    }
+
+    // Extract background color
+    const bgColorClass = classes.find((c: string) => c.startsWith("bg-"))
+    if (bgColorClass) {
+      const parts = bgColorClass.split("-")
+      if (parts.length === 3) {
+        setBgColor(parts[1])
+        setBgColorIntensity(Number.parseInt(parts[2]))
+      } else if (parts.length === 2) {
+        setBgColor(parts[1])
+        setBgColorIntensity(500)
+      }
+    } else {
+      setBgColor("")
+    }
+
+    // Extract Font Size
+    const fontSizeClass = classes.find((c: string) => c.startsWith("text-") && fontSizeOptions.includes(c.substring(5)))
+    setFontSize(fontSizeClass ? fontSizeClass.substring(5) : "")
+
+    // Extract Font Weight
+    const fontWeightClass = classes.find((c: string) => fontWeightOptions.some(option => option.value === c))
+    setFontWeight(fontWeightClass || "")
+
+    // Extract Text Alignment
+    const textAlignClass = classes.find((c: string) => textAlignOptions.some(option => option.value === c))
+    setTextAlignment(textAlignClass || "")
+
+    // Extract Padding (this logic seems complex, ensure it works)
+    const ptClass = classes.find((c: string) => c.startsWith("pt-"));
+    setPaddingTop(ptClass ? Number.parseInt(ptClass.substring(3)) : 0);
+    const prClass = classes.find((c: string) => c.startsWith("pr-"));
+    setPaddingRight(prClass ? Number.parseInt(prClass.substring(3)) : 0);
+    const pbClass = classes.find((c: string) => c.startsWith("pb-"));
+    setPaddingBottom(pbClass ? Number.parseInt(pbClass.substring(3)) : 0);
+    const plClass = classes.find((c: string) => c.startsWith("pl-"));
+    setPaddingLeft(plClass ? Number.parseInt(plClass.substring(3)) : 0);
+    const pxClass = classes.find((c: string) => c.startsWith("px-"));
+    if (pxClass) {
+      const val = Number.parseInt(pxClass.substring(3));
+      if (!prClass) setPaddingRight(val);
+      if (!plClass) setPaddingLeft(val);
+    }
+    const pyClass = classes.find((c: string) => c.startsWith("py-"));
+    if (pyClass) {
+      const val = Number.parseInt(pyClass.substring(3));
+      if (!ptClass) setPaddingTop(val);
+      if (!pbClass) setPaddingBottom(val);
+    }
+    const pClass = classes.find((c: string) => c.startsWith("p-") && !c.startsWith("pt-") && !c.startsWith("pr-") && !c.startsWith("pb-") && !c.startsWith("pl-") && !c.startsWith("px-") && !c.startsWith("py-"));
+    if (pClass) {
+      const val = Number.parseInt(pClass.substring(2));
+      if (!ptClass && !pyClass) setPaddingTop(val);
+      if (!prClass && !pxClass) setPaddingRight(val);
+      if (!pbClass && !pyClass) setPaddingBottom(val);
+      if (!plClass && !pxClass) setPaddingLeft(val);
+    }
+
+    // Extract Margin
+    const mtClass = classes.find((c: string) => c.startsWith("mt-"));
+    setMarginTop(mtClass ? Number.parseInt(mtClass.substring(3)) : 0);
+    const mrClass = classes.find((c: string) => c.startsWith("mr-"));
+    setMarginRight(mrClass ? Number.parseInt(mrClass.substring(3)) : 0);
+    const mbClass = classes.find((c: string) => c.startsWith("mb-"));
+    setMarginBottom(mbClass ? Number.parseInt(mbClass.substring(3)) : 0);
+    const mlClass = classes.find((c: string) => c.startsWith("ml-"));
+    setMarginLeft(mlClass ? Number.parseInt(mlClass.substring(3)) : 0);
+    const mxClass = classes.find((c: string) => c.startsWith("mx-"));
+    if (mxClass) {
+      const val = Number.parseInt(mxClass.substring(3));
+      if (!mrClass) setMarginRight(val);
+      if (!mlClass) setMarginLeft(val);
+    }
+    const myClass = classes.find((c: string) => c.startsWith("my-"));
+    if (myClass) {
+      const val = Number.parseInt(myClass.substring(3));
+      if (!mtClass) setMarginTop(val);
+      if (!mbClass) setMarginBottom(val);
+    }
+    const mClass = classes.find((c: string) => c.startsWith("m-") && !c.startsWith("mt-") && !c.startsWith("mr-") && !c.startsWith("mb-") && !c.startsWith("ml-") && !c.startsWith("mx-") && !c.startsWith("my-"));
+    if (mClass) {
+      const val = Number.parseInt(mClass.substring(2));
+      if (!mtClass && !myClass) setMarginTop(val);
+      if (!mrClass && !mxClass) setMarginRight(val);
+      if (!mbClass && !myClass) setMarginBottom(val);
+      if (!mlClass && !mxClass) setMarginLeft(val);
+    }
+
+    // Extract Display
+    const displayClass = classes.find((c: string) => displayOptions.some(option => option.value === c))
+    setDisplay(displayClass || "")
+
+    // Extract Flex Direction
+    const flexDirectionClass = classes.find((c: string) => flexDirectionOptions.some(option => option.value === c))
+    setFlexDirection(flexDirectionClass || "")
+
+    // Extract Justify Content
+    const justifyContentClass = classes.find((c: string) => justifyOptions.some(option => option.value === c))
+    setJustifyContent(justifyContentClass || "")
+
+    // Extract Align Items
+    const alignItemsClass = classes.find((c: string) => alignOptions.some(option => option.value === c))
+    setAlignItems(alignItemsClass || "")
+
+    // Extract Border Radius
+    const borderRadiusClass = classes.find((c: string) => borderRadiusOptions.some(option => option.value === c))
+    setBorderRadius(borderRadiusClass || "")
+
+    // Extract Shadow
+    const shadowClass = classes.find((c: string) => shadowOptions.some(option => option.value === c))
+    setShadow(shadowClass || "")
+
+    // Check for Border
+    setHasBorder(classes.includes("border"))
+  }
 
   // Position the editor
   useEffect(() => {
@@ -464,8 +460,8 @@ export function FriendlyEditor({
     }
   }
 
-  // Update classes based on style changes
-  const updateClasses = () => {
+  // Update classes based on style changes - memoize to avoid dependency issues
+  const updateClasses = useCallback(() => {
     let newClasses = [...currentClasses]
 
     // Helper function to replace or add a class
@@ -590,7 +586,31 @@ export function FriendlyEditor({
     }
 
     return newClasses.join(" ")
-  }
+  }, [
+    currentClasses,
+    textColor,
+    textColorIntensity,
+    bgColor,
+    bgColorIntensity,
+    fontSize,
+    fontWeight,
+    textAlignment,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
+    display,
+    flexDirection,
+    justifyContent,
+    alignItems,
+    hasBorder,
+    borderRadius,
+    shadow
+  ])
 
   const handleApplyChanges = () => {
     const newClassString = updateClasses()
@@ -770,6 +790,7 @@ export function FriendlyEditor({
       targetElement.className = newClassString
     }
   }, [
+    // All style properties that affect the generated classes
     textColor,
     textColorIntensity,
     bgColor,
@@ -794,6 +815,8 @@ export function FriendlyEditor({
     hasBorder,
     borderRadius,
     shadow,
+    targetElement,
+    updateClasses
   ])
 
   return (
@@ -835,29 +858,36 @@ export function FriendlyEditor({
             {/* TEXT TAB */}
             <TabsContent value="text" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>Text Size</Label>
-                <Select value={fontSize || undefined} onValueChange={setFontSize}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select size" />
+                <Label htmlFor="text-size">Text Size</Label>
+                <Select 
+                  value={fontSize || ""}
+                  onValueChange={(value) => setFontSize(value)}
+                >
+                  <SelectTrigger id="text-size" className={fontSize ? "border-blue-300" : ""}>
+                    <SelectValue placeholder="Select size">
+                      {fontSize ? `Size: ${fontSize}` : "Select size"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="xs">Extra Small</SelectItem>
-                    <SelectItem value="sm">Small</SelectItem>
-                    <SelectItem value="base">Normal</SelectItem>
-                    <SelectItem value="lg">Large</SelectItem>
-                    <SelectItem value="xl">Extra Large</SelectItem>
-                    <SelectItem value="2xl">2X Large</SelectItem>
-                    <SelectItem value="3xl">3X Large</SelectItem>
-                    <SelectItem value="4xl">4X Large</SelectItem>
+                    {fontSizeOptions.map((size) => (
+                      <SelectItem key={size} value={size}>
+                        {size}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Text Weight</Label>
-                <Select value={fontWeight || undefined} onValueChange={setFontWeight}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select weight" />
+                <Label htmlFor="text-weight">Text Weight</Label>
+                <Select
+                  value={fontWeight || ""}
+                  onValueChange={(value) => setFontWeight(value)}
+                >
+                  <SelectTrigger id="text-weight" className={fontWeight ? "border-blue-300" : ""}>
+                    <SelectValue placeholder="Select weight">
+                      {fontWeight ? fontWeightOptions.find(option => option.value === fontWeight)?.label || fontWeight.replace("font-", "") : "Select weight"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {fontWeightOptions.map((option) => (
@@ -870,16 +900,22 @@ export function FriendlyEditor({
               </div>
 
               <div className="space-y-2">
-                <Label>Text Alignment</Label>
-                <Select value={textAlignment || undefined} onValueChange={setTextAlignment}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select alignment" />
+                <Label htmlFor="text-align">Text Alignment</Label>
+                <Select
+                  value={textAlignment || ""}
+                  onValueChange={(value) => setTextAlignment(value)}
+                >
+                  <SelectTrigger id="text-align" className={textAlignment ? "border-blue-300" : ""}>
+                    <SelectValue placeholder="Select alignment">
+                      {textAlignment ? textAlignOptions.find(option => option.value === textAlignment)?.label || textAlignment.replace("text-", "") : "Select alignment"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="left">Left</SelectItem>
-                    <SelectItem value="center">Center</SelectItem>
-                    <SelectItem value="right">Right</SelectItem>
-                    <SelectItem value="justify">Justify</SelectItem>
+                    {textAlignOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -888,10 +924,15 @@ export function FriendlyEditor({
             {/* LAYOUT TAB */}
             <TabsContent value="layout" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>Display Type</Label>
-                <Select value={display || undefined} onValueChange={setDisplay}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select display type" />
+                <Label htmlFor="display">Display Type</Label>
+                <Select
+                  value={display || ""}
+                  onValueChange={(value) => setDisplay(value)}
+                >
+                  <SelectTrigger id="display" className={display ? "border-blue-300" : ""}>
+                    <SelectValue placeholder="Select display">
+                      {display ? displayOptions.find(option => option.value === display)?.label || display : "Select display"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {displayOptions.map((option) => (
@@ -906,10 +947,16 @@ export function FriendlyEditor({
               {display === "flex" && (
                 <>
                   <div className="space-y-2">
-                    <Label>Direction</Label>
-                    <Select value={flexDirection || undefined} onValueChange={setFlexDirection}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select direction" />
+                    <Label htmlFor="flex-direction">Direction</Label>
+                    <Select
+                      value={flexDirection || ""}
+                      onValueChange={(value) => setFlexDirection(value)}
+                      disabled={display !== "flex"}
+                    >
+                      <SelectTrigger id="flex-direction" className={flexDirection ? "border-blue-300" : ""}>
+                        <SelectValue placeholder="Select direction">
+                          {flexDirection ? flexDirectionOptions.find(option => option.value === flexDirection)?.label || flexDirection.replace("flex-", "") : "Select direction"}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {flexDirectionOptions.map((option) => (
@@ -922,10 +969,16 @@ export function FriendlyEditor({
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Horizontal Alignment</Label>
-                    <Select value={justifyContent || undefined} onValueChange={setJustifyContent}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select alignment" />
+                    <Label htmlFor="justify-content">Horizontal Alignment</Label>
+                    <Select
+                      value={justifyContent || ""}
+                      onValueChange={(value) => setJustifyContent(value)}
+                      disabled={display !== "flex"}
+                    >
+                      <SelectTrigger id="justify-content" className={justifyContent ? "border-blue-300" : ""}>
+                        <SelectValue placeholder="Select justify">
+                          {justifyContent ? justifyOptions.find(option => option.value === justifyContent)?.label || justifyContent.replace("justify-", "") : "Select justify"}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {justifyOptions.map((option) => (
@@ -938,10 +991,16 @@ export function FriendlyEditor({
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Vertical Alignment</Label>
-                    <Select value={alignItems || undefined} onValueChange={setAlignItems}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select alignment" />
+                    <Label htmlFor="align-items">Vertical Alignment</Label>
+                    <Select
+                      value={alignItems || ""}
+                      onValueChange={(value) => setAlignItems(value)}
+                      disabled={display !== "flex"}
+                    >
+                      <SelectTrigger id="align-items" className={alignItems ? "border-blue-300" : ""}>
+                        <SelectValue placeholder="Select alignment">
+                          {alignItems ? alignOptions.find(option => option.value === alignItems)?.label || alignItems.replace("items-", "") : "Select alignment"}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {alignOptions.map((option) => (
@@ -1227,10 +1286,15 @@ export function FriendlyEditor({
               </div>
 
               <div className="space-y-2">
-                <Label>Corner Roundness</Label>
-                <Select value={borderRadius || undefined} onValueChange={setBorderRadius}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select roundness" />
+                <Label htmlFor="border-radius">Corner Roundness</Label>
+                <Select
+                  value={borderRadius || ""}
+                  onValueChange={(value) => setBorderRadius(value)}
+                >
+                  <SelectTrigger id="border-radius" className={borderRadius ? "border-blue-300" : ""}>
+                    <SelectValue placeholder="Select radius">
+                      {borderRadius ? borderRadiusOptions.find(option => option.value === borderRadius)?.label || (borderRadius.replace("rounded", "").replace("-", "") || "Default") : "Select radius"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {borderRadiusOptions.map((option) => (
@@ -1243,10 +1307,15 @@ export function FriendlyEditor({
               </div>
 
               <div className="space-y-2">
-                <Label>Shadow</Label>
-                <Select value={shadow || undefined} onValueChange={setShadow}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select shadow" />
+                <Label htmlFor="shadow">Shadow</Label>
+                <Select
+                  value={shadow || ""}
+                  onValueChange={(value) => setShadow(value)}
+                >
+                  <SelectTrigger id="shadow" className={shadow ? "border-blue-300" : ""}>
+                    <SelectValue placeholder="Select shadow">
+                      {shadow ? shadowOptions.find(option => option.value === shadow)?.label || (shadow.replace("shadow", "").replace("-", "") || "Default") : "Select shadow"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {shadowOptions.map((option) => (
@@ -1259,6 +1328,37 @@ export function FriendlyEditor({
               </div>
             </TabsContent>
           </Tabs>
+
+          <div className="mt-4 pt-2 border-t">
+            <div className="flex justify-between items-center mb-2">
+              <Label className="font-medium">CSS Classes</Label>
+              <Button variant="outline" size="sm" onClick={() => setShowRawCss(!showRawCss)} className="h-6 px-2 text-xs">
+                {showRawCss ? "Hide" : "Show"}
+              </Button>
+            </div>
+            
+            {showRawCss && (
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-xs font-medium text-gray-600">Original:</Label>
+                  <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto break-all border border-gray-200">
+                    {originalClasses}
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs font-medium text-gray-600">Current:</Label>
+                  <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto break-all border border-gray-200">
+                    {updateClasses()}
+                  </div>
+                </div>
+                {originalClasses !== updateClasses() && (
+                  <div className="text-xs text-blue-600">
+                    * Blue highlighted fields indicate properties that have been changed
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="flex justify-end gap-2 pt-2 border-t">
             <Button size="sm" variant="outline" onClick={handleReset}>

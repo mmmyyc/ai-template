@@ -257,12 +257,12 @@ export default function ArticleEditor({
       
       if (foundElement) {
         console.log(`findElementByPath: Successfully found element for path: "${path}"`, foundElement);
-      } else {
+        } else {
         console.error(`findElementByPath: All attempts to find element failed for path: "${path}"`);
       }
       
       return foundElement;
-    } catch (error) {
+      } catch (error) {
       console.error(`findElementByPath: Error querying path: "${path}"`, error);
       return null;
     }
@@ -1102,15 +1102,15 @@ export default function ArticleEditor({
                     <TabsContent value="ppt" className="h-full m-0 p-0">
                       <div className="h-full flex flex-col">
                         <div className="p-2 border-b flex justify-end flex-shrink-0">
-                            {isSelecting ? (
+                          {isSelecting ? (
                               <Button onClick={handleCancelSelecting} variant="destructive" size="sm" data-no-select>
-                                Cancel Selection
-                              </Button>
-                            ) : (
+                              Cancel Selection
+                            </Button>
+                          ) : (
                               <Button onClick={handleStartSelecting} variant="default" size="sm" data-no-select>
-                                Select Element to Edit
-                              </Button>
-                            )}
+                              Select Element to Edit
+                            </Button>
+                          )}
                         </div>
                         <div className="flex-grow relative bg-gray-100 dark:bg-gray-800">
                           <iframe
@@ -1124,7 +1124,7 @@ export default function ArticleEditor({
                           {isSelecting && (
                               <div className="absolute inset-0 bg-blue-500/10 pointer-events-none z-0 border border-blue-500 animate-pulse" data-no-select>
                                   <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">Selection Mode Active</span>
-                              </div>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -1133,8 +1133,8 @@ export default function ArticleEditor({
                       <ScrollArea className="h-full w-full">
                         <div className="p-4">
                           <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
-                            {localHtmlContent}
-                          </pre>
+                                {localHtmlContent}
+                              </pre>
                         </div>
                       </ScrollArea>
                     </TabsContent>
