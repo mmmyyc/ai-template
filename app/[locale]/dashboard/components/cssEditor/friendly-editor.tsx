@@ -119,6 +119,8 @@ export function FriendlyEditor({
   onHtmlChange,
   className
 }: FriendlyEditorProps) {
+  // 存储原始类用于恢复
+  const [initialClasses, setInitialClasses] = useState<string>(originalClasses);
   const [currentClasses, setCurrentClasses] = useState<string[]>(originalClasses.split(" ").filter(Boolean))
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [isDragging, setIsDragging] = useState(false)
@@ -168,6 +170,8 @@ export function FriendlyEditor({
       const foundElement = findElementByPath(elementPath, iframeDoc);
       if (foundElement) {
         setTargetElement(foundElement);
+        // 保存元素的初始className用于后续恢复
+        setInitialClasses(foundElement.className);
         // Re-initialize classes from the found element if they differ from originalClasses
         const actualClasses = foundElement.className.split(' ').filter(Boolean);
         setCurrentClasses(actualClasses);
@@ -189,7 +193,7 @@ export function FriendlyEditor({
       setCurrentClasses(originalClasses.split(" ").filter(Boolean));
       setTargetElement(null);
     }
-  }, [elementPath, iframeRef, originalClasses]); // Rerun if path or iframe ref changes
+  }, [elementPath, iframeRef, originalClasses]);
 
   // Initialize state from current classes or originalClasses
   useEffect(() => {
@@ -462,7 +466,8 @@ export function FriendlyEditor({
 
   // Update classes based on style changes - memoize to avoid dependency issues
   const updateClasses = useCallback(() => {
-    let newClasses = [...currentClasses]
+    // 过滤掉错误的类名，如text-text-NaN
+    let newClasses = currentClasses.filter(c => !c.includes("text-text-") && !c.includes("NaN"));
 
     // Helper function to replace or add a class
     const replaceOrAddClass = (prefix: string, value: string | null) => {
@@ -632,154 +637,26 @@ export function FriendlyEditor({
 
   const handleReset = () => {
     if (!targetElement) return; // Add guard
-    console.log("原始CSS类名:", originalClasses)
-    setCurrentClasses(originalClasses.split(" ").filter(Boolean));
-    // Re-initialize state based on original classes
-    const classes = originalClasses.split(" ").filter(Boolean); 
+    console.log("原始CSS类名:", initialClasses)
     
-    // Extract text color
-    const textColorClass = classes.find(
-      (c: string) =>
-        c.startsWith("text-") &&
-        !c.startsWith("text-xs") &&
-        !c.startsWith("text-sm") &&
-        !c.startsWith("text-base") &&
-        !c.startsWith("text-lg") &&
-        !c.startsWith("text-xl") &&
-        !c.startsWith("text-left") &&
-        !c.startsWith("text-center") &&
-        !c.startsWith("text-right") &&
-        !c.startsWith("text-justify")
-    )
-    if (textColorClass) {
-      const parts = textColorClass.split("-")
-      if (parts.length === 3) {
-        setTextColor(parts[1])
-        setTextColorIntensity(Number.parseInt(parts[2]))
-      } else if (parts.length === 2) {
-        setTextColor(parts[1])
-        setTextColorIntensity(500) 
-      }
-    } else {
-       setTextColor("")
-    }
-
-    // Extract background color
-    const bgColorClass = classes.find((c: string) => c.startsWith("bg-"))
-    if (bgColorClass) {
-      const parts = bgColorClass.split("-")
-       if (parts.length === 3) {
-        setBgColor(parts[1])
-        setBgColorIntensity(Number.parseInt(parts[2]))
-      } else if (parts.length === 2) {
-        setBgColor(parts[1])
-        setBgColorIntensity(500)
-      }
-    } else {
-      setBgColor("")
-    }
+    // 恢复元素到原始样式
+    targetElement.className = initialClasses;
     
-    // Extract Font Size
-    const fontSizeClass = classes.find((c: string) => c.startsWith("text-") && fontSizeOptions.includes(c.substring(5)))
-    setFontSize(fontSizeClass ? fontSizeClass.substring(5) : "")
-
-    // Extract Font Weight
-    const fontWeightClass = classes.find((c: string) => fontWeightOptions.some(option => option.value === c))
-    setFontWeight(fontWeightClass || "")
-
-    // Extract Text Alignment
-    const textAlignClass = classes.find((c: string) => textAlignOptions.some(option => option.value === c))
-    setTextAlignment(textAlignClass || "")
-    
-    // ... (Reset padding state based on originalClasses parsing) ...
-    // Extract individual padding values
-    const ptClass = classes.find((c: string) => c.startsWith("pt-"));
-    setPaddingTop(ptClass ? Number.parseInt(ptClass.substring(3)) : 0);
-    const prClass = classes.find((c: string) => c.startsWith("pr-"));
-    setPaddingRight(prClass ? Number.parseInt(prClass.substring(3)) : 0);
-    const pbClass = classes.find((c: string) => c.startsWith("pb-"));
-    setPaddingBottom(pbClass ? Number.parseInt(pbClass.substring(3)) : 0);
-    const plClass = classes.find((c: string) => c.startsWith("pl-"));
-    setPaddingLeft(plClass ? Number.parseInt(plClass.substring(3)) : 0);
-    const pxClass = classes.find((c: string) => c.startsWith("px-"));
-    if (pxClass) {
-        const val = Number.parseInt(pxClass.substring(3));
-        if (!prClass) setPaddingRight(val);
-        if (!plClass) setPaddingLeft(val);
-    }
-    const pyClass = classes.find((c: string) => c.startsWith("py-"));
-    if (pyClass) {
-        const val = Number.parseInt(pyClass.substring(3));
-        if (!ptClass) setPaddingTop(val);
-        if (!pbClass) setPaddingBottom(val);
-    }
-    const pClass = classes.find((c: string) => c.startsWith("p-") && !c.startsWith("pt-") && !c.startsWith("pr-") && !c.startsWith("pb-") && !c.startsWith("pl-") && !c.startsWith("px-") && !c.startsWith("py-"));
-    if (pClass) {
-        const val = Number.parseInt(pClass.substring(2));
-        if (!ptClass && !pyClass) setPaddingTop(val);
-        if (!prClass && !pxClass) setPaddingRight(val);
-        if (!pbClass && !pyClass) setPaddingBottom(val);
-        if (!plClass && !pxClass) setPaddingLeft(val);
-    }
-    
-    // ... (Reset margin state based on originalClasses parsing) ...
-    const mtClass = classes.find((c: string) => c.startsWith("mt-"));
-    setMarginTop(mtClass ? Number.parseInt(mtClass.substring(3)) : 0);
-    const mrClass = classes.find((c: string) => c.startsWith("mr-"));
-    setMarginRight(mrClass ? Number.parseInt(mrClass.substring(3)) : 0);
-    const mbClass = classes.find((c: string) => c.startsWith("mb-"));
-    setMarginBottom(mbClass ? Number.parseInt(mbClass.substring(3)) : 0);
-    const mlClass = classes.find((c: string) => c.startsWith("ml-"));
-    setMarginLeft(mlClass ? Number.parseInt(mlClass.substring(3)) : 0);
-    const mxClass = classes.find((c: string) => c.startsWith("mx-"));
-    if (mxClass) {
-        const val = Number.parseInt(mxClass.substring(3));
-        if (!mrClass) setMarginRight(val);
-        if (!mlClass) setMarginLeft(val);
-    }
-    const myClass = classes.find((c: string) => c.startsWith("my-"));
-    if (myClass) {
-        const val = Number.parseInt(myClass.substring(3));
-        if (!mtClass) setMarginTop(val);
-        if (!mbClass) setMarginBottom(val);
-    }
-    const mClass = classes.find((c: string) => c.startsWith("m-") && !c.startsWith("mt-") && !c.startsWith("mr-") && !c.startsWith("mb-") && !c.startsWith("ml-") && !c.startsWith("mx-") && !c.startsWith("my-"));
-    if (mClass) {
-        const val = Number.parseInt(mClass.substring(2));
-        if (!mtClass && !myClass) setMarginTop(val);
-        if (!mrClass && !mxClass) setMarginRight(val);
-        if (!mbClass && !myClass) setMarginBottom(val);
-        if (!mlClass && !mxClass) setMarginLeft(val);
-    }
-
-    // Extract Display
-    const displayClass = classes.find((c: string) => displayOptions.some(option => option.value === c))
-    setDisplay(displayClass || "")
-
-    // Extract Flex Direction
-    const flexDirectionClass = classes.find((c: string) => flexDirectionOptions.some(option => option.value === c))
-    setFlexDirection(flexDirectionClass || "")
-
-    // Extract Justify Content
-    const justifyContentClass = classes.find((c: string) => justifyOptions.some(option => option.value === c))
-    setJustifyContent(justifyContentClass || "")
-
-    // Extract Align Items
-    const alignItemsClass = classes.find((c: string) => alignOptions.some(option => option.value === c))
-    setAlignItems(alignItemsClass || "")
-
-    // Extract Border Radius
-    const borderRadiusClass = classes.find((c: string) => borderRadiusOptions.some(option => option.value === c))
-    setBorderRadius(borderRadiusClass || "")
-
-    // Extract Shadow
-    const shadowClass = classes.find((c: string) => shadowOptions.some(option => option.value === c))
-    setShadow(shadowClass || "")
-
-    // Check for Border (simplified)
-    setHasBorder(classes.includes("border"))
+    // 重新初始化状态
+    const classes = initialClasses.split(" ").filter(Boolean);
+    setCurrentClasses(classes);
+    initializeStylePropertiesFromClasses(classes);
 
     console.log("重置为原始类名完成");
+  };
+
+  const handleCancel = () => {
+    // 恢复元素的原始类
+    if (targetElement) {
+      targetElement.className = initialClasses;
+    }
+    // 关闭编辑器
+    onClose();
   };
 
   // Apply changes immediately when properties change
@@ -818,6 +695,39 @@ export function FriendlyEditor({
     targetElement,
     updateClasses
   ])
+
+  // 处理删除单个CSS类
+  const handleRemoveClass = (classToRemove: string) => {
+    const updatedClasses = currentClasses.filter(cls => cls !== classToRemove);
+    setCurrentClasses(updatedClasses);
+    
+    // 如果有目标元素，立即应用更改
+    if (targetElement) {
+      targetElement.className = updatedClasses.join(" ");
+    }
+    
+    // 重新初始化样式
+    initializeStylePropertiesFromClasses(updatedClasses);
+  };
+
+  // 用于显示可删除的类标签
+  const ClassTag = ({ className }: { className: string }) => {
+    // 跳过空类名
+    if (!className.trim()) return null;
+    
+    return (
+      <div className="inline-flex items-center bg-blue-50 text-blue-700 rounded px-2 py-1 text-xs m-1">
+        {className}
+        <button 
+          type="button"
+          className="ml-1 text-blue-500 hover:text-blue-700"
+          onClick={() => handleRemoveClass(className)}
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div
@@ -1338,20 +1248,31 @@ export function FriendlyEditor({
             </div>
             
             {showRawCss && (
-              <div className="space-y-2">
+              <div className="space-y-3 max-h-[200px] overflow-y-auto pr-1">
                 <div>
                   <Label className="text-xs font-medium text-gray-600">Original:</Label>
-                  <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto break-all border border-gray-200">
-                    {originalClasses}
+                  <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto break-all border border-gray-200 max-h-[60px] overflow-y-auto">
+                    {initialClasses}
                   </div>
                 </div>
                 <div>
                   <Label className="text-xs font-medium text-gray-600">Current:</Label>
-                  <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto break-all border border-gray-200">
+                  <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto border border-gray-200 max-h-[60px] overflow-y-auto">
                     {updateClasses()}
                   </div>
                 </div>
-                {originalClasses !== updateClasses() && (
+                <div>
+                  <Label className="text-xs font-medium text-gray-600">Edit Classes:</Label>
+                  <div className="bg-gray-50 p-2 rounded-md border border-gray-200 max-h-[80px] overflow-y-auto flex flex-wrap">
+                    {currentClasses.map((cls, index) => (
+                      <ClassTag key={`${cls}-${index}`} className={cls} />
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    点击标签上的 X 可删除对应的CSS类
+                  </div>
+                </div>
+                {initialClasses !== updateClasses() && (
                   <div className="text-xs text-blue-600">
                     * Blue highlighted fields indicate properties that have been changed
                   </div>
@@ -1360,13 +1281,21 @@ export function FriendlyEditor({
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t">
-            <Button size="sm" variant="outline" onClick={handleReset}>
-              Reset
-            </Button>
-            <Button size="sm" onClick={handleApplyChanges}>
-              Apply Changes
-            </Button>
+          {/* 底部按钮，始终可见 */}
+          <div className="flex justify-between gap-2 pt-2 mt-2 border-t sticky bottom-0 bg-white pb-2">
+            <div>
+              <Button size="sm" variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={handleReset}>
+                Reset
+              </Button>
+              <Button size="sm" onClick={handleApplyChanges}>
+                Apply Changes
+              </Button>
+            </div>
           </div>
         </div>
       </ScrollArea>

@@ -121,10 +121,6 @@ export default function Home() {
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex items-center justify-between px-6 py-3 border-b bg-base-100 dark:bg-gray-950">
         <h1 className="text-lg font-medium">AI 生成</h1>
-        <Button size="sm" variant="outline">
-          <Save className="h-4 w-4 mr-2" />
-          保存
-        </Button>
       </header>
 
       <div className="flex-1 p-4 overflow-hidden min-h-0">
