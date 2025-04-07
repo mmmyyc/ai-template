@@ -14,8 +14,20 @@ import { X, Move } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getColorValue } from "./colorUtils"
 
+// Helper function copied from article-editor for consistency
+const findElementByPath = (path: string, container: Document | HTMLElement): HTMLElement | null => {
+  try {
+    const root = container instanceof Document ? container.body : container;
+    return root.querySelector(path) as HTMLElement | null;
+  } catch (error) {
+    console.error('FriendlyEditor: Error finding element by path:', path, error);
+    return null;
+  }
+};
+
 interface FriendlyEditorProps {
-  element: HTMLElement
+  elementPath: string
+  iframeRef: React.RefObject<HTMLIFrameElement>
   position: { x: number; y: number }
   originalClasses: string
   onClose: () => void
@@ -97,7 +109,8 @@ const colorOptions = [
 const colorIntensityOptions = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 
 export function FriendlyEditor({ 
-  element, 
+  elementPath, 
+  iframeRef,
   position, 
   originalClasses, 
   onClose, 
@@ -106,7 +119,8 @@ export function FriendlyEditor({
   onHtmlChange,
   className
 }: FriendlyEditorProps) {
-  const [currentClasses, setCurrentClasses] = useState<string[]>(element.className.split(" ").filter(Boolean))
+  const [currentClasses, setCurrentClasses] = useState<string[]>(originalClasses.split(" ").filter(Boolean))
+  const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [editorPosition, setEditorPosition] = useState(position)
@@ -144,331 +158,210 @@ export function FriendlyEditor({
   const [showMarginPreview, setShowMarginPreview] = useState(false);
   const [showPaddingPreview, setShowPaddingPreview] = useState(false);
 
+  // Find the target element inside the iframe
+  useEffect(() => {
+    if (iframeRef.current && iframeRef.current.contentDocument && elementPath) {
+      const iframeDoc = iframeRef.current.contentDocument;
+      const foundElement = findElementByPath(elementPath, iframeDoc);
+      if (foundElement) {
+        setTargetElement(foundElement);
+        // Re-initialize classes from the found element if they differ from originalClasses
+        const actualClasses = foundElement.className.split(' ').filter(Boolean);
+        setCurrentClasses(actualClasses);
+         console.log("FriendlyEditor: Target element found in iframe:", foundElement, "Actual classes:", actualClasses);
+      } else {
+        console.error("FriendlyEditor: Could not find element in iframe with path:", elementPath);
+        setTargetElement(null); // Reset if not found
+      }
+    } else {
+      // Reset if iframe/path is not available
+       setTargetElement(null);
+    }
+  }, [elementPath, iframeRef]); // Rerun if path or iframe ref changes
+
   // Initialize state from current classes
   useEffect(() => {
-    if (element) {
-      const classes = element.className.split(" ").filter(Boolean)
-      setCurrentClasses(classes)
+    if (targetElement) {
+      // Use currentClasses state which should be up-to-date AFTER targetElement is set
+      const classes = targetElement.className.split(" ").filter(Boolean);
+      setCurrentClasses(classes);
 
-      console.log("初始化元素样式 - 原始类名:", element.className);
-      console.log("解析后的类名数组:", classes);
-
-      // 根据元素类型和属性自动选择默认标签页
-      if (classes.includes("flex") || classes.some((c: string) => c.startsWith("grid-"))) {
-        setDefaultTab("layout")
-      } else if (classes.some((c: string) => c.startsWith("bg-")) || classes.some((c: string) => c.startsWith("text-") && 
-                !c.startsWith("text-xs") && !c.startsWith("text-sm") &&
-                !c.startsWith("text-base") && !c.startsWith("text-lg") && 
-                !c.startsWith("text-xl") && !c.startsWith("text-left") && 
-                !c.startsWith("text-center") && !c.startsWith("text-right"))) {
-        setDefaultTab("colors")
+      console.log("FriendlyEditor: Initializing styles from target element:", targetElement, "Classes:", classes);
+      
+      // Determine default tab based on actual classes found
+      let newDefaultTab = "text";
+      if (classes.includes("flex") || classes.some((c: string) => c.startsWith("grid"))) {
+        newDefaultTab = "layout";
+      } else if (
+        classes.some((c: string) => c.startsWith("bg-")) ||
+        classes.some(
+          (c: string) =>
+            c.startsWith("text-") &&
+            !["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", 
+             "left", "center", "right", "justify"].includes(c.substring(5))
+        )
+      ) {
+        newDefaultTab = "colors";
       } else if (classes.some((c: string) => c.startsWith("shadow-")) || classes.some((c: string) => c.startsWith("rounded"))) {
-        setDefaultTab("effects")
-      } else {
-        setDefaultTab("text")
+        newDefaultTab = "effects";
       }
+      setDefaultTab(newDefaultTab);
+      console.log("FriendlyEditor: Default tab set to:", newDefaultTab);
 
-      // Extract text color - 同时支持text-red-500和text-white等简单颜色
+      // Extract text color
       const textColorClass = classes.find(
         (c: string) =>
           c.startsWith("text-") &&
-          !c.startsWith("text-xs") &&
-          !c.startsWith("text-sm") &&
-          !c.startsWith("text-base") &&
-          !c.startsWith("text-lg") &&
-          !c.startsWith("text-xl") &&
-          !c.startsWith("text-left") &&
-          !c.startsWith("text-center") &&
-          !c.startsWith("text-right") &&
-          !c.startsWith("text-justify")
+          !["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", 
+           "left", "center", "right", "justify"].includes(c.substring(5))
       )
-      
-      console.log("找到文本颜色类:", textColorClass); // 调试用
-      
       if (textColorClass) {
         const parts = textColorClass.split("-")
         if (parts.length === 3) {
           setTextColor(parts[1])
           setTextColorIntensity(Number.parseInt(parts[2]))
         } else if (parts.length === 2) {
-          // 处理简单颜色如text-white
           setTextColor(parts[1])
-          setTextColorIntensity(500) // 默认强度
+          setTextColorIntensity(500)
         }
+      } else {
+         setTextColor("")
       }
+      console.log("FriendlyEditor: Initial Text Color:", textColorClass || 'none');
 
-      // Extract background color - 同时支持bg-blue-200和bg-black等简单颜色
-      const bgColorClass = classes.find((c: string) => c.startsWith("bg-") && c !== "bg-transparent")
-      
-      console.log("找到背景颜色类:", bgColorClass); // 调试用
-      
+      // Extract background color
+      const bgColorClass = classes.find((c: string) => c.startsWith("bg-"))
       if (bgColorClass) {
         const parts = bgColorClass.split("-")
-        if (parts.length === 3) {
+         if (parts.length === 3) {
           setBgColor(parts[1])
           setBgColorIntensity(Number.parseInt(parts[2]))
         } else if (parts.length === 2) {
-          // 处理简单颜色如bg-white
           setBgColor(parts[1])
-          setBgColorIntensity(500) // 默认强度
+          setBgColorIntensity(500)
         }
-      }
-
-      // Extract font size
-      const fontSizeClass = classes.find(
-        (c: string) =>
-          c === "text-xs" ||
-          c === "text-sm" ||
-          c === "text-base" ||
-          c === "text-lg" ||
-          c === "text-xl" ||
-          c === "text-2xl" ||
-          c === "text-3xl" ||
-          c === "text-4xl" ||
-          c === "text-5xl" ||
-          c === "text-6xl"
-      )
-      
-      console.log("找到字体大小类:", fontSizeClass); // 调试用
-      
-      if (fontSizeClass) {
-        setFontSize(fontSizeClass.replace("text-", ""))
-        console.log("设置字体大小为:", fontSizeClass.replace("text-", ""));
       } else {
-        // 尝试寻找其他可能的文本大小类
-        const textSizeRegex = /^text-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl)$/;
-        const possibleSizeClass = classes.find((c: string) => textSizeRegex.test(c));
-        if (possibleSizeClass) {
-          const size = possibleSizeClass.replace("text-", "");
-          setFontSize(size);
-          console.log("通过正则匹配设置字体大小为:", size);
-        } else {
-          console.log("未找到字体大小类");
-        }
+        setBgColor("")
       }
+      console.log("FriendlyEditor: Initial BG Color:", bgColorClass || 'none');
 
-      // Extract font weight
-      const fontWeightClass = classes.find((c: string) => c.startsWith("font-"))
-      
-      console.log("找到字体粗细类:", fontWeightClass); // 调试用
-      
-      if (fontWeightClass) {
-        setFontWeight(fontWeightClass)
-      }
+      // Extract Font Size
+      const fontSizeClass = classes.find((c: string) => c.startsWith("text-") && fontSizeOptions.includes(c.substring(5)))
+      setFontSize(fontSizeClass ? fontSizeClass.substring(5) : "")
+      console.log("FriendlyEditor: Initial Font Size:", fontSizeClass || 'none');
 
-      // Extract text alignment
-      const textAlignmentClass = classes.find(
-        (c: string) =>
-          c === "text-left" ||
-          c === "text-center" ||
-          c === "text-right" ||
-          c === "text-justify"
-      )
-      
-      console.log("找到文本对齐类:", textAlignmentClass); // 调试用
-      
-      if (textAlignmentClass) {
-        setTextAlignment(textAlignmentClass.replace("text-", ""))
-        console.log("设置文本对齐为:", textAlignmentClass.replace("text-", ""));
-      } else {
-        // 检查是否有其他文本对齐类
-        const alignRegex = /^text-(left|center|right|justify)$/;
-        const possibleAlignClass = classes.find(c => alignRegex.test(c));
-        if (possibleAlignClass) {
-          const align = possibleAlignClass.replace("text-", "");
-          setTextAlignment(align);
-          console.log("通过正则匹配设置文本对齐为:", align);
-        } else {
-          console.log("未找到文本对齐类");
-          // 默认为left
-          setTextAlignment("left");
-        }
-      }
+      // Extract Font Weight
+      const fontWeightClass = classes.find((c: string) => fontWeightOptions.some(option => option.value === c))
+      setFontWeight(fontWeightClass || "")
+      console.log("FriendlyEditor: Initial Font Weight:", fontWeightClass || 'none');
 
-      // Extract padding - 支持所有方向的内边距
-      let paddingValue = 0;
-      const paddingClass = classes.find((c: string) => c.startsWith("p-") && c.length <= 4) // 只匹配p-1到p-12这样的类
-      const paddingXClass = classes.find((c: string) => c.startsWith("px-"))
-      const paddingYClass = classes.find((c: string) => c.startsWith("py-"))
-      const paddingTopClass = classes.find((c: string) => c.startsWith("pt-"))
-      const paddingRightClass = classes.find((c: string) => c.startsWith("pr-"))
-      const paddingBottomClass = classes.find((c: string) => c.startsWith("pb-"))
-      const paddingLeftClass = classes.find((c: string) => c.startsWith("pl-"))
-      
-      if (paddingClass) {
-        paddingValue = Number.parseInt(paddingClass.replace("p-", ""))
-      } else if (paddingXClass && paddingYClass) {
-        // 如果同时有px和py，取较大值
-        const xValue = Number.parseInt(paddingXClass.replace("px-", ""))
-        const yValue = Number.parseInt(paddingYClass.replace("py-", ""))
-        paddingValue = Math.max(xValue, yValue)
-      } else if (paddingXClass) {
-        paddingValue = Number.parseInt(paddingXClass.replace("px-", ""))
-      } else if (paddingYClass) {
-        paddingValue = Number.parseInt(paddingYClass.replace("py-", ""))
-      }
-      
-      console.log("设置内边距值:", paddingValue); // 调试用
-      
-      if (!isNaN(paddingValue)) {
-        setPadding(paddingValue)
-      }
+      // Extract Text Alignment
+      const textAlignClass = classes.find((c: string) => textAlignOptions.some(option => option.value === c))
+      setTextAlignment(textAlignClass || "")
+      console.log("FriendlyEditor: Initial Text Align:", textAlignClass || 'none');
 
-      // 设置各个方向的padding值
-      if (paddingTopClass) {
-        const value = Number.parseInt(paddingTopClass.replace("pt-", ""));
-        if (!isNaN(value)) setPaddingTop(value);
+      // Extract Padding (this logic seems complex, ensure it works)
+      const ptClass = classes.find((c: string) => c.startsWith("pt-"));
+      setPaddingTop(ptClass ? Number.parseInt(ptClass.substring(3)) : 0);
+      const prClass = classes.find((c: string) => c.startsWith("pr-"));
+      setPaddingRight(prClass ? Number.parseInt(prClass.substring(3)) : 0);
+      const pbClass = classes.find((c: string) => c.startsWith("pb-"));
+      setPaddingBottom(pbClass ? Number.parseInt(pbClass.substring(3)) : 0);
+      const plClass = classes.find((c: string) => c.startsWith("pl-"));
+      setPaddingLeft(plClass ? Number.parseInt(plClass.substring(3)) : 0);
+      const pxClass = classes.find((c: string) => c.startsWith("px-"));
+      if (pxClass) {
+        const val = Number.parseInt(pxClass.substring(3));
+        if (!prClass) setPaddingRight(val);
+        if (!plClass) setPaddingLeft(val);
       }
-      
-      if (paddingRightClass) {
-        const value = Number.parseInt(paddingRightClass.replace("pr-", ""));
-        if (!isNaN(value)) setPaddingRight(value);
+      const pyClass = classes.find((c: string) => c.startsWith("py-"));
+      if (pyClass) {
+        const val = Number.parseInt(pyClass.substring(3));
+        if (!ptClass) setPaddingTop(val);
+        if (!pbClass) setPaddingBottom(val);
       }
-      
-      if (paddingBottomClass) {
-        const value = Number.parseInt(paddingBottomClass.replace("pb-", ""));
-        if (!isNaN(value)) setPaddingBottom(value);
+      const pClass = classes.find((c: string) => c.startsWith("p-") && !c.startsWith("pt-") && !c.startsWith("pr-") && !c.startsWith("pb-") && !c.startsWith("pl-") && !c.startsWith("px-") && !c.startsWith("py-"));
+      if (pClass) {
+        const val = Number.parseInt(pClass.substring(2));
+        if (!ptClass && !pyClass) setPaddingTop(val);
+        if (!prClass && !pxClass) setPaddingRight(val);
+        if (!pbClass && !pyClass) setPaddingBottom(val);
+        if (!plClass && !pxClass) setPaddingLeft(val);
       }
-      
-      if (paddingLeftClass) {
-        const value = Number.parseInt(paddingLeftClass.replace("pl-", ""));
-        if (!isNaN(value)) setPaddingLeft(value);
-      } else if (paddingClass) {
-        // 如果有整体padding，且没有单独方向的设置，则应用到所有方向
-        setPaddingTop(paddingValue);
-        setPaddingRight(paddingValue);
-        setPaddingBottom(paddingValue);
-        setPaddingLeft(paddingValue);
-      }
+      console.log("FriendlyEditor: Initial Padding (T,R,B,L):", paddingTop, paddingRight, paddingBottom, paddingLeft);
 
-      // Extract margin - 支持所有方向的外边距
-      let marginValue = 0;
-      const marginClass = classes.find((c: string) => c.startsWith("m-") && c.length <= 4) // 只匹配m-1到m-12这样的类
-      const marginXClass = classes.find((c: string) => c.startsWith("mx-"))
-      const marginYClass = classes.find((c: string) => c.startsWith("my-"))
-      
-      if (marginClass) {
-        marginValue = Number.parseInt(marginClass.replace("m-", ""))
-      } else if (marginXClass && marginYClass) {
-        // 如果同时有mx和my，取较大值
-        const xValue = Number.parseInt(marginXClass.replace("mx-", ""))
-        const yValue = Number.parseInt(marginYClass.replace("my-", ""))
-        marginValue = Math.max(xValue, yValue)
-      } else if (marginXClass) {
-        marginValue = Number.parseInt(marginXClass.replace("mx-", ""))
-      } else if (marginYClass) {
-        marginValue = Number.parseInt(marginYClass.replace("my-", ""))
+      // Extract Margin
+      const mtClass = classes.find((c: string) => c.startsWith("mt-"));
+      setMarginTop(mtClass ? Number.parseInt(mtClass.substring(3)) : 0);
+      const mrClass = classes.find((c: string) => c.startsWith("mr-"));
+      setMarginRight(mrClass ? Number.parseInt(mrClass.substring(3)) : 0);
+      const mbClass = classes.find((c: string) => c.startsWith("mb-"));
+      setMarginBottom(mbClass ? Number.parseInt(mbClass.substring(3)) : 0);
+      const mlClass = classes.find((c: string) => c.startsWith("ml-"));
+      setMarginLeft(mlClass ? Number.parseInt(mlClass.substring(3)) : 0);
+      const mxClass = classes.find((c: string) => c.startsWith("mx-"));
+      if (mxClass) {
+        const val = Number.parseInt(mxClass.substring(3));
+        if (!mrClass) setMarginRight(val);
+        if (!mlClass) setMarginLeft(val);
       }
-      
-      console.log("设置外边距值:", marginValue); // 调试用
-      
-      if (!isNaN(marginValue)) {
-        setMargin(marginValue)
+      const myClass = classes.find((c: string) => c.startsWith("my-"));
+      if (myClass) {
+        const val = Number.parseInt(myClass.substring(3));
+        if (!mtClass) setMarginTop(val);
+        if (!mbClass) setMarginBottom(val);
       }
+      const mClass = classes.find((c: string) => c.startsWith("m-") && !c.startsWith("mt-") && !c.startsWith("mr-") && !c.startsWith("mb-") && !c.startsWith("ml-") && !c.startsWith("mx-") && !c.startsWith("my-"));
+      if (mClass) {
+        const val = Number.parseInt(mClass.substring(2));
+        if (!mtClass && !myClass) setMarginTop(val);
+        if (!mrClass && !mxClass) setMarginRight(val);
+        if (!mbClass && !myClass) setMarginBottom(val);
+        if (!mlClass && !mxClass) setMarginLeft(val);
+      }
+      console.log("FriendlyEditor: Initial Margin (T,R,B,L):", marginTop, marginRight, marginBottom, marginLeft);
 
-      // Extract display
-      const displayClass = classes.find(
-        (c: string) => c === "block" || c === "inline-block" || c === "inline" || c === "flex" || c === "grid" || c === "hidden"
-      )
-      
-      console.log("找到显示类型:", displayClass); // 调试用
-      
-      if (displayClass) {
-        setDisplay(displayClass)
-      }
+      // Extract Display
+      const displayClass = classes.find((c: string) => displayOptions.some(option => option.value === c))
+      setDisplay(displayClass || "")
+      console.log("FriendlyEditor: Initial Display:", displayClass || 'none');
 
-      // Extract flex direction if element is flex
-      if (classes.includes("flex")) {
-        const flexDirClass = classes.find((c: string) => c === "flex-row" || c === "flex-col")
-        
-        console.log("找到flex方向:", flexDirClass); // 调试用
-        
-        if (flexDirClass) {
-          setFlexDirection(flexDirClass)
-        } else {
-          // 默认为row
-          setFlexDirection("flex-row")
-        }
-      }
+      // Extract Flex Direction
+      const flexDirectionClass = classes.find((c: string) => flexDirectionOptions.some(option => option.value === c))
+      setFlexDirection(flexDirectionClass || "")
+      console.log("FriendlyEditor: Initial Flex Direction:", flexDirectionClass || 'none');
 
-      // Extract justify content
-      const justifyClass = classes.find((c: string) => c.startsWith("justify-"))
-      
-      console.log("找到justify类:", justifyClass); // 调试用
-      
-      if (justifyClass) {
-        setJustifyContent(justifyClass)
-      }
+      // Extract Justify Content
+      const justifyContentClass = classes.find((c: string) => justifyOptions.some(option => option.value === c))
+      setJustifyContent(justifyContentClass || "")
+      console.log("FriendlyEditor: Initial Justify Content:", justifyContentClass || 'none');
 
-      // Extract align items
-      const alignClass = classes.find((c: string) => c.startsWith("items-"))
-      
-      console.log("找到align类:", alignClass); // 调试用
-      
-      if (alignClass) {
-        setAlignItems(alignClass)
-      }
+      // Extract Align Items
+      const alignItemsClass = classes.find((c: string) => alignOptions.some(option => option.value === c))
+      setAlignItems(alignItemsClass || "")
+      console.log("FriendlyEditor: Initial Align Items:", alignItemsClass || 'none');
 
-      // Extract border radius
-      const borderRadiusClass = classes.find((c: string) => c.startsWith("rounded"))
-      
-      console.log("找到圆角类:", borderRadiusClass); // 调试用
-      
-      if (borderRadiusClass) {
-        setBorderRadius(borderRadiusClass)
-      }
+      // Extract Border Radius
+      const borderRadiusClass = classes.find((c: string) => borderRadiusOptions.some(option => option.value === c))
+      setBorderRadius(borderRadiusClass || "")
+      console.log("FriendlyEditor: Initial Border Radius:", borderRadiusClass || 'none');
 
-      // Check if has border
-      const hasBorderClass = classes.some((c: string) => c === "border" || c.startsWith("border-") && !c.startsWith("border-radius"))
-      
-      console.log("是否有边框:", hasBorderClass); // 调试用
-      
-      setHasBorder(hasBorderClass)
+      // Extract Shadow
+      const shadowClass = classes.find((c: string) => shadowOptions.some(option => option.value === c))
+      setShadow(shadowClass || "")
+      console.log("FriendlyEditor: Initial Shadow:", shadowClass || 'none');
 
-      // Extract shadow
-      const shadowClass = classes.find((c: string) => c.startsWith("shadow"))
-      
-      console.log("找到阴影类:", shadowClass); // 调试用
-      
-      if (shadowClass) {
-        setShadow(shadowClass)
-      }
+      // Check for Border
+      setHasBorder(classes.includes("border"))
+      console.log("FriendlyEditor: Initial Border:", hasBorder);
 
-      // 解析各个方向的margin
-      const marginTopClass = classes.find((c: string) => c.startsWith("mt-"));
-      const marginRightClass = classes.find((c: string) => c.startsWith("mr-"));
-      const marginBottomClass = classes.find((c: string) => c.startsWith("mb-"));
-      const marginLeftClass = classes.find((c: string) => c.startsWith("ml-"));
-      
-      // 设置各个方向的margin值
-      if (marginTopClass) {
-        const value = Number.parseInt(marginTopClass.replace("mt-", ""));
-        if (!isNaN(value)) setMarginTop(value);
-      }
-      
-      if (marginRightClass) {
-        const value = Number.parseInt(marginRightClass.replace("mr-", ""));
-        if (!isNaN(value)) setMarginRight(value);
-      }
-      
-      if (marginBottomClass) {
-        const value = Number.parseInt(marginBottomClass.replace("mb-", ""));
-        if (!isNaN(value)) setMarginBottom(value);
-      }
-      
-      if (marginLeftClass) {
-        const value = Number.parseInt(marginLeftClass.replace("ml-", ""));
-        if (!isNaN(value)) setMarginLeft(value);
-      }
-      
-      console.log("解析margin方向值:", {
-        top: marginTopClass, 
-        right: marginRightClass, 
-        bottom: marginBottomClass, 
-        left: marginLeftClass
-      });
+    } else {
+        console.log("FriendlyEditor: Target element not available for style initialization.");
+        // Optionally reset all style states here if targetElement becomes null
     }
-  }, [element])
+  // Only depend on targetElement. The class parsing logic runs *inside* this effect.
+  }, [targetElement]);
 
   // Position the editor
   useEffect(() => {
@@ -709,8 +602,8 @@ export function FriendlyEditor({
     }
 
     // Apply changes to the element directly for immediate feedback
-    if (element) {
-      element.className = newClassString
+    if (targetElement) {
+      targetElement.className = newClassString
     }
     
     // 自动关闭编辑器
@@ -718,16 +611,163 @@ export function FriendlyEditor({
   }
 
   const handleReset = () => {
-    element.className = originalClasses
-    onClose()
-  }
+    if (!targetElement) return; // Add guard
+    console.log("原始CSS类名:", originalClasses)
+    setCurrentClasses(originalClasses.split(" ").filter(Boolean));
+    // Re-initialize state based on original classes
+    const classes = originalClasses.split(" ").filter(Boolean); 
+    
+    // Extract text color
+    const textColorClass = classes.find(
+      (c: string) =>
+        c.startsWith("text-") &&
+        !c.startsWith("text-xs") &&
+        !c.startsWith("text-sm") &&
+        !c.startsWith("text-base") &&
+        !c.startsWith("text-lg") &&
+        !c.startsWith("text-xl") &&
+        !c.startsWith("text-left") &&
+        !c.startsWith("text-center") &&
+        !c.startsWith("text-right") &&
+        !c.startsWith("text-justify")
+    )
+    if (textColorClass) {
+      const parts = textColorClass.split("-")
+      if (parts.length === 3) {
+        setTextColor(parts[1])
+        setTextColorIntensity(Number.parseInt(parts[2]))
+      } else if (parts.length === 2) {
+        setTextColor(parts[1])
+        setTextColorIntensity(500) 
+      }
+    } else {
+       setTextColor("")
+    }
+
+    // Extract background color
+    const bgColorClass = classes.find((c: string) => c.startsWith("bg-"))
+    if (bgColorClass) {
+      const parts = bgColorClass.split("-")
+       if (parts.length === 3) {
+        setBgColor(parts[1])
+        setBgColorIntensity(Number.parseInt(parts[2]))
+      } else if (parts.length === 2) {
+        setBgColor(parts[1])
+        setBgColorIntensity(500)
+      }
+    } else {
+      setBgColor("")
+    }
+    
+    // Extract Font Size
+    const fontSizeClass = classes.find((c: string) => c.startsWith("text-") && fontSizeOptions.includes(c.substring(5)))
+    setFontSize(fontSizeClass ? fontSizeClass.substring(5) : "")
+
+    // Extract Font Weight
+    const fontWeightClass = classes.find((c: string) => fontWeightOptions.some(option => option.value === c))
+    setFontWeight(fontWeightClass || "")
+
+    // Extract Text Alignment
+    const textAlignClass = classes.find((c: string) => textAlignOptions.some(option => option.value === c))
+    setTextAlignment(textAlignClass || "")
+    
+    // ... (Reset padding state based on originalClasses parsing) ...
+    // Extract individual padding values
+    const ptClass = classes.find((c: string) => c.startsWith("pt-"));
+    setPaddingTop(ptClass ? Number.parseInt(ptClass.substring(3)) : 0);
+    const prClass = classes.find((c: string) => c.startsWith("pr-"));
+    setPaddingRight(prClass ? Number.parseInt(prClass.substring(3)) : 0);
+    const pbClass = classes.find((c: string) => c.startsWith("pb-"));
+    setPaddingBottom(pbClass ? Number.parseInt(pbClass.substring(3)) : 0);
+    const plClass = classes.find((c: string) => c.startsWith("pl-"));
+    setPaddingLeft(plClass ? Number.parseInt(plClass.substring(3)) : 0);
+    const pxClass = classes.find((c: string) => c.startsWith("px-"));
+    if (pxClass) {
+        const val = Number.parseInt(pxClass.substring(3));
+        if (!prClass) setPaddingRight(val);
+        if (!plClass) setPaddingLeft(val);
+    }
+    const pyClass = classes.find((c: string) => c.startsWith("py-"));
+    if (pyClass) {
+        const val = Number.parseInt(pyClass.substring(3));
+        if (!ptClass) setPaddingTop(val);
+        if (!pbClass) setPaddingBottom(val);
+    }
+    const pClass = classes.find((c: string) => c.startsWith("p-") && !c.startsWith("pt-") && !c.startsWith("pr-") && !c.startsWith("pb-") && !c.startsWith("pl-") && !c.startsWith("px-") && !c.startsWith("py-"));
+    if (pClass) {
+        const val = Number.parseInt(pClass.substring(2));
+        if (!ptClass && !pyClass) setPaddingTop(val);
+        if (!prClass && !pxClass) setPaddingRight(val);
+        if (!pbClass && !pyClass) setPaddingBottom(val);
+        if (!plClass && !pxClass) setPaddingLeft(val);
+    }
+    
+    // ... (Reset margin state based on originalClasses parsing) ...
+    const mtClass = classes.find((c: string) => c.startsWith("mt-"));
+    setMarginTop(mtClass ? Number.parseInt(mtClass.substring(3)) : 0);
+    const mrClass = classes.find((c: string) => c.startsWith("mr-"));
+    setMarginRight(mrClass ? Number.parseInt(mrClass.substring(3)) : 0);
+    const mbClass = classes.find((c: string) => c.startsWith("mb-"));
+    setMarginBottom(mbClass ? Number.parseInt(mbClass.substring(3)) : 0);
+    const mlClass = classes.find((c: string) => c.startsWith("ml-"));
+    setMarginLeft(mlClass ? Number.parseInt(mlClass.substring(3)) : 0);
+    const mxClass = classes.find((c: string) => c.startsWith("mx-"));
+    if (mxClass) {
+        const val = Number.parseInt(mxClass.substring(3));
+        if (!mrClass) setMarginRight(val);
+        if (!mlClass) setMarginLeft(val);
+    }
+    const myClass = classes.find((c: string) => c.startsWith("my-"));
+    if (myClass) {
+        const val = Number.parseInt(myClass.substring(3));
+        if (!mtClass) setMarginTop(val);
+        if (!mbClass) setMarginBottom(val);
+    }
+    const mClass = classes.find((c: string) => c.startsWith("m-") && !c.startsWith("mt-") && !c.startsWith("mr-") && !c.startsWith("mb-") && !c.startsWith("ml-") && !c.startsWith("mx-") && !c.startsWith("my-"));
+    if (mClass) {
+        const val = Number.parseInt(mClass.substring(2));
+        if (!mtClass && !myClass) setMarginTop(val);
+        if (!mrClass && !mxClass) setMarginRight(val);
+        if (!mbClass && !myClass) setMarginBottom(val);
+        if (!mlClass && !mxClass) setMarginLeft(val);
+    }
+
+    // Extract Display
+    const displayClass = classes.find((c: string) => displayOptions.some(option => option.value === c))
+    setDisplay(displayClass || "")
+
+    // Extract Flex Direction
+    const flexDirectionClass = classes.find((c: string) => flexDirectionOptions.some(option => option.value === c))
+    setFlexDirection(flexDirectionClass || "")
+
+    // Extract Justify Content
+    const justifyContentClass = classes.find((c: string) => justifyOptions.some(option => option.value === c))
+    setJustifyContent(justifyContentClass || "")
+
+    // Extract Align Items
+    const alignItemsClass = classes.find((c: string) => alignOptions.some(option => option.value === c))
+    setAlignItems(alignItemsClass || "")
+
+    // Extract Border Radius
+    const borderRadiusClass = classes.find((c: string) => borderRadiusOptions.some(option => option.value === c))
+    setBorderRadius(borderRadiusClass || "")
+
+    // Extract Shadow
+    const shadowClass = classes.find((c: string) => shadowOptions.some(option => option.value === c))
+    setShadow(shadowClass || "")
+
+    // Check for Border (simplified)
+    setHasBorder(classes.includes("border"))
+
+    console.log("重置为原始类名完成");
+  };
 
   // Apply changes immediately when properties change
   useEffect(() => {
     // Only apply immediate changes if the editor is open and element exists
-    if (element && popupRef.current) {
+    if (targetElement && popupRef.current) {
       const newClassString = updateClasses()
-      element.className = newClassString
+      targetElement.className = newClassString
     }
   }, [
     textColor,

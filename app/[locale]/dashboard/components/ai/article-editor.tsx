@@ -34,6 +34,57 @@ import {
 } from "@/components/ui/dropdown-menu"
 import html2canvas from 'html2canvas'
 
+// Helper function to inject styles into an iframe
+const injectStylesIntoIframe = (iframeDoc: Document, styles: string): HTMLStyleElement => {
+  const styleElement = iframeDoc.createElement('style');
+  styleElement.textContent = styles;
+  styleElement.id = 'editor-injected-styles'; // Add an ID for easy removal
+  iframeDoc.head.appendChild(styleElement);
+  return styleElement;
+};
+
+// Helper function to remove injected styles
+const removeInjectedStylesFromIframe = (iframeDoc: Document) => {
+  const styleElement = iframeDoc.getElementById('editor-injected-styles');
+  if (styleElement) {
+    iframeDoc.head.removeChild(styleElement);
+  }
+};
+
+// Selection mode styles to be injected
+const selectionModeStyles = `
+  body.selecting {
+    cursor: default; /* Default cursor for body */
+    position: relative;
+    z-index: 2;
+  }
+  body.selecting * {
+    pointer-events: auto !important;
+    cursor: pointer !important; /* Make all elements clickable */
+  }
+  body.selecting [data-no-select],
+  body.selecting [data-no-select] * {
+    pointer-events: none !important; /* Disable events for non-selectable */
+    cursor: not-allowed !important;
+  }
+  body.selecting *:not([data-no-select]):not([data-no-select] *):hover {
+    outline: 2px dashed #3b82f6 !important;
+    outline-offset: 2px !important;
+    background-color: rgba(59, 130, 246, 0.05) !important;
+    position: relative !important;
+    z-index: 3 !important;
+  }
+  /* Ensure text nodes can trigger events on their parent */
+  body.selecting p, body.selecting span, body.selecting div,
+  body.selecting h1, body.selecting h2, body.selecting h3,
+  body.selecting h4, body.selecting h5, body.selecting h6,
+  body.selecting li, body.selecting a, body.selecting strong,
+  body.selecting em, body.selecting code {
+    position: relative !important; /* Needed for z-index */
+    z-index: 1 !important;
+  }
+`;
+
 interface ArticleEditorProps {
   initialContent?: string
   onSave?: (content: string) => void
@@ -95,481 +146,127 @@ export default function ArticleEditor({
   // 添加对内容容器的引用
   const contentContainerRef = useRef<HTMLDivElement>(null);
 
-  // 基本的元素交互函数
-  const handleSelectElement = useCallback((element: HTMLElement, position: { x: number; y: number }) => {
-    // 跳过不可选择的元素
-    if (element.hasAttribute('data-no-select') || element.closest('[data-no-select]')) {
-      return;
-    }
-    
-    // 确定最合适的可选择元素
-    let bestElement = element;
-    
-    // 检查是否选择了文本节点或非常小的元素
-    const rect = bestElement.getBoundingClientRect();
-    if (rect.width < 10 || rect.height < 10 || 
-        bestElement.tagName === 'SPAN' && bestElement.textContent?.trim().length === 0) {
-      console.log('选择了非常小的元素或空文本，使用父元素');
-      
-      // 尝试选择父元素（不超过3级）
-      let parent = bestElement.parentElement;
-      let level = 0;
-      while (parent && level < 3) {
-        if (!parent.classList.contains('content-container') && 
-            !parent.hasAttribute('data-no-select') && 
-            !parent.closest('[data-no-select]')) {
-          bestElement = parent;
-          console.log('使用父元素:', parent.tagName, parent.className);
-          break;
-        }
-        parent = parent.parentElement;
-        level++;
-      }
-    }
-    
-    // 构建元素的路径（使用内联实现，不调用getElementPath函数）
-    let elementPath = '';
-    let current = bestElement;
-    while (current && !current.hasAttribute('data-content-container')) {
-      let selector = current.tagName.toLowerCase();
-      if (current.className) {
-        selector += '.' + current.className.replace(/\s+/g, '.');
-      }
-      if (current.parentElement) {
-        const siblings = Array.from(current.parentElement.children);
-        const index = siblings.indexOf(current);
-        selector += `:nth-child(${index + 1})`;
-      }
-      elementPath = selector + (elementPath ? ' > ' + elementPath : '');
-      current = current.parentElement as HTMLElement;
-    }
-    
-    // 使用当前元素的实际类名，确保与DOM同步
-    const currentClassNames = bestElement.className || "";
-    
-    // 设置选中元素
-    setSelectedElement(bestElement);
-    setSelectedElementPath(elementPath);
-    setOriginalClasses(currentClassNames);
-    setIsSelecting(false);
-    
-    // 设置编辑器位置
-    setEditorPosition({ 
-      x: position.x, 
-      y: position.y 
-    });
-    
-    // 显示编辑器
-    setShowEditor(true);
-    
-    console.log('选中元素:', {
-      path: elementPath,
-      tagName: bestElement.tagName,
-      className: currentClassNames,
-    });
-  }, []);
+  // Ref for the iframe
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  // Ref to store iframe document for easier access in callbacks
+  const iframeDocRef = useRef<Document | null>(null);
 
-  const handleStartSelecting = useCallback(() => {
-    // 先清除可能的旧状态
-    setSelectedElement(null);
-    setSelectedElementPath(null);
-    setShowEditor(false);
-    
-    // 确保当前DOM与HTML同步
-    if (contentContainerRef.current) {
-      const container = contentContainerRef.current.querySelector('[data-selector-layer], .html-content-wrapper');
-      if (container) {
-        // 强制使用最新的HTML内容
-        container.innerHTML = localHtmlContent;
-      }
-    }
-    
-    // 添加小延时以确保DOM已更新
-    setTimeout(() => {
-      setIsSelecting(true);
-      
-      console.log('开始选择模式:', {
-        contentContainer: contentContainerRef.current ? true : false,
-        selectorReady: true
-      });
-    }, 100);
-  }, [localHtmlContent]);
+  // --- Path Functions ---
 
-  const handleCancelSelecting = useCallback(() => {
-    setIsSelecting(false);
-    
-    // 添加小延时确保状态更新
-    setTimeout(() => {
-      setSelectedElement(null);
-      setShowEditor(false);
-      
-      console.log('取消选择模式');
-    }, 50);
-  }, []);
-
-  const handleCloseEditor = useCallback(() => {
-    setShowEditor(false);
-    // Keep a short delay before removing element reference to avoid flicker
-    setTimeout(() => {
-      setSelectedElement(null);
-    }, 100);
-  }, []);
-  
-  // 获取元素的唯一路径，用于后续识别
-  const getElementPath = useCallback((element: HTMLElement): string => {
+  // Modified getElementPath for more logging
+  const getElementPath = useCallback((element: HTMLElement, contextDoc: Document = document): string => {
     let path = [];
-    let current = element;
+    let current: HTMLElement | null = element;
     
-    // 向上构建路径，直到找到内容容器
-    while (current && !current.hasAttribute('data-content-container')) {
-      // 构建当前元素的选择器
+    while (current && current !== contextDoc.body && current !== contextDoc.documentElement) {
       let selector = current.tagName.toLowerCase();
-      
-      // 添加类名（如果有）
-      if (current.className) {
-        selector += '.' + current.className.replace(/\s+/g, '.');
-      }
-      
-      // 添加元素在父元素中的索引
-      if (current.parentElement) {
-        const siblings = Array.from(current.parentElement.children);
-        const index = siblings.indexOf(current);
-        selector += `:nth-child(${index + 1})`;
+      if (current.id) {
+          selector += `#${current.id}`;
+          // Potentially break early if ID is unique enough
+      } else {
+         if (current.className) {
+           // Keep classes simple for stability
+           const stableClasses = current.className.split(' ')
+             .filter(cls => cls && !cls.startsWith('hover:') && !cls.startsWith('focus:') && !cls.includes(':')) // Avoid stateful/complex classes
+             .join('.');
+           if(stableClasses) selector += '.' + stableClasses;
+         }
+         if (current.parentElement) {
+           const siblings = Array.from(current.parentElement.children);
+           // Filter siblings by the same tag name before getting index
+           const sameTagSiblings = siblings.filter(sib => sib.tagName === current.tagName);
+           const index = sameTagSiblings.indexOf(current);
+           if (sameTagSiblings.length > 1) { // Only add nth-of-type if necessary
+               selector += `:nth-of-type(${index + 1})`;
+           }
+         }
       }
       
       path.unshift(selector);
-      current = current.parentElement as HTMLElement;
+      current = current.parentElement as HTMLElement | null;
     }
-    
-    return path.join(' > ');
+    const finalPath = path.join(' > ');
+    console.log("Generated Path:", finalPath, "for element:", element);
+    return finalPath;
   }, []);
-  
-  // 根据路径查找元素
-  const findElementByPath = useCallback((path: string, container: HTMLElement): HTMLElement | null => {
+
+  // Modified findElementByPath for more logging and fallback mechanisms
+  const findElementByPath = useCallback((path: string, container: Document | HTMLElement): HTMLElement | null => {
+    console.log(`findElementByPath: Attempting to find path: "${path}"`);
+    
     try {
-      const selectors = path.split(' > ');
-      let current = container;
+      const root = container instanceof Document ? container.body : container;
+      if (!root) {
+        console.error('findElementByPath: Root element (body or container) not found.');
+        return null;
+      }
       
-      for (let i = 0; i < selectors.length; i++) {
-        const selector = selectors[i];
-        // 分解选择器，提取标签、类名和索引
-        const [tagAndClass, nthChild] = selector.split(':');
-        const [tag, ...classes] = tagAndClass.split('.');
+      // Try the exact path first
+      let foundElement = root.querySelector(path) as HTMLElement | null;
+      
+      // If that fails, try with simplified path (fallback mechanism)
+      if (!foundElement) {
+        console.warn(`findElementByPath: Primary query failed for path: "${path}". Trying fallbacks...`);
         
-        // 首先找到所有匹配标签的元素
-        let candidates = Array.from(current.children).filter(
-          child => child.tagName.toLowerCase() === tag
-        ) as HTMLElement[];
-        
-        // 如果有类名，进一步过滤
-        if (classes.length > 0) {
-          candidates = candidates.filter(el => {
-            return classes.every(cls => el.classList.contains(cls));
-          });
+        // Fallback 1: Try removing nth-of-type selectors which can be brittle
+        const simplifiedPath = path.replace(/:nth-of-type\(\d+\)/g, '');
+        if (simplifiedPath !== path) {
+          console.log(`findElementByPath: Trying simplified path: "${simplifiedPath}"`);
+          foundElement = root.querySelector(simplifiedPath) as HTMLElement | null;
         }
         
-        // 如果有nth-child，使用索引
-        if (nthChild) {
-          const indexMatch = nthChild.match(/nth-child\((\d+)\)/);
-          if (indexMatch && indexMatch[1]) {
-            const index = parseInt(indexMatch[1]) - 1;
-            if (index >= 0 && index < candidates.length) {
-              current = candidates[index];
-              continue;
+        // Fallback 2: Try with tag names only (most basic)
+        if (!foundElement) {
+          const tagOnlyPath = path.split(' > ')
+            .map(part => part.split('.')[0].split('#')[0].split(':')[0])
+            .join(' > ');
+            
+          if (tagOnlyPath !== path && tagOnlyPath !== simplifiedPath) {
+            console.log(`findElementByPath: Trying tag-only path: "${tagOnlyPath}"`);
+            foundElement = root.querySelector(tagOnlyPath) as HTMLElement | null;
+          }
+        }
+
+        // Fallback 3: Try individual segments to find closest match
+        if (!foundElement) {
+          const segments = path.split(' > ');
+          // Try progressively shorter path segments, starting from the end
+          for (let i = segments.length - 1; i > 0; i--) {
+            const partialPath = segments.slice(0, i).join(' > ');
+            console.log(`findElementByPath: Trying partial path: "${partialPath}"`);
+            const partialElement = root.querySelector(partialPath) as HTMLElement | null;
+            
+            if (partialElement) {
+              // Found a partial match, now try to find child that most closely matches
+              const remainingSegments = segments.slice(i);
+              const lastSegment = remainingSegments[remainingSegments.length - 1];
+              const tagName = lastSegment.split('.')[0].split('#')[0].split(':')[0];
+              
+              // Find all elements of target type within the partial element
+              const candidates = Array.from(partialElement.querySelectorAll(tagName));
+              if (candidates.length > 0) {
+                console.log(`findElementByPath: Found ${candidates.length} potential elements`);
+                // Just use the first matching element of this type as a fallback
+                foundElement = candidates[0] as HTMLElement;
+                break;
+              }
             }
           }
         }
-        
-        // 如果只有一个候选，使用它
-        if (candidates.length === 1) {
-          current = candidates[0];
-        } else if (candidates.length > 1) {
-          // 多个候选时，记录警告并使用第一个
-          console.warn(`多个元素匹配选择器 ${selector}，使用第一个`);
-          current = candidates[0];
-        } else {
-          // 没有找到匹配的元素
-          console.error(`无法找到匹配选择器 ${selector} 的元素`);
-          return null;
-        }
       }
       
-      return current;
+      if (foundElement) {
+        console.log(`findElementByPath: Successfully found element for path: "${path}"`, foundElement);
+      } else {
+        console.error(`findElementByPath: All attempts to find element failed for path: "${path}"`);
+      }
+      
+      return foundElement;
     } catch (error) {
-      console.error('根据路径查找元素出错:', error);
+      console.error(`findElementByPath: Error querying path: "${path}"`, error);
       return null;
     }
   }, []);
-
-  // 使用捕获阶段更精确地选择元素
-  const renderHtml = useCallback(() => {
-    try {
-      // 简化结构，不再使用双层
-      const wrappedHtml = `
-      <div class="${isSelecting ? 'element-selector-wrapper' : 'html-content-wrapper'}" 
-           ${isSelecting ? 'data-selector-layer="true"' : ''}>
-        ${localHtmlContent}
-      </div>
-      `;
-      const parsed = parse(wrappedHtml);
-      
-      return (
-        <div 
-          ref={contentContainerRef}
-          className="content-container w-full overflow-hidden" 
-          style={{ maxWidth: '100%', position: 'relative' }}
-          data-content-container="true"
-          onClickCapture={(e) => { 
-            if (!isSelecting) return;
-            
-            // 获取点击的元素
-            const target = e.target as HTMLElement;
-            
-            // 检查是否点击了选择器层
-            const isSelectorLayer = target.closest('[data-selector-layer]');
-            if (!isSelectorLayer) {
-              // 如果不是在选择器层点击，则忽略
-              return;
-            }
-            
-            // 忽略容器本身或带有data-no-select属性的元素
-            if (target.classList.contains('content-container') ||
-                target.hasAttribute('data-no-select') || 
-                target.closest('[data-no-select]')) {
-              console.log('元素不可选择');
-              return;
-            }
-            
-            // 确定最合适的可选择元素
-            let bestElement = target;
-            
-            // 检查是否点击了文本节点或非常小的元素
-            const rect = bestElement.getBoundingClientRect();
-            if (rect.width < 10 || rect.height < 10 || 
-                bestElement.tagName === 'SPAN' && bestElement.textContent?.trim().length === 0) {
-              console.log('点击了非常小的元素或空文本，选择父元素');
-              
-              // 尝试选择父元素（不超过3级）
-              let parent = bestElement.parentElement;
-              let level = 0;
-              while (parent && level < 3) {
-                if (!parent.classList.contains('content-container') && 
-                    !parent.hasAttribute('data-no-select') && 
-                    !parent.closest('[data-no-select]')) {
-                  bestElement = parent;
-                  console.log('使用父元素:', parent.tagName, parent.className);
-                  break;
-                }
-                parent = parent.parentElement;
-                level++;
-              }
-            }
-            
-            // 如果元素没有样式类，尝试找到具有样式类的父元素
-            if (!bestElement.className && bestElement.parentElement) {
-              let styleParent = bestElement.parentElement;
-              if (styleParent.className && 
-                  !styleParent.classList.contains('content-container') && 
-                  !styleParent.hasAttribute('data-no-select')) {
-                console.log('选择具有样式类的父元素:', styleParent.tagName, styleParent.className);
-                bestElement = styleParent;
-              }
-            }
-            
-            // 构建元素的路径
-            let elementPath = '';
-            let current = bestElement;
-            while (current && !current.hasAttribute('data-content-container')) {
-              let selector = current.tagName.toLowerCase();
-              if (current.className) {
-                selector += '.' + current.className.replace(/\s+/g, '.');
-              }
-              if (current.parentElement) {
-                const siblings = Array.from(current.parentElement.children);
-                const index = siblings.indexOf(current);
-                selector += `:nth-child(${index + 1})`;
-              }
-              elementPath = selector + (elementPath ? ' > ' + elementPath : '');
-              current = current.parentElement as HTMLElement;
-            }
-            
-            // 使用当前实际的类名
-            const currentClassNames = bestElement.className || "";
-            
-            console.log('选中元素路径:', elementPath);
-            console.log('最终选中元素:', {
-              tagName: bestElement.tagName,
-              className: currentClassNames,
-              text: bestElement.textContent?.substring(0, 20),
-              html: bestElement.outerHTML.substring(0, 100)
-            });
-            
-            // 保存选中元素的路径和元素本身
-            setSelectedElementPath(elementPath);
-            setSelectedElement(bestElement);
-            setOriginalClasses(currentClassNames);
-            
-            // 获取元素位置
-            const elementRect = bestElement.getBoundingClientRect();
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-
-            // 计算最佳位置 - 优先放在元素右侧，如果空间不足则放左侧
-            let posX = elementRect.right + 10;
-            // 检查是否会超出右边界
-            if (posX + 340 > windowWidth) {
-              // 如果放右边会超出，尝试放左边
-              posX = Math.max(10, elementRect.left - 350);
-              // 如果左右都放不下，就居中显示
-              if (posX < 0) {
-                posX = Math.max(10, (windowWidth - 340) / 2);
-              }
-            }
-
-            // 计算最佳Y位置 - 尽量与元素顶部对齐，但不超出上下边界
-            let posY = elementRect.top;
-            // 确保不超出顶部
-            posY = Math.max(10, posY);
-            // 确保不超出底部(考虑编辑器高度约500px)
-            if (posY + 500 > windowHeight) {
-              posY = Math.max(10, windowHeight - 520);
-            }
-
-            const position = {
-              x: posX,
-              y: posY
-            };
-            
-            // 设置位置和显示编辑器
-            setEditorPosition(position);
-            setShowEditor(true);
-            setIsSelecting(false);
-          }}
-          onMouseOverCapture={(e) => { 
-            if (!isSelecting) return;
-            
-            // 只在选择器层中高亮元素
-            const target = e.target as HTMLElement;
-            const isSelectorLayer = target.closest('[data-selector-layer]');
-            if (!isSelectorLayer) return;
-            
-            if (!target.classList.contains('content-container') && 
-                !target.hasAttribute('data-no-select') && 
-                !target.closest('[data-no-select]')) {
-              // 显示元素轮廓
-              target.style.outline = '2px dashed #3b82f6';
-              target.style.outlineOffset = '2px';
-                target.style.cursor = 'pointer';
-            }
-          }}
-          onMouseOutCapture={(e) => { 
-            // 只清除选择器层中的高亮
-            const target = e.target as HTMLElement;
-            const isSelectorLayer = target.closest('[data-selector-layer]');
-            if (!isSelectorLayer) return;
-            
-            if (!target.classList.contains('content-container')) {
-              target.style.outline = '';
-              target.style.outlineOffset = '';
-              target.style.cursor = '';
-            }
-          }}
-        >
-          <div key={`render-key-${renderKey}`}>
-          {parsed}
-          </div>
-        </div>
-      );
-    } catch (error) {
-      console.error("HTML parsing error:", error);
-      return <div className="text-red-500">HTML parsing error: {String(error)}</div>;
-    }
-  }, [localHtmlContent, isSelecting, contentContainerRef, renderKey]);
-  
-  // 更新为更精确的handleApplyChanges函数，适应单层结构
-  const handleApplyChanges = useCallback((newClasses: string) => {
-    if (selectedElement && selectedElementPath) {
-      setProcessingFeedback('正在应用样式变更...');
-      
-      // 记录变更历史，使用路径作为元素标识
-      setAppliedChanges((prev) => [
-        ...prev,
-        {
-          element: selectedElementPath,
-          before: originalClasses,
-          after: newClasses,
-        },
-      ]);
-      
-      try {
-        // 1. 更新当前DOM中的元素
-      selectedElement.className = newClasses;
-      
-        // 2. 更新HTML字符串，使用精确替换
-        // 为了保证更新准确性，直接从DOM中获取更新后的HTML
-        if (contentContainerRef.current) {
-          const container = contentContainerRef.current.querySelector('[data-selector-layer], .html-content-wrapper');
-          if (container) {
-            // 获取更新后的HTML
-            const updatedHtml = container.innerHTML;
-            
-            // 更新HTML内容状态
-          setLocalHtmlContent(updatedHtml);
-            // 强制重新渲染
-          setRenderKey(prev => prev + 1);
-            // 保存到本地存储
-          saveHtmlToLocalStorage(updatedHtml);
-          
-            console.log('通过DOM获取并更新HTML成功');
-            setProcessingFeedback('样式应用成功');
-        } else {
-            console.error('无法找到内容容器');
-            setProcessingFeedback('无法找到内容容器');
-          }
-        } else {
-          console.error('无法获取内容容器引用');
-          setProcessingFeedback('应用更改失败');
-        }
-      } catch (error) {
-        console.error('更新HTML时出错:', error);
-        setProcessingFeedback('应用更改时出错');
-      } finally {
-        // 清理反馈
-        setTimeout(() => setProcessingFeedback(null), 2000);
-        // 关闭编辑器
-        setShowEditor(false);
-        // 重置选择状态
-        setSelectedElement(null);
-        setSelectedElementPath(null);
-      }
-    } else {
-      console.warn("没有选中元素，无法应用更改");
-      setProcessingFeedback('没有选中元素');
-    }
-  }, [selectedElement, selectedElementPath, originalClasses, contentContainerRef]);
-
-  // 添加一个函数来强制重新渲染HTML内容
-  const refreshContent = useCallback(() => {
-    if (contentContainerRef.current) {
-      // 取消选择模式
-      setIsSelecting(false);
-      // 强制重新解析和渲染HTML内容
-      setRenderKey(prev => prev + 1);
-    }
-  }, []);
-  
-  // 每次应用更改后确保重新渲染
-  useEffect(() => {
-    if (renderKey > 0) {
-      // 确保在DOM更新后重新应用事件监听
-      const timer = setTimeout(() => {
-        // 确保重新初始化所有事件处理和状态
-        console.log('重新初始化内容完成，renderKey:', renderKey);
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [renderKey]);
 
   // Toggle selection mode
   useEffect(() => {
@@ -792,156 +489,49 @@ export default function ArticleEditor({
   // 改进下载HTML功能，添加PPT模式下的样式
   const handleDownloadHtml = () => {
     try {
-      // 创建Blob对象，根据当前活动的预览标签页使用不同的样式
+      if (!iframeRef.current || !iframeRef.current.contentDocument) {
+             throw new Error("Iframe content not available");
+        }
+        const iframeDoc = iframeRef.current.contentDocument;
+        // Construct full HTML document using the iframe's content
+        const currentHtml = iframeDoc.documentElement.outerHTML;
+
+      // Basic styles (can be expanded)
+      const styles = `
+        body { font-family: sans-serif; line-height: 1.6; padding: 1em; }
+        img { max-width: 100%; height: auto; }
+        .prose { max-width: 65ch; margin: auto; } /* Example style */
+        /* Add more styles as needed */
+      `;
+
       const htmlContent = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chinese Learning - 中国古代发明</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      padding: 1rem;
-      max-width: ${activePreviewTab === "ppt" ? "1200px" : "none"};
-      margin: 0 auto;
-      background-color: #f9f9f9;
-    }
-    
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 4px;
-    }
-    
-    h1, h2, h3 {
-      color: #222;
-      margin-top: 1.5em;
-      margin-bottom: 0.5em;
-    }
-    
-    h1 {
-      font-size: 2.25rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    
-    .content-wrapper {
-      background-color: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    /* PPT模式特定样式 */
-    ${activePreviewTab === "ppt" ? `
-    .flex {
-      display: flex;
-    }
-    
-    .justify-between {
-      justify-content: space-between;
-    }
-    
-    .items-center {
-      align-items: center;
-    }
-    
-    .grid {
-      display: grid;
-    }
-    
-    .grid-cols-2, .grid-cols-3, .grid-cols-4 {
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-    }
-    
-    .border {
-      border: 1px solid #e5e7eb;
-    }
-    
-    .rounded-md {
-      border-radius: 0.375rem;
-    }
-    
-    .p-4 {
-      padding: 1rem;
-    }
-    
-    .mb-8 {
-      margin-bottom: 2rem;
-    }
-    
-    .bg-white {
-      background-color: white;
-    }
-    
-    .gap-4 {
-      gap: 1rem;
-    }
-    
-    .prose {
-      max-width: 65ch;
-      color: #374151;
-    }
-    
-    .prose a {
-      color: #2563eb;
-      text-decoration: underline;
-    }
-    
-    .text-red-500 {
-      color: #ef4444;
-    }
-    
-    .text-blue-500 {
-      color: #3b82f6;
-    }
-    
-    .text-green-500 {
-      color: #10b981;
-    }
-    
-    .text-yellow-500 {
-      color: #f59e0b;
-    }
-    ` : ''}
-  </style>
+  <title>Generated Content</title>
+  <style>${styles}</style>
 </head>
 <body>
-  <div class="content-wrapper">
-    ${localHtmlContent}
-  </div>
+  ${iframeDoc.body.innerHTML} 
 </body>
 </html>`;
+      // Or potentially use the full document: const htmlContent = currentHtml;
 
       const blob = new Blob([htmlContent], { type: 'text/html' });
-      
-      // 创建下载链接
       const downloadLink = document.createElement('a');
       downloadLink.href = URL.createObjectURL(blob);
-      
-      // 根据当前标签页设置不同的文件名
-      const filePrefix = activePreviewTab === "ppt" ? "presentation" : "article";
-      downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.html`;
-      
-      // 触发下载
+      downloadLink.download = `content-${new Date().toISOString().slice(0, 10)}.html`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
-      
-      // 清理
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(downloadLink.href);
-      
-      console.log('成功下载HTML内容');
-      setProcessingFeedback('HTML内容已下载');
-      setTimeout(() => setProcessingFeedback(null), 2000);
+
+      setProcessingFeedback('HTML downloaded');
     } catch (error) {
-      console.error('下载HTML时出错:', error);
-      setProcessingFeedback('下载失败');
-      setTimeout(() => setProcessingFeedback(null), 2000);
+      console.error('Error downloading HTML:', error);
+      setProcessingFeedback(`Download failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+       setTimeout(() => setProcessingFeedback(null), 2000);
     }
   };
 
@@ -1032,6 +622,381 @@ export default function ArticleEditor({
     }
   };
 
+  // --- Iframe Setup and Event Handling ---
+
+  // Function to set up listeners inside the iframe
+  const setupIframeListeners = useCallback(() => {
+    if (!iframeRef.current || !iframeRef.current.contentWindow || !iframeRef.current.contentDocument) {
+      console.log("Iframe not ready for listeners yet");
+      return;
+    }
+    const iframeDoc = iframeRef.current.contentDocument;
+    iframeDocRef.current = iframeDoc; // Store for use in handlers
+
+    if (isSelecting) {
+      console.log("Setting up iframe listeners for selection");
+      iframeDoc.body.classList.add('selecting');
+      injectStylesIntoIframe(iframeDoc, selectionModeStyles);
+
+      // Define handlers within the scope where iframeDoc is current
+      const handleIframeClick = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+
+        if (target.hasAttribute('data-no-select') || target.closest('[data-no-select]')) {
+          console.log('Iframe element not selectable');
+          return;
+        }
+
+        // 添加更多调试信息
+        console.log('原始点击元素:', {
+          tagName: target.tagName,
+          className: target.className,
+          id: target.id,
+          textContent: target.textContent?.substring(0, 20) || '(empty)'
+        });
+
+        let bestElement = target;
+        
+        // 保持最原始的选择逻辑，避免过度选择父元素
+        // 只在极少数情况下选择父元素（几乎没有内容或尺寸的元素）
+        const rect = bestElement.getBoundingClientRect();
+        if ((rect.width === 0 && rect.height === 0) || 
+            (bestElement.tagName === 'SPAN' && !bestElement.textContent?.trim())) {
+          console.log('元素完全空白，尝试查找有意义的父元素');
+          
+          let parent = bestElement.parentElement;
+          if (parent && !parent.hasAttribute('data-no-select')) {
+            bestElement = parent;
+            console.log('选择父元素:', parent.tagName, parent.className);
+          }
+        }
+
+        // Simplified selection logic for iframe, can add heuristics back if needed
+        console.log('最终选择的元素:', bestElement.tagName, bestElement.className);
+
+        const elementPath = getElementPath(bestElement, iframeDoc);
+        const currentClassNames = bestElement.className || "";
+
+        console.log('Selected element path (iframe):', elementPath);
+
+        setSelectedElementPath(elementPath);
+        setSelectedElement(bestElement); // Store the actual iframe element reference
+        setOriginalClasses(currentClassNames);
+
+        // Calculate position relative to main window
+        const iframeRect = iframeRef.current!.getBoundingClientRect();
+        const elementRect = bestElement.getBoundingClientRect(); // Relative to iframe viewport
+
+        const editorWidth = 340; // Approx editor width
+        const editorHeight = 500; // Approx editor height
+        const padding = 10;
+
+        // Calculate position relative to main window viewport
+        let idealX = iframeRect.left + elementRect.right + padding;
+        let idealY = iframeRect.top + elementRect.top;
+
+        // Adjust X position
+        if (idealX + editorWidth > window.innerWidth - padding) { // Check right boundary
+            idealX = iframeRect.left + elementRect.left - editorWidth - padding; // Try left
+            if (idealX < padding) { // If left also fails, center horizontally
+                idealX = (window.innerWidth - editorWidth) / 2;
+            }
+        }
+        idealX = Math.max(padding, idealX); // Ensure within left boundary
+
+        // Adjust Y position
+        if (idealY + editorHeight > window.innerHeight - padding) { // Check bottom boundary
+            idealY = window.innerHeight - editorHeight - padding; // Align to bottom
+        }
+        idealY = Math.max(padding, idealY); // Ensure within top boundary
+
+
+        setEditorPosition({ x: idealX, y: idealY });
+        setShowEditor(true);
+        setIsSelecting(false); // Turn off selection mode
+      };
+
+      const handleIframeMouseOver = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.hasAttribute('data-no-select') || target.closest('[data-no-select]')) {
+           target.style.cursor = 'not-allowed';
+           return;
+        }
+        // Styling is now handled by injected CSS :hover rule
+         target.style.cursor = 'pointer';
+      };
+
+      const handleIframeMouseOut = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+         target.style.cursor = ''; // Reset cursor
+        // Outline is removed automatically by CSS
+      };
+
+      iframeDoc.body.addEventListener('click', handleIframeClick, true); // Use capture phase
+      iframeDoc.body.addEventListener('mouseover', handleIframeMouseOver);
+      iframeDoc.body.addEventListener('mouseout', handleIframeMouseOut);
+
+      // Store handlers to remove them later
+      (iframeRef.current as any).__editor_listeners = {
+        click: handleIframeClick,
+        mouseover: handleIframeMouseOver,
+        mouseout: handleIframeMouseOut,
+      };
+
+    } else {
+      // Cleanup listeners and styles if selection mode is off
+      cleanupIframeListeners();
+    }
+  }, [isSelecting, getElementPath]); // Add dependencies
+
+  // Function to clean up listeners and styles
+  const cleanupIframeListeners = () => {
+    if (iframeRef.current && (iframeRef.current as any).__editor_listeners && iframeDocRef.current) {
+      console.log("Cleaning up iframe listeners");
+      const listeners = (iframeRef.current as any).__editor_listeners;
+      const iframeDoc = iframeDocRef.current;
+      iframeDoc.body.removeEventListener('click', listeners.click, true);
+      iframeDoc.body.removeEventListener('mouseover', listeners.mouseover);
+      iframeDoc.body.removeEventListener('mouseout', listeners.mouseout);
+      iframeDoc.body.classList.remove('selecting');
+      removeInjectedStylesFromIframe(iframeDoc);
+      (iframeRef.current as any).__editor_listeners = null; // Clear stored listeners
+      iframeDocRef.current = null; // Clear doc ref
+    }
+  };
+
+  // Effect to setup/cleanup iframe listeners when selection mode changes or iframe loads
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const handleLoad = () => {
+      console.log("Iframe loaded, setting up listeners if needed.");
+       // Small delay to ensure contentDocument is fully accessible after load event
+       setTimeout(() => {
+           if (isSelecting) {
+              setupIframeListeners();
+           }
+       }, 50);
+    };
+
+    if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+      // If already loaded (e.g., on hot reload or quick tab switch)
+      handleLoad();
+    } else {
+      iframe.addEventListener('load', handleLoad);
+    }
+
+    // Trigger setup/cleanup immediately if isSelecting changes while iframe is loaded
+    if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+        if (isSelecting) {
+            setupIframeListeners();
+        } else {
+            cleanupIframeListeners();
+        }
+    }
+
+    return () => {
+      iframe.removeEventListener('load', handleLoad);
+      // Ensure cleanup happens when component unmounts or isSelecting turns false
+      cleanupIframeListeners();
+    };
+  }, [isSelecting, setupIframeListeners]); // setupIframeListeners is memoized by useCallback
+
+  // --- Button Handlers (Early Definitions) ---
+  const handleStartSelecting = useCallback(() => {
+    setSelectedElement(null);
+    setSelectedElementPath(null);
+    setShowEditor(false);
+    setIsSelecting(true);
+    console.log('Starting selection mode (iframe)');
+    // 简单延迟确保DOM更新完成
+    setTimeout(() => {
+      if (iframeRef.current && iframeRef.current.contentDocument) {
+        // 确保iframe加载完成后再设置样式
+        console.log("Selection mode: Adding selecting class to iframe body");
+        const iframeDoc = iframeRef.current.contentDocument;
+        iframeDoc.body.classList.add('selecting');
+        injectStylesIntoIframe(iframeDoc, selectionModeStyles);
+      }
+    }, 100);
+  }, []);
+
+  const handleCancelSelecting = useCallback(() => {
+    setIsSelecting(false);
+    if (iframeRef.current && iframeRef.current.contentDocument) {
+      const iframeDoc = iframeRef.current.contentDocument;
+      iframeDoc.body.classList.remove('selecting');
+      removeInjectedStylesFromIframe(iframeDoc);
+    }
+    setShowEditor(false);
+    setSelectedElement(null);
+    setSelectedElementPath(null);
+    console.log('Canceled selection mode (iframe)');
+  }, []);
+
+  const handleCloseEditor = useCallback(() => {
+    setShowEditor(false);
+    // 保持短延迟以避免闪烁
+    setTimeout(() => {
+      setSelectedElement(null);
+      setSelectedElementPath(null);
+    }, 100);
+  }, []);
+
+  // --- Apply Changes ---
+  const handleApplyChanges = useCallback((newClasses: string) => {
+    if (selectedElementPath && iframeRef.current && iframeRef.current.contentDocument) {
+      setProcessingFeedback('Applying styles...');
+      const iframeDoc = iframeRef.current.contentDocument;
+
+      // Log the path being used
+      console.log('handleApplyChanges: Finding element with path:', selectedElementPath);
+      
+      // Attempt 1: Try direct path first
+      let elementInIframe = findElementByPath(selectedElementPath, iframeDoc);
+      
+      // Attempt 2: Try with freshly generated path
+      if (!elementInIframe && selectedElement) {
+        console.log('handleApplyChanges: Direct path failed, generating fresh path');
+        const freshPath = getElementPath(selectedElement, selectedElement.ownerDocument || document);
+        if (freshPath !== selectedElementPath) {
+          console.log(`handleApplyChanges: Path changed from "${selectedElementPath}" to "${freshPath}"`);
+          elementInIframe = findElementByPath(freshPath, iframeDoc);
+        }
+      }
+      
+      // Attempt 3: Try with tag and class fragment
+      if (!elementInIframe && selectedElement) {
+        console.log('handleApplyChanges: Fresh path failed, trying tag+class fragment');
+        const tagName = selectedElement.tagName.toLowerCase();
+        const classList = originalClasses.split(' ').filter(cls => cls.trim().length > 0);
+        
+        // Try with each class from original classes
+        for (const cls of classList) {
+          if (!cls) continue;
+          const query = `${tagName}[class*="${cls}"]`;
+          console.log(`handleApplyChanges: Trying query: ${query}`);
+          const elements = Array.from(iframeDoc.querySelectorAll(query)) as HTMLElement[];
+          
+          // If we found elements with this class, use the first one
+          if (elements.length > 0) {
+            console.log(`handleApplyChanges: Found ${elements.length} elements with class containing '${cls}'`);
+            elementInIframe = elements[0];
+            break;
+          }
+        }
+      }
+      
+      // Attempt 4: Last-resort - try to find by tag and similar content/attributes
+      if (!elementInIframe && selectedElement) {
+        console.log('handleApplyChanges: Class fragment failed, trying content matching');
+        const tagName = selectedElement.tagName.toLowerCase();
+        const textContent = selectedElement.textContent?.trim().substring(0, 20);
+        const sameTags = Array.from(iframeDoc.querySelectorAll(tagName)) as HTMLElement[];
+        
+        // Try matching by content
+        if (textContent && textContent.length > 0) {
+          console.log(`handleApplyChanges: Looking for ${tagName} with text "${textContent}..."`);
+          const contentMatch = sameTags.find(el => 
+            el.textContent?.includes(textContent) ||
+            el.innerText?.includes(textContent) ||
+            el.innerHTML?.includes(textContent)
+          );
+          
+          if (contentMatch) {
+            console.log('handleApplyChanges: Found element with matching content');
+            elementInIframe = contentMatch;
+          }
+        }
+        
+        // If still not found, try with attributes
+        if (!elementInIframe) {
+          for (const attr of Array.from(selectedElement.attributes)) {
+            if (attr.name !== 'class' && attr.name !== 'style' && attr.value) {
+              console.log(`handleApplyChanges: Looking for ${tagName} with attribute ${attr.name}="${attr.value}"`);
+              const attrMatch = sameTags.find(el => el.getAttribute(attr.name) === attr.value);
+              if (attrMatch) {
+                console.log(`handleApplyChanges: Found element with matching ${attr.name}`);
+                elementInIframe = attrMatch;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (elementInIframe) {
+        // Record change history
+        setAppliedChanges((prev) => [
+          ...prev,
+          { element: selectedElementPath, before: originalClasses, after: newClasses },
+        ]);
+
+        try {
+          // Apply the changes
+          console.log('Applying new class name:', newClasses, 'to element:', elementInIframe);
+          elementInIframe.className = newClasses;
+          
+          // Double-check the class was applied correctly
+          console.log('Element class after update:', elementInIframe.className);
+          if (elementInIframe.className !== newClasses) {
+            console.warn('Class name did not apply correctly, force setting via setAttribute');
+            elementInIframe.setAttribute('class', newClasses);
+          }
+
+          // Update from iframe
+          const updatedHtml = iframeDoc.body.innerHTML;
+          
+          // Update React state and save
+          setLocalHtmlContent(updatedHtml);
+          saveHtmlToLocalStorage(updatedHtml);
+          
+          // Trigger style recalculation
+          const tempStyleElement = document.createElement('style');
+          iframeDoc.head.appendChild(tempStyleElement);
+          setTimeout(() => {
+            iframeDoc.head.removeChild(tempStyleElement);
+          }, 50);
+
+          // Force re-render
+          setRenderKey(prev => prev + 1);
+
+          console.log('Applied changes to iframe element and updated state');
+          setProcessingFeedback('Styles applied successfully');
+
+        } catch (error) {
+          console.error('Error applying changes to iframe:', error);
+          setProcessingFeedback('Error applying styles');
+        } finally {
+          // Cleanup
+          setTimeout(() => setProcessingFeedback(null), 2000);
+          setShowEditor(false);
+          setSelectedElement(null);
+          setSelectedElementPath(null);
+          setIsSelecting(false);
+        }
+      } else {
+        console.error('handleApplyChanges: ERROR - Could not find element in iframe with path:', selectedElementPath);
+        
+        // Special error handling for specific tags that might be problematic
+        const tagMatch = selectedElementPath.match(/^([a-z0-9]+)/i);
+        const tag = tagMatch ? tagMatch[1].toLowerCase() : 'unknown';
+        
+        setProcessingFeedback(`Error: Could not find target element (${tag}) to apply changes.`);
+        
+        // In case of error, try to save the current editor state anyway
+        setTimeout(() => {
+          setProcessingFeedback(null);
+        }, 3000);
+      }
+    } else {
+      console.warn("handleApplyChanges: Cannot apply changes: No element path or iframe not ready.");
+      setProcessingFeedback('Cannot apply changes');
+      setTimeout(() => setProcessingFeedback(null), 2000);
+    }
+  }, [selectedElementPath, originalClasses, findElementByPath, selectedElement, getElementPath, setRenderKey]);
+
   return (
     <div className="article-editor-container border border-neutral-200 rounded-lg shadow-sm bg-base-100 dark:bg-gray-950 dark:border-neutral-800">
       <div className="bg-base-200 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between">
@@ -1071,21 +1036,13 @@ export default function ArticleEditor({
 
           {/* 预览标签页内容 */}
           <TabsContent value="preview" className="h-full m-0 p-0">
-            <div className="h-full preview-content-area">
-              <div className="bg-base-200 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between sticky top-0 z-10" data-no-select>
-                <h3 className="text-sm font-medium" data-no-select>AI 生成预览</h3>
+            <div className="h-full preview-content-area flex flex-col">
+              <div className="bg-base-200 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between sticky top-0 z-10 flex-shrink-0" data-no-select>
+                <h3 className="text-sm font-medium" data-no-select>AI 生成预览 (Iframe)</h3>
                 <div className="flex items-center space-x-2" data-no-select>
-                  {isSelecting && <ElementSelector onSelectElement={handleSelectElement} data-no-select />}
-                  
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 px-2 text-xs"
-                        title="下载选项"
-                        data-no-select
-                      >
+                      <Button variant="outline" size="sm" className="h-7 px-2 text-xs" title="下载选项" data-no-select>
                         <Download className="h-3.5 w-3.5 mr-1" />
                         <span>下载</span>
                       </Button>
@@ -1132,50 +1089,52 @@ export default function ArticleEditor({
                 </div>
               </div>
 
-              <div className="h-[calc(100%-37px)] w-full preview-content-area">
+              <div className="flex-grow w-full relative overflow-hidden">
                 {isGenerating ? (
-                  <div className="h-full w-full flex items-center justify-center">
-                    <div className="flex flex-col items-center">
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-black/50">
+                    <div className="flex flex-col items-center p-4 bg-base-100 dark:bg-gray-800 rounded shadow-lg">
                       <RefreshCw className="h-8 w-8 text-neutral-900 animate-spin mb-2 dark:text-neutral-50" />
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400">正在生成组件...</p>
+                      <p className="text-sm text-neutral-500 dark:text-neutral-400">正在生成内容...</p>
                     </div>
                   </div>
                 ) : (
                   <Tabs value={activePreviewTab} className="h-full">
-                    <TabsContent value="ppt" className="h-full m-0 p-0 markdown-preview-content">
-                      <div className="p-6">
-                        <div className="flex justify-between items-center mb-8" data-no-select>
-                          <h1 className="text-3xl font-bold" data-no-select>Easy Style Editor</h1>
-                          {isSelecting ? (
-                            <Button onClick={handleCancelSelecting} variant="destructive" data-no-select>
-                              Cancel Selection
-                            </Button>
-                          ) : (
-                            <Button onClick={handleStartSelecting} variant="default" data-no-select>
-                              Select Element to Edit
-                            </Button>
-                          )}
+                    <TabsContent value="ppt" className="h-full m-0 p-0">
+                      <div className="h-full flex flex-col">
+                        <div className="p-2 border-b flex justify-end flex-shrink-0">
+                            {isSelecting ? (
+                              <Button onClick={handleCancelSelecting} variant="destructive" size="sm" data-no-select>
+                                Cancel Selection
+                              </Button>
+                            ) : (
+                              <Button onClick={handleStartSelecting} variant="default" size="sm" data-no-select>
+                                Select Element to Edit
+                              </Button>
+                            )}
                         </div>
-                        <div className="border rounded-md p-4 bg-white dark:bg-gray-800 relative" ref={contentContainerRef}>
-                          <div 
-                            className="prose prose-sm dark:prose-invert max-w-none relative"
-                            key={`html-content-${renderKey}`}
-                          >
-                            {renderHtml()}
-                          </div>                          
+                        <div className="flex-grow relative bg-gray-100 dark:bg-gray-800">
+                          <iframe
+                            ref={iframeRef}
+                            key={`iframe-${renderKey}`}
+                            srcDoc={localHtmlContent}
+                            title="HTML Preview"
+                            className="w-full h-full border-0 relative z-10"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                          />
+                          {isSelecting && (
+                              <div className="absolute inset-0 bg-blue-500/10 pointer-events-none z-0 border border-blue-500 animate-pulse" data-no-select>
+                                  <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">Selection Mode Active</span>
+                              </div>
+                          )}
                         </div>
                       </div>
                     </TabsContent>
                     <TabsContent value="html" className="h-full m-0 p-0">
                       <ScrollArea className="h-full w-full">
-                        <div className="p-6">
-                          <div className="flex flex-col gap-4">
-                            <div className="bg-gray-50 dark:bg-gray-900 rounded-md p-4 overflow-auto">
-                              <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-                                {localHtmlContent}
-                              </pre>
-                            </div>
-                          </div>
+                        <div className="p-4">
+                          <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
+                            {localHtmlContent}
+                          </pre>
                         </div>
                       </ScrollArea>
                     </TabsContent>
@@ -1187,10 +1146,10 @@ export default function ArticleEditor({
         </Tabs>
       </div>
 
-      {/* 使用FriendlyEditor */}
-      {showEditor && selectedElement && (
+      {showEditor && selectedElementPath && (
         <FriendlyEditor
-          element={selectedElement}
+          elementPath={selectedElementPath}
+          iframeRef={iframeRef}
           position={editorPosition}
           originalClasses={originalClasses}
           onClose={handleCloseEditor}
@@ -1199,14 +1158,12 @@ export default function ArticleEditor({
         />
       )}
 
-      {/* 处理反馈提示 */}
       {processingFeedback && (
         <div className="processing-feedback">
           {processingFeedback}
         </div>
       )}
     </div>
-
   )
 }
 
