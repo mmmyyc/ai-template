@@ -108,7 +108,7 @@ export default function MarkdownEditor({
   
   // 使用useCallback确保函数不会频繁重建
   const handleContentChange = useCallback((value: string) => {
-    if (onChange) {
+        if (onChange) {
       onChange(value)
     }
   }, [onChange])
@@ -126,13 +126,13 @@ export default function MarkdownEditor({
         const file = target.files[0]
         console.log("开始读取文件:", file.name)
         const reader = new FileReader()
-        reader.onload = (e) => {
+      reader.onload = (e) => {
           console.log("文件读取完成")
           const content = e.target?.result as string
           if (vd && content) {
             console.log("设置编辑器内容")
             vd.setValue(content)
-        if (onChange) {
+          if (onChange) {
               onChange(content)
             }
           } else {
@@ -289,13 +289,13 @@ export default function MarkdownEditor({
         </Button>
         
         {/* Settings Popover */}
-        <Popover>
-          <PopoverTrigger asChild>
+          <Popover>
+            <PopoverTrigger asChild>
             <Button variant="outline" size="icon" className="h-8 w-8">
               <Settings className="h-4 w-4" />
               <span className="sr-only">AI 设置</span>
-            </Button>
-          </PopoverTrigger>
+              </Button>
+            </PopoverTrigger>
           <PopoverContent className="w-60">
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -350,11 +350,11 @@ export default function MarkdownEditor({
                   </Select>
                 </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-    
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        
       {/* Vditor编辑器容器 - 使用ContextMenu包装 */}
       <ContextMenu>
         <ContextMenuTrigger asChild>

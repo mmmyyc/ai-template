@@ -88,7 +88,7 @@ const selectionModeStyles = `
 interface ArticleEditorProps {
   initialContent?: string
   onSave?: (content: string) => void
-  onAIAction?: (selectedText: string) => Promise<void>
+  onAIAction?: (selectedText: string, language: string, style: string) => Promise<void>
   isGenerating?: boolean
   generatedComponentCode?: string
   htmlContent?: string
