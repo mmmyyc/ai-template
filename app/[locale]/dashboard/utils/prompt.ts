@@ -4,7 +4,7 @@ export const prompt = (language: string, style: string) => `
 目标：创建一个单页HTML文件，作为演示文稿（如PowerPoint）中的一页幻灯片。请严格按照以下规范执行。
 
 ## 核心任务
-根据我提供的“内容”部分，生成一个信息丰富且视觉吸引人的HTML幻灯片。
+根据我提供的"内容"部分，生成一个信息丰富且视觉吸引人的HTML幻灯片。
 
 ## 语言选项
 * 演示文稿语言：${language}
@@ -46,8 +46,12 @@ export const prompt = (language: string, style: string) => `
 ## 技术规范
 1.  **技术栈**：纯HTML、CSS。如果需要复杂动画或交互，可谨慎使用少量内嵌JavaScript。
 2.  **依赖**：尽量避免外部CSS或JS文件。如需使用字体或图标库（如Font Awesome），可通过CDN链接引入。
-3.  **代码质量**：生成结构清晰、语义化的HTML。CSS应组织良好，并添加必要的中文注释。
-4.  **兼容性**：确保在主流现代浏览器（Chrome, Firefox, Edge, Safari）中表现一致。
+3.  **CDN 引入 (必需)**: 为了确保样式和图标正确显示，**必须**在生成的 HTML 的 \`<head>\` 部分包含以下 CDN 链接：
+    *   Tailwind CSS: \`<script src=\"https://cdn.tailwindcss.com\"></script>\`
+    *   Font Awesome: \`<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\`
+    *   Google Fonts (Noto Sans SC & Noto Serif SC): \`<link href=\"https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap\" rel=\"stylesheet\">\`
+4.  **代码质量**：生成结构清晰、语义化的HTML。CSS应组织良好，并添加必要的中文注释。
+5.  **兼容性**：确保在主流现代浏览器（Chrome, Firefox, Edge, Safari）中表现一致。
 
 ## 输出要求
 *   **直接输出HTML**：只返回完整的HTML代码，不要包含任何额外的解释、说明或Markdown标记。
