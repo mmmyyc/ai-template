@@ -22,10 +22,11 @@ export const prompt = (language: string, style: string) => `
     *   **副标题/摘要**：如果内容允许，提取一个简洁的副标题或摘要。
     *   **核心要点**：识别并提取3-5个关键论点、步骤或信息点。优先使用列表（ul 或 ol）展示。
     *   **关键数据/引述**：（可选）如果内容中有突出的数据或引人注目的引述，可以包含进来。
+    *   **数据可视化判断**：**自主判断**内容中是否存在适合用图表（如柱状图、折线图、饼图）展示的数据系列。如果存在且适合，则提取用于生成图表的数据。
 3.  **构建结构**：
     *   **标题区域**：清晰、显著地展示主标题和副标题。
-    *   **主体内容区**：用于展示提取的核心要点列表、关键段落或数据的可视化概念。
-    *   **视觉平衡**：确保文本、可能的图标/图形元素和留白之间达到良好平衡，避免过度拥挤或过于空旷。
+    *   **主体内容区**：用于展示提取的核心要点列表、关键段落、数据的可视化概念或生成的图表。
+    *   **视觉平衡**：确保文本、可能的图标/图形/图表元素和留白之间达到良好平衡，避免过度拥挤或过于空旷。
 
 ## 设计规范
 *   **设计风格**：采用 **${style}** 的风格。注重清晰的视觉层次和良好的可读性。
@@ -47,11 +48,18 @@ export const prompt = (language: string, style: string) => `
 1.  **技术栈**：纯HTML、CSS。如果需要复杂动画或交互，可谨慎使用少量内嵌JavaScript。
 2.  **依赖**：尽量避免外部CSS或JS文件。如需使用字体或图标库（如Font Awesome），可通过CDN链接引入。
 3.  **CDN 引入 (必需)**: 为了确保样式和图标正确显示，**必须**在生成的 HTML 的 \`<head>\` 部分包含以下 CDN 链接：
-    *   Tailwind CSS: \`<script src=\"https://cdn.tailwindcss.com\"></script>\`
-    *   Font Awesome: \`<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\`
-    *   Google Fonts (Noto Sans SC & Noto Serif SC): \`<link href=\"https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap\" rel=\"stylesheet\">\`
-4.  **代码质量**：生成结构清晰、语义化的HTML。CSS应组织良好，并添加必要的中文注释。
-5.  **兼容性**：确保在主流现代浏览器（Chrome, Firefox, Edge, Safari）中表现一致。
+    *   Tailwind CSS: \`<script src="https://cdn.tailwindcss.com"></script>\`
+    *   Font Awesome: \`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">\`
+    *   Google Fonts (Noto Sans SC & Noto Serif SC): \`<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">\`
+4.  **图表生成 (根据内容判断)**: 
+    *   **自主判断**：分析提供的内容，判断是否适合且有必要使用图表来可视化数据。
+    *   **如果决定使用图表**：
+        *   在 \`<head>\` 中添加 Chart.js CDN: \`<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\`
+        *   在 \`<body>\` 中添加一个具有唯一 ID 的 \`<canvas>\` 元素。
+        *   在 \`<body>\` 结束前的 \`<script>\` 标签中，编写 JavaScript 代码，使用 Chart.js 初始化图表，并将提取的数据应用到图表中。
+    *   **如果不使用图表**：则**不得**包含 Chart.js CDN、canvas 元素或相关 JavaScript 代码。
+5.  **代码质量**：生成结构清晰、语义化的HTML。CSS应组织良好，并添加必要的中文注释。
+6.  **兼容性**：确保在主流现代浏览器（Chrome, Firefox, Edge, Safari）中表现一致。
 
 ## 输出要求
 *   **直接输出HTML**：只返回完整的HTML代码，不要包含任何额外的解释、说明或Markdown标记。
