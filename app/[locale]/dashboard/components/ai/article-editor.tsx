@@ -493,29 +493,8 @@ export default function ArticleEditor({
              throw new Error("Iframe content not available");
         }
         const iframeDoc = iframeRef.current.contentDocument;
-        // Construct full HTML document using the iframe's content
-        const currentHtml = iframeDoc.documentElement.outerHTML;
-
-      // Basic styles (can be expanded)
-      const styles = `
-        body { font-family: sans-serif; line-height: 1.6; padding: 1em; }
-        img { max-width: 100%; height: auto; }
-        .prose { max-width: 65ch; margin: auto; } /* Example style */
-        /* Add more styles as needed */
-      `;
-
-      const htmlContent = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Generated Content</title>
-  <style>${styles}</style>
-</head>
-<body>
-  ${iframeDoc.body.innerHTML} 
-</body>
-</html>`;
-      // Or potentially use the full document: const htmlContent = currentHtml;
+        // Get the full outerHTML of the iframe's document
+        const htmlContent = iframeDoc.documentElement.outerHTML;
 
       const blob = new Blob([htmlContent], { type: 'text/html' });
       const downloadLink = document.createElement('a');
@@ -535,90 +514,116 @@ export default function ArticleEditor({
     }
   };
 
-  // 使用html2canvas下载图片 - 简化版本
-  const handleDownloadImage = () => {
-    setProcessingFeedback('正在生成图片...');
+  // 使用html2canvas下载图片 - 修正并处理动画
+  const handleDownloadImage = async () => { // Make async for await
+    setProcessingFeedback('准备截图环境...');
     
-    // 获取要截图的元素
-    if (!contentContainerRef.current) {
-      setProcessingFeedback('无法找到内容容器');
-      setTimeout(() => setProcessingFeedback(null), 2000);
+    // 获取 iframe 及其内部文档和 body (与之前相同)
+    if (!iframeRef.current) {
+      setProcessingFeedback('错误：无法找到 iframe 元素');
+      setTimeout(() => setProcessingFeedback(null), 3000);
       return;
     }
-    
-    // 找到具体需要截图的元素
-    const contentElement = contentContainerRef.current.querySelector('.prose') as HTMLElement;
-    if (!contentElement) {
-      setProcessingFeedback('无法找到内容元素');
-      setTimeout(() => setProcessingFeedback(null), 2000);
+    const iframeDoc = iframeRef.current.contentDocument;
+    if (!iframeDoc) {
+      setProcessingFeedback('错误：无法访问 iframe 内容文档');
+      setTimeout(() => setProcessingFeedback(null), 3000);
+      return;
+    }
+    const iframeBody = iframeDoc.body;
+    if (!iframeBody) {
+      setProcessingFeedback('错误：无法访问 iframe body');
+      setTimeout(() => setProcessingFeedback(null), 3000);
       return;
     }
 
+    // --- 禁用动画 --- 
+    const disableAnimationStyleId = 'temp-disable-animations';
+    let tempStyleElement: HTMLStyleElement | null = null;
     try {
-      // 简化的html2canvas调用
-      html2canvas(contentElement, {
-        backgroundColor: '#ffffff',
+      setProcessingFeedback('禁用动画并准备截图...');
+      tempStyleElement = iframeDoc.createElement('style');
+      tempStyleElement.id = disableAnimationStyleId;
+      // 强制禁用所有动画和过渡
+      tempStyleElement.textContent = `
+        * {
+          animation: none !important;
+          transition: none !important;
+          scroll-behavior: auto !important; /* 同时禁用平滑滚动 */
+        }
+      `;
+      iframeDoc.head.appendChild(tempStyleElement);
+
+      // 等待浏览器应用样式 (使用 Promise + requestAnimationFrame)
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      await new Promise(resolve => setTimeout(resolve, 50)); // 添加一个小的额外延迟确保渲染
+
+      setProcessingFeedback('正在生成图片...');
+      // 对 iframe 的 body 元素进行截图
+      const canvas = await html2canvas(iframeBody, {
+        backgroundColor: getComputedStyle(iframeBody).backgroundColor || '#ffffff',
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
-        // 禁用一些高级功能以提高兼容性
         foreignObjectRendering: false
-      }).then(canvas => {
-        try {
-          // 尝试使用toBlob API而不是toDataURL
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              throw new Error('无法创建图片Blob');
-            }
-            
-            // 使用URL.createObjectURL创建链接
-            const url = URL.createObjectURL(blob);
-            
-            // 创建下载链接
-            const downloadLink = document.createElement('a');
-            const filePrefix = activePreviewTab === "ppt" ? "presentation" : "article";
-            downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
-            downloadLink.href = url;
-            
-            // 触发下载
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            
-            // 释放URL对象
-            setTimeout(() => URL.revokeObjectURL(url), 100);
-            
-            setProcessingFeedback('图片已下载');
-            setTimeout(() => setProcessingFeedback(null), 2000);
-          }, 'image/png');
-        } catch (blobError) {
-          console.error('创建Blob时出错:', blobError);
-          
-          // 如果toBlob失败，回退到toDataURL
-          try {
-            const imgData = canvas.toDataURL('image/png');
-            
-            const downloadLink = document.createElement('a');
-            const filePrefix = activePreviewTab === "ppt" ? "presentation" : "article";
-            downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
-            downloadLink.href = imgData;
-            
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            
-            setProcessingFeedback('图片已下载');
-            setTimeout(() => setProcessingFeedback(null), 2000);
-          } catch (dataUrlError) {
-            throw new Error(`无法创建下载链接: ${dataUrlError.message}`);
-          }
-        }
       });
+
+      // --- 恢复动画 (在截图完成后立即进行) ---
+      if (tempStyleElement) {
+          iframeDoc.head.removeChild(tempStyleElement);
+          tempStyleElement = null; // 清理引用
+      }
+      setProcessingFeedback('处理图片...');
+
+      // --- 图片处理和下载逻辑 (与之前类似) ---
+      try {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            throw new Error('无法创建图片Blob');
+          }
+          const url = URL.createObjectURL(blob);
+          const downloadLink = document.createElement('a');
+          const filePrefix = activePreviewTab === "ppt" ? "幻灯片" : "文章";
+          downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
+          downloadLink.href = url;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          setProcessingFeedback('图片已下载');
+          setTimeout(() => setProcessingFeedback(null), 2000);
+        }, 'image/png');
+      } catch (blobError: any) {
+        console.error('创建Blob时出错:', blobError);
+        // Fallback to toDataURL
+        try {
+          const imgData = canvas.toDataURL('image/png');
+          const downloadLink = document.createElement('a');
+          const filePrefix = activePreviewTab === "ppt" ? "幻灯片" : "文章";
+          downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
+          downloadLink.href = imgData;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          setProcessingFeedback('图片已下载');
+          setTimeout(() => setProcessingFeedback(null), 2000);
+        } catch (dataUrlError: any) {
+          throw new Error(`无法创建下载链接: ${dataUrlError.message}`);
+        }
+      }
+
     } catch (error) {
       console.error('下载图片时出错:', error);
       setProcessingFeedback(`下载图片失败: ${error instanceof Error ? error.message : String(error)}`);
       setTimeout(() => setProcessingFeedback(null), 3000);
+    } finally {
+      // --- 确保动画恢复 --- 
+      if (tempStyleElement && iframeDoc?.head.contains(tempStyleElement)) {
+        iframeDoc.head.removeChild(tempStyleElement);
+        console.log("确保临时样式已被移除");
+      }
+      // 不需要再在这里移除反馈信息，因为它在成功或失败后已经设置了超时
     }
   };
 
@@ -1042,12 +1047,12 @@ export default function ArticleEditor({
                 <div className="flex items-center space-x-2" data-no-select>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-7 px-2 text-xs" title="下载选项" data-no-select>
+                      <Button variant="outline" size="sm" className="h-7 px-2 text-xs bg-white" title="下载选项" data-no-select>
                         <Download className="h-3.5 w-3.5 mr-1" />
                         <span>下载</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="bg-white">
                       <DropdownMenuItem onClick={handleDownloadHtml}>
                         <FileDown className="h-3.5 w-3.5 mr-2" />
                         下载为 HTML

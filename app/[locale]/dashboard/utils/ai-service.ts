@@ -9,7 +9,7 @@
  * @param text 输入文本内容
  * @returns 返回HTML内容和元数据
  */
-export async function generateSlideComponent(text: string): Promise<{
+export async function generateSlideComponent(text: string, language: string, style: string): Promise<{
   htmlContent: string;
   slideData: {
     id: string;
@@ -29,6 +29,8 @@ export async function generateSlideComponent(text: string): Promise<{
       },
       body: JSON.stringify({
         messages: userPrompt,
+        language: language,
+        style: style,
         options: {
           useMock: true,
           mockType: 'htmlContent'
@@ -111,52 +113,66 @@ export async function generateSlideComponent(text: string): Promise<{
 function extractHtmlFromMarkdown(markdown: string): string {
   const originalMarkdown = markdown.trim();
 
-  // 1. 尝试提取HTML代码块
-  const htmlBlockRegex = /```(?:html)?\s*\n([\s\S]*?)```/g;
+  // 1. 优先提取 ```html ... ``` 代码块
+  const htmlBlockRegex = /```html\s*\n([\s\S]*?)```/g;
   let matches = htmlBlockRegex.exec(originalMarkdown);
   if (matches && matches[1]) {
-    console.log("提取到HTML代码块");
+    console.log("提取到HTML代码块 (```html)");
     return matches[1].trim();
   }
 
-  // 2. 尝试提取任何包含HTML标签的代码块
+  // 2. 尝试提取任何 ``` ... ``` 代码块，并检查其内容是否像HTML
   const anyCodeBlockRegex = /```[a-zA-Z]*\s*\n([\s\S]*?)```/g;
-  matches = anyCodeBlockRegex.exec(originalMarkdown);
-  if (matches && matches[1]) {
-    const code = matches[1].trim();
-    if (code.includes('<') && code.includes('>')) {
-      console.log("提取到包含HTML标签的代码块");
-      return code;
+  // 使用循环查找所有代码块，以防HTML前有其他代码块
+  let codeBlockContent: string | null = null;
+  while ((matches = anyCodeBlockRegex.exec(originalMarkdown)) !== null) {
+    const currentContent = matches[1].trim();
+    // 检查是否包含基本HTML标签，更倾向于以 '<' 开头
+    if (currentContent.startsWith('<') && currentContent.includes('>')) {
+      console.log("提取到看起来像HTML的通用代码块 (```)");
+      codeBlockContent = currentContent;
+      break; // 找到第一个像HTML的代码块就停止
+    }
+    // 如果不以 '<' 开头，但包含关键标签，也可能是目标
+    if (!currentContent.startsWith('<') && 
+        (currentContent.includes('<html') || currentContent.includes('<body') || currentContent.includes('<style') || currentContent.includes('<div') || currentContent.includes('<p'))) {
+       console.log("提取到包含关键HTML标签的通用代码块 (```)");
+       codeBlockContent = currentContent;
+       break; 
+    } 
+  }
+  if (codeBlockContent) {
+    return codeBlockContent;
+  }
+
+  // 3. 尝试移除开头的解释性文字或Markdown标题，然后检查是否为HTML
+  // 移除常见的AI解释性开头，例如 "以下是..." 或 Markdown 标题
+  let contentWithoutPrefix = originalMarkdown
+    .replace(/^#+\s+.*\n?/, '') // 移除Markdown标题行
+    .replace(/^.*?```html\s*\n/i, '') // 移除 ```html 之前的文字 (如果存在)
+    .replace(/^.*?```\s*\n/i, '')   // 移除 ``` 之前的文字 (如果存在)
+    .replace(/```$/, '') // 移除结尾的 ```
+    .trim();
+
+  // 检查清理后的内容是否以HTML标签开头
+  if (contentWithoutPrefix.startsWith('<') && contentWithoutPrefix.includes('>')) {
+    // 进一步检查，确保它不仅仅是单个标签或损坏的HTML
+    if (contentWithoutPrefix.includes('</') || contentWithoutPrefix.includes('/>')) {
+        console.log("移除前缀后，内容以HTML标签开头");
+        return contentWithoutPrefix;
     }
   }
 
-  // 3. 移除开头的Markdown标题行
-  let contentWithoutHeading = originalMarkdown.replace(/^#+\s+.*\n*/, '');
-  
-  // 4. 检查移除标题后是否以HTML标签开头
-  if (contentWithoutHeading.startsWith('<')) {
-    console.log("移除标题后，内容以HTML标签开头");
-    return contentWithoutHeading;
+  // 4. 最后手段：检查原始输入是否就是裸露的HTML
+  if (originalMarkdown.startsWith('<') && originalMarkdown.includes('>')) {
+     if (originalMarkdown.includes('</') || originalMarkdown.includes('/>')) {
+        console.log("原始输入看起来像裸露的HTML");
+        return originalMarkdown;
+     }
   }
   
-  // 5. 检查原始输入是否像HTML（包含关键标签），但可能混有Markdown
-  // 这种情况比较模糊，保守起见直接返回原始输入，避免错误转换
-  if (originalMarkdown.includes('<') && originalMarkdown.includes('>')) {
-    // 进一步检查，如果不是以 < 开头，但包含 <html>, <body>, <style> 等标签，很可能是HTML
-    if (!originalMarkdown.startsWith('<') && 
-        (originalMarkdown.includes('<html') || originalMarkdown.includes('<body') || originalMarkdown.includes('<style') || originalMarkdown.includes('<script'))
-    ) {
-      console.log("检测到类似HTML结构，直接返回原始内容");
-      return originalMarkdown;
-    }
-    // 如果只是包含一些<p>, <div>等，且不是以<开头，也可能是混合内容或误判
-    // 暂时也返回原始内容
-    console.log("检测到混合内容或不明确的HTML，返回原始内容");
-    return originalMarkdown;
-  }
-
-  // 6. 如果以上都不是，则假定是纯Markdown或文本，进行转换
-  console.log("未检测到HTML，按Markdown转换");
+  // 5. 如果以上都不是，则假定是纯Markdown或文本，进行转换 (作为备用方案)
+  console.warn("未能明确提取HTML，将尝试按Markdown转换");
   return convertTextToHtml(originalMarkdown);
 }
 

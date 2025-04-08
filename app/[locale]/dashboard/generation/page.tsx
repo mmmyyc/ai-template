@@ -101,10 +101,10 @@ export default function Home() {
     },
   })
 
-  const handleAIAction = useCallback(async (selectedText: string) => {
+  const handleAIAction = useCallback(async (selectedText: string, language: string, style: string) => {
     try {
       setIsGenerating(true)
-      const { htmlContent: newHtmlContent, slideData: newSlideData } = await generateSlideComponent(selectedText)
+      const { htmlContent: newHtmlContent, slideData: newSlideData } = await generateSlideComponent(selectedText, language, style)
       setHtmlContent(newHtmlContent)
       setSlideData({
         ...newSlideData,
