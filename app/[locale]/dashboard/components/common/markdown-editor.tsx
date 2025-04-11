@@ -37,6 +37,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useTranslations } from 'next-intl'; // Import the hook
 
 // --- Define AI Style Options --- 
 const aiStyleOptions = [
@@ -105,7 +106,8 @@ export default function MarkdownEditor({
   const [aiLanguage, setAiLanguage] = useState("Chinese")
   // Initialize aiStyle with the description of the default option
   const [aiStyle, setAiStyle] = useState(aiStyleOptions[0].description) 
-  
+  const t = useTranslations('MarkdownEditor'); // Initialize useTranslations
+
   // 使用useCallback确保函数不会频繁重建
   const handleContentChange = useCallback((value: string) => {
         if (onChange) {
@@ -285,7 +287,7 @@ export default function MarkdownEditor({
           onClick={handleUploadMd}
         >
           <Upload className="h-3.5 w-3.5" />
-          <span>上传 Markdown</span>
+          <span>{t('buttons.uploadMarkdown')}</span>
         </Button>
         
         {/* Settings Popover */}
@@ -293,41 +295,41 @@ export default function MarkdownEditor({
             <PopoverTrigger asChild>
             <Button variant="outline" size="icon" className="h-8 w-8">
               <Settings className="h-4 w-4" />
-              <span className="sr-only">AI 设置</span>
+              <span className="sr-only">{t('settings.tooltip')}</span>
               </Button>
             </PopoverTrigger>
           <PopoverContent className="w-60">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <h4 className="font-medium leading-none">AI 设置</h4>
+                <h4 className="font-medium leading-none">{t('settings.title')}</h4>
                 <p className="text-sm text-muted-foreground">
-                  配置 AI 生成语言和风格
+                  {t('settings.description')}
                 </p>
               </div>
               <div className="grid gap-2">
                 <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="ai-language">语言</Label>
+                  <Label htmlFor="ai-language">{t('settings.languageLabel')}</Label>
                   <Select 
                     value={aiLanguage} 
                     onValueChange={setAiLanguage}
                   >
                     <SelectTrigger id="ai-language" className="col-span-2 h-8">
-                      <SelectValue placeholder="选择语言" />
+                      <SelectValue placeholder={t('settings.languagePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Chinese">中文</SelectItem>
-                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="Chinese">{t('settings.languageChinese')}</SelectItem>
+                      <SelectItem value="English">{t('settings.languageEnglish')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="ai-style">风格</Label>
+                  <Label htmlFor="ai-style">{t('settings.styleLabel')}</Label>
                   <Select 
                     value={aiStyle} 
                     onValueChange={setAiStyle}
                   >
                     <SelectTrigger id="ai-style" className="col-span-2 h-8">
-                      <SelectValue placeholder="选择风格" />
+                      <SelectValue placeholder={t('settings.stylePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       <TooltipProvider>
@@ -337,11 +339,11 @@ export default function MarkdownEditor({
                             <TooltipTrigger asChild>
                               {/* Set value to description */}
                               <SelectItem value={option.description}>
-                                {option.label}
+                                {t(`aiStyles.${option.value}.label`, {}, { defaultValue: option.label })}
                               </SelectItem>
                             </TooltipTrigger>
                             <TooltipContent side="right" align="start" style={{backgroundColor: "white"}}>
-                              <p>{option.description}</p>
+                              <p>{t(`aiStyles.${option.value}.description`, {}, { defaultValue: option.description })}</p>
                             </TooltipContent>
                           </Tooltip>
                         ))}
@@ -370,12 +372,12 @@ export default function MarkdownEditor({
             onClick={handleAIAction}
           >
             <Sparkles className="h-3.5 w-3.5 mr-2" />
-            <span>{isGenerating ? "生成中..." : "AI 生成"}</span>
+            <span>{isGenerating ? t('contextMenu.generating') : t('contextMenu.aiGenerate')}</span>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onClick={handleUploadMd}>
             <Upload className="h-3.5 w-3.5 mr-2" />
-            <span>上传 Markdown 文档</span>
+            <span>{t('contextMenu.uploadMarkdown')}</span>
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
@@ -387,7 +389,7 @@ export default function MarkdownEditor({
           size="icon"
           className="rounded-full h-10 w-10 shadow-md bg-background"
           onClick={handleUploadMd}
-          title="上传Markdown文档"
+          title={t('buttons.uploadMarkdownTooltip')}
         >
           <Upload className="h-4 w-4" />
         </Button>

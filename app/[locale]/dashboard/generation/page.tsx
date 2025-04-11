@@ -11,8 +11,11 @@ import {
   PanelGroup,
   PanelResizeHandle
 } from "react-resizable-panels"
+import { useTranslations } from 'next-intl';
 
 export default function Home() {
+  const t = useTranslations('GenerationPage');
+
   const [leftContent, setLeftContent] = useState(`# 中国古代四大发明
 
 中国古代四大发明是指造纸术、指南针、火药和活字印刷术。这些发明对人类文明的进步产生了深远的影响。
@@ -92,8 +95,8 @@ export default function Home() {
   const [htmlContent, setHtmlContent] = useState("")
   const [slideData, setSlideData] = useState({
     id: "slide-1",
-    title: "AI Generated Slide",
-    content: "Select text and click the AI button to generate content",
+    title: t('defaultSlideTitle'),
+    content: t('defaultSlideContent'),
     style: {
       fontFamily: "Inter",
       fontSize: 16,
@@ -120,7 +123,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex items-center justify-between px-6 py-3 border-b bg-base-100 dark:bg-gray-950">
-        <h1 className="text-lg font-medium">AI 生成</h1>
+        <h1 className="text-lg font-medium">{t('header')}</h1>
       </header>
 
       <div className="flex-1 p-4 overflow-hidden min-h-0">

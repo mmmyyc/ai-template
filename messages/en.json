@@ -1,4 +1,13 @@
 {
+  "DailyLimit": {
+    "title": "Monthly Generation Limit",
+    "description": "Remaining generations this month",
+    "upgradeButton": "Upgrade to Pro"
+  },
+  "Account": {
+    "billing": "Billing",
+    "logout": "Logout"
+  },
   "HomePage": {
     "title": "AI Playground",
     "back": "Back",
@@ -109,15 +118,6 @@
     },
     "pricing": "Pricing",
     "docs": "Documentation"
-  },
-  "DailyLimit": {
-    "title": "Monthly Generation Limit",
-    "description": "Remaining generations this month",
-    "upgradeButton": "Upgrade to Pro"
-  },
-  "Account": {
-    "billing": "Billing",
-    "logout": "Logout"
   },
   "WithWithout": {
     "title": "Transform Your Desktop Experience",
@@ -316,6 +316,247 @@
           "3": "Rich expression and action system"
         }
       }
+    }
+  },
+  "FriendlyEditor": {
+    "title": "Style Editor",
+    "tabs": {
+      "text": "Text",
+      "layout": "Layout",
+      "colors": "Colors",
+      "effects": "Effects"
+    },
+    "labels": {
+      "textSize": "Text Size",
+      "textWeight": "Text Weight",
+      "textAlign": "Text Alignment",
+      "displayType": "Display Type",
+      "direction": "Direction",
+      "horizontalAlign": "Horizontal Alignment",
+      "verticalAlign": "Vertical Alignment",
+      "margin": "Margin",
+      "padding": "Padding",
+      "textColor": "Text Color",
+      "backgroundColor": "Background Color",
+      "colorIntensity": "Color Intensity: {value}",
+      "border": "Border",
+      "cornerRadius": "Corner Roundness",
+      "shadow": "Shadow",
+      "cssClasses": "CSS Classes",
+      "original": "Original",
+      "current": "Current",
+      "editClasses": "Edit Classes",
+      "sizePrefix": "Size",
+      "topWithColon": "Top: {value}",
+      "rightWithColon": "Right: {value}",
+      "bottomWithColon": "Bottom: {value}",
+      "leftWithColon": "Left: {value}",
+      "default": "Default",
+      "content": "Content"
+    },
+    "placeholders": {
+      "selectSize": "Select size",
+      "selectWeight": "Select weight",
+      "selectAlign": "Select alignment",
+      "selectDisplay": "Select display",
+      "selectDirection": "Select direction",
+      "selectJustify": "Select justify",
+      "selectAlignItems": "Select alignment",
+      "selectRadius": "Select radius",
+      "selectShadow": "Select shadow"
+    },
+    "buttons": {
+      "close": "Close Editor",
+      "hidePreview": "Hide Preview",
+      "showPreview": "Show Preview",
+      "hide": "Hide",
+      "show": "Show",
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "apply": "Apply Changes",
+      "removeClassTooltip": "Remove class",
+      "cancelTooltip": "Discard changes and close",
+      "resetTooltip": "Reset to original styles",
+      "applyTooltip": "Apply changes and close"
+    },
+    "helpers": {
+      "removeClass": "Click X on tag to remove class",
+      "changedFields": "* Blue highlighted fields indicate changed properties"
+    },
+    "fontWeightLabels": {
+      "normal": "Normal",
+      "medium": "Medium",
+      "semibold": "Semi Bold",
+      "bold": "Bold"
+    },
+    "textAlignLabels": {
+      "left": "Left",
+      "center": "Center",
+      "right": "Right",
+      "justify": "Justify"
+    },
+    "displayLabels": {
+      "block": "Block",
+      "inlineblock": "Inline Block",
+      "inline": "Inline",
+      "flex": "Flex",
+      "grid": "Grid",
+      "hidden": "Hidden"
+    },
+    "flexDirectionLabels": {
+      "row": "Row",
+      "column": "Column"
+    },
+    "justifyLabels": {
+      "start": "Start",
+      "center": "Center",
+      "end": "End",
+      "spacebetween": "Space Between",
+      "spacearound": "Space Around",
+      "spaceevenly": "Space Evenly"
+    },
+    "alignLabels": {
+      "top": "Top",
+      "center": "Center",
+      "bottom": "Bottom",
+      "stretch": "Stretch"
+    },
+    "borderRadiusLabels": {
+      "none": "None",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "extralarge": "Extra Large",
+      "full": "Full",
+      "default": "Default"
+    },
+    "shadowLabels": {
+      "none": "None",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "extralarge": "Extra Large",
+      "huge": "Huge",
+      "default": "Default"
+    },
+    "colorLabels": {
+      "transparent": "Transparent",
+      "current": "Current",
+      "white": "White",
+      "black": "Black",
+      "gray": "Gray",
+      "red": "Red",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "purple": "Purple",
+      "pink": "Pink",
+      "autoIndicator": "auto"
+    }
+  },
+  "ArticleEditor": {
+    "title": "Document Editor",
+    "tabs": {
+      "edit": "Edit",
+      "preview": "Preview"
+    },
+    "generatingMessage": "Generating content..."
+  },
+  "HtmlPreview": {
+    "title": "AI Generation Preview (Iframe)",
+    "tabs": {
+      "ppt": "PPT",
+      "html": "HTML"
+    },
+    "buttons": {
+      "downloadOptions": "Download Options",
+      "download": "Download",
+      "downloadHtml": "Download as HTML",
+      "downloadImage": "Download as Image",
+      "clearStorage": "Clear Storage",
+      "clearStorageTooltip": "Clear locally stored HTML content",
+      "cancelSelection": "Cancel Selection",
+      "selectElement": "Select Element to Edit"
+    },
+    "feedback": {
+      "storageCleared": "Local storage cleared",
+      "htmlDownloaded": "HTML downloaded",
+      "imageDownloaded": "Image downloaded",
+      "downloadFailed": "Download failed: {error}",
+      "imageDownloadFailed": "Image download failed: {error}",
+      "preparingScreenshot": "Preparing screenshot environment...",
+      "disablingAnimations": "Disabling animations for screenshot...",
+      "generatingImage": "Generating image...",
+      "processingImage": "Processing image...",
+      "applyingStyles": "Applying styles...",
+      "stylesAppliedSuccess": "Styles applied successfully"
+    },
+    "errors": {
+      "iframeNotAvailable": "Iframe content not available",
+      "iframeNotFound": "Error: Iframe element not found",
+      "iframeDocNotAccessible": "Error: Cannot access iframe content document",
+      "iframeBodyNotAccessible": "Error: Cannot access iframe body",
+      "blobCreationFailed": "Failed to create image Blob",
+      "downloadLinkCreationFailed": "Failed to create download link: {error}",
+      "findElementFailed": "Error finding target element",
+      "applyStylesFailed": "Error applying styles",
+      "findElementByIdFailed": "Error: Could not find target element (ID: {id}) to apply changes.",
+      "cannotApplyChanges": "Cannot apply changes - check console"
+    },
+    "downloadPrefix": {
+      "ppt": "Slide",
+      "html": "Content"
+    },
+    "iframeTitle": "HTML Preview",
+    "selectionModeActive": "Selection Mode Active"
+  },
+  "MarkdownEditor": {
+    "buttons": {
+      "uploadMarkdown": "Upload Markdown",
+      "uploadMarkdownTooltip": "Upload Markdown document"
+    },
+    "settings": {
+      "tooltip": "AI Settings",
+      "title": "AI Settings",
+      "description": "Configure AI generation language and style",
+      "languageLabel": "Language",
+      "languagePlaceholder": "Select language",
+      "languageChinese": "Chinese",
+      "languageEnglish": "English",
+      "styleLabel": "Style",
+      "stylePlaceholder": "Select style"
+    },
+    "aiStyles": {
+      "default": {
+        "label": "Default",
+        "description": "Standard AI writing style"
+      },
+      "creative": {
+        "label": "Creative",
+        "description": "More imaginative and expressive style"
+      },
+      "technical": {
+        "label": "Technical",
+        "description": "Formal and precise style"
+      },
+      "simplified": {
+          "label": "Simplified",
+          "description": "Converts complex content into easy-to-understand language"
+      },
+      "summarization": {
+          "label": "Summarization",
+          "description": "Extracts key points to create concise summaries"
+      },
+      "expansion": {
+          "label": "Expansion",
+          "description": "Expands on existing content to provide more detail"
+      }
+    },
+    "contextMenu": {
+      "generating": "Generating...",
+      "aiGenerate": "AI Generate",
+      "uploadMarkdown": "Upload Markdown Document"
     }
   }
 } 

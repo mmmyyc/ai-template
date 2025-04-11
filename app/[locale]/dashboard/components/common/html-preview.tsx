@@ -38,24 +38,45 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import html2canvas from "html2canvas";
+import { useTranslations } from 'next-intl';
 
 // Helper function to inject styles into an iframe
 const injectStylesIntoIframe = (
   iframeDoc: Document,
   styles: string
 ): HTMLStyleElement => {
-  const styleElement = iframeDoc.createElement("style");
+  let styleElement = iframeDoc.getElementById("editor-injected-styles") as HTMLStyleElement | null;
+  if (!styleElement) {
+      styleElement = iframeDoc.createElement("style");
+      styleElement.id = "editor-injected-styles";
+      iframeDoc.head.appendChild(styleElement);
+  }
   styleElement.textContent = styles;
-  styleElement.id = "editor-injected-styles"; // Add an ID for easy removal
-  iframeDoc.head.appendChild(styleElement);
   return styleElement;
 };
 
 // Helper function to remove injected styles
 const removeInjectedStylesFromIframe = (iframeDoc: Document) => {
   const styleElement = iframeDoc.getElementById("editor-injected-styles");
-  if (styleElement) {
-    iframeDoc.head.removeChild(styleElement);
+  // Check if the element exists AND is a child of the current iframe's head
+  if (styleElement && iframeDoc.head.contains(styleElement)) {
+    try {
+      iframeDoc.head.removeChild(styleElement);
+      console.log("Successfully removed injected styles.");
+    } catch (error) {
+      console.error("Error removing injected styles:", error, {
+        styleElementParent: styleElement.parentNode,
+        iframeHead: iframeDoc.head
+      });
+    }
+  } else if (styleElement) {
+    console.warn("Found style element, but it's not a child of the current iframe head. Skipping removal.", {
+        styleElementParent: styleElement.parentNode,
+        iframeHead: iframeDoc.head
+      });
+  } else {
+    // Optional: Log if needed, but generally okay if it doesn't exist
+    // console.log("Injected style element not found. No removal needed.");
   }
 };
 
@@ -94,15 +115,14 @@ const selectionModeStyles = `
   `;
 
 export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
-  // 添加一个状态来跟踪已选择的元素路径
+  const t = useTranslations('HtmlPreview');
+
   const [selectedElementPath, setSelectedElementPath] = useState<string | null>(
     null
   );
-  // 为每个渲染的HTML元素分配一个唯一ID的计数器
+  const [editingElementId, setEditingElementId] = useState<string | null>(null);
   const elementIdCounter = useRef(0);
-  // 为需要渲染的组件分配唯一key，强制在HTML内容变化时重新渲染
   const [renderKey, setRenderKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [activePreviewTab, setActivePreviewTab] = useState<"ppt" | "html">(
     "ppt"
   );
@@ -115,19 +135,13 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
   const [processingFeedback, setProcessingFeedback] = useState<string | null>(
     null
   );
-
-  // 添加对内容容器的引用
   const contentContainerRef = useRef<HTMLDivElement>(null);
-  // ============================================================================
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
     null
   );
   const [isSelecting, setIsSelecting] = useState(false);
   const [originalClasses, setOriginalClasses] = useState<string>("");
-
-  // Ref for the iframe
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  // Ref to store iframe document for easier access in callbacks
   const iframeDocRef = useRef<Document | null>(null);
 
   // --- Path Functions ---
@@ -338,89 +352,83 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
     clearSavedHtml();
     setLocalHtmlContent("");
     setRenderKey((prev) => prev + 1);
-    console.log("已清除本地存储的HTML内容");
+    setProcessingFeedback(t('feedback.storageCleared'));
+    setTimeout(() => setProcessingFeedback(null), 2000);
+    console.log("Cleared local storage for HTML content");
   };
 
   // 改进下载HTML功能，添加PPT模式下的样式
   const handleDownloadHtml = () => {
     try {
       if (!iframeRef.current || !iframeRef.current.contentDocument) {
-        throw new Error("Iframe content not available");
+        throw new Error(t('errors.iframeNotAvailable'));
       }
       const iframeDoc = iframeRef.current.contentDocument;
-      // Get the full outerHTML of the iframe's document
-      const htmlContent = iframeDoc.documentElement.outerHTML;
+      const htmlContentToDownload = iframeDoc.documentElement.outerHTML;
 
-      const blob = new Blob([htmlContent], { type: "text/html" });
+      const blob = new Blob([htmlContentToDownload], { type: "text/html" });
       const downloadLink = document.createElement("a");
       downloadLink.href = URL.createObjectURL(blob);
-      downloadLink.download = `content-${new Date().toISOString().slice(0, 10)}.html`;
+      const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
+      downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.html`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
       URL.revokeObjectURL(downloadLink.href);
 
-      setProcessingFeedback("HTML downloaded");
+      setProcessingFeedback(t('feedback.htmlDownloaded'));
     } catch (error) {
       console.error("Error downloading HTML:", error);
-      setProcessingFeedback(
-        `Download failed: ${error instanceof Error ? error.message : String(error)}`
-      );
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setProcessingFeedback(t('feedback.downloadFailed', { error: errorMessage }));
     } finally {
-      setTimeout(() => setProcessingFeedback(null), 2000);
+      setTimeout(() => setProcessingFeedback(null), 3000);
     }
   };
 
   // 使用html2canvas下载图片 - 修正并处理动画
   const handleDownloadImage = async () => {
-    // Make async for await
-    setProcessingFeedback("准备截图环境...");
+    setProcessingFeedback(t('feedback.preparingScreenshot'));
 
-    // 获取 iframe 及其内部文档和 body (与之前相同)
     if (!iframeRef.current) {
-      setProcessingFeedback("错误：无法找到 iframe 元素");
+      setProcessingFeedback(t('errors.iframeNotFound'));
       setTimeout(() => setProcessingFeedback(null), 3000);
       return;
     }
     const iframeDoc = iframeRef.current.contentDocument;
     if (!iframeDoc) {
-      setProcessingFeedback("错误：无法访问 iframe 内容文档");
+      setProcessingFeedback(t('errors.iframeDocNotAccessible'));
       setTimeout(() => setProcessingFeedback(null), 3000);
       return;
     }
     const iframeBody = iframeDoc.body;
     if (!iframeBody) {
-      setProcessingFeedback("错误：无法访问 iframe body");
+      setProcessingFeedback(t('errors.iframeBodyNotAccessible'));
       setTimeout(() => setProcessingFeedback(null), 3000);
       return;
     }
 
-    // --- 禁用动画 ---
     const disableAnimationStyleId = "temp-disable-animations";
     let tempStyleElement: HTMLStyleElement | null = null;
     try {
-      setProcessingFeedback("禁用动画并准备截图...");
+      setProcessingFeedback(t('feedback.disablingAnimations'));
       tempStyleElement = iframeDoc.createElement("style");
       tempStyleElement.id = disableAnimationStyleId;
-      // 强制禁用所有动画和过渡
       tempStyleElement.textContent = `
         * {
           animation: none !important;
           transition: none !important;
-          scroll-behavior: auto !important; /* 同时禁用平滑滚动 */
+          scroll-behavior: auto !important;
         }
       `;
       iframeDoc.head.appendChild(tempStyleElement);
 
-      // 等待浏览器应用样式 (使用 Promise + requestAnimationFrame)
       await new Promise((resolve) => requestAnimationFrame(resolve));
-      await new Promise((resolve) => setTimeout(resolve, 50)); // 添加一个小的额外延迟确保渲染
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      setProcessingFeedback("正在生成图片...");
-      // 对 iframe 的 body 元素进行截图
+      setProcessingFeedback(t('feedback.generatingImage'));
       const canvas = await html2canvas(iframeBody, {
-        backgroundColor:
-          getComputedStyle(iframeBody).backgroundColor || "#ffffff",
+        backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
         scale: 2,
         useCORS: true,
         allowTaint: true,
@@ -428,62 +436,56 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
         foreignObjectRendering: false,
       });
 
-      // --- 恢复动画 (在截图完成后立即进行) ---
       if (tempStyleElement) {
         iframeDoc.head.removeChild(tempStyleElement);
-        tempStyleElement = null; // 清理引用
+        tempStyleElement = null;
       }
-      setProcessingFeedback("处理图片...");
+      setProcessingFeedback(t('feedback.processingImage'));
 
-      // --- 图片处理和下载逻辑 (与之前类似) ---
       try {
         canvas.toBlob((blob) => {
           if (!blob) {
-            throw new Error("无法创建图片Blob");
+            throw new Error(t('errors.blobCreationFailed'));
           }
           const url = URL.createObjectURL(blob);
           const downloadLink = document.createElement("a");
-          const filePrefix = activePreviewTab === "ppt" ? "幻灯片" : "文章";
+          const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
           downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
           downloadLink.href = url;
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
           setTimeout(() => URL.revokeObjectURL(url), 100);
-          setProcessingFeedback("图片已下载");
+          setProcessingFeedback(t('feedback.imageDownloaded'));
           setTimeout(() => setProcessingFeedback(null), 2000);
         }, "image/png");
       } catch (blobError: any) {
-        console.error("创建Blob时出错:", blobError);
-        // Fallback to toDataURL
+        console.error("Error creating Blob:", blobError);
         try {
           const imgData = canvas.toDataURL("image/png");
           const downloadLink = document.createElement("a");
-          const filePrefix = activePreviewTab === "ppt" ? "幻灯片" : "文章";
+          const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
           downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
           downloadLink.href = imgData;
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
-          setProcessingFeedback("图片已下载");
+          setProcessingFeedback(t('feedback.imageDownloaded'));
           setTimeout(() => setProcessingFeedback(null), 2000);
         } catch (dataUrlError: any) {
-          throw new Error(`无法创建下载链接: ${dataUrlError.message}`);
+           throw new Error(t('errors.downloadLinkCreationFailed', { error: dataUrlError.message }));
         }
       }
     } catch (error) {
-      console.error("下载图片时出错:", error);
-      setProcessingFeedback(
-        `下载图片失败: ${error instanceof Error ? error.message : String(error)}`
-      );
+      console.error("Error downloading image:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setProcessingFeedback(t('feedback.imageDownloadFailed', { error: errorMessage }));
       setTimeout(() => setProcessingFeedback(null), 3000);
     } finally {
-      // --- 确保动画恢复 ---
       if (tempStyleElement && iframeDoc?.head.contains(tempStyleElement)) {
         iframeDoc.head.removeChild(tempStyleElement);
-        console.log("确保临时样式已被移除");
+        console.log("Ensured temporary animation style removed");
       }
-      // 不需要再在这里移除反馈信息，因为它在成功或失败后已经设置了超时
     }
   };
 
@@ -702,10 +704,8 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
     setShowEditor(false);
     setIsSelecting(true);
     console.log("Starting selection mode (iframe)");
-    // 简单延迟确保DOM更新完成
     setTimeout(() => {
       if (iframeRef.current && iframeRef.current.contentDocument) {
-        // 确保iframe加载完成后再设置样式
         console.log("Selection mode: Adding selecting class to iframe body");
         const iframeDoc = iframeRef.current.contentDocument;
         iframeDoc.body.classList.add("selecting");
@@ -729,229 +729,135 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
 
   const handleCloseEditor = useCallback(() => {
     setShowEditor(false);
-    // 保持短延迟以避免闪烁
+    // Restore original classes if editor is closed without applying
+    if (selectedElement && originalClasses !== selectedElement.className) {
+        // This logic might need refinement based on how `handleApplyChanges` works
+        // If handleApplyChanges *doesn't* run on close, we need to revert.
+        // However, the current code applies changes immediately in FriendlyEditor.
+        // Let's assume immediate apply is the desired behavior.
+        // If reverting is needed, uncomment below:
+        // selectedElement.className = originalClasses;
+    }
     setTimeout(() => {
       setSelectedElement(null);
       setSelectedElementPath(null);
+      setEditingElementId(null); // Ensure ID is cleared on close
     }, 100);
-  }, []);
+  }, [/* selectedElement, originalClasses */]); // Dependencies might need adjustment if revert logic is added
 
   // --- Apply Changes ---
   const handleApplyChanges = useCallback(
     (newClasses: string) => {
       if (
-        selectedElementPath &&
+        editingElementId &&
         iframeRef.current &&
         iframeRef.current.contentDocument
       ) {
-        setProcessingFeedback("Applying styles...");
+        setProcessingFeedback(t('feedback.applyingStyles'));
         const iframeDoc = iframeRef.current.contentDocument;
+        console.log("handleApplyChanges: Finding element with ID:", editingElementId);
 
-        // Log the path being used
-        console.log(
-          "handleApplyChanges: Finding element with path:",
-          selectedElementPath
-        );
-
-        // Attempt 1: Try direct path first
-        let elementInIframe = findElementByPath(selectedElementPath, iframeDoc);
-
-        // Attempt 2: Try with freshly generated path
-        if (!elementInIframe && selectedElement) {
-          console.log(
-            "handleApplyChanges: Direct path failed, generating fresh path"
-          );
-          const freshPath = getElementPath(
-            selectedElement,
-            selectedElement.ownerDocument || document
-          );
-          if (freshPath !== selectedElementPath) {
-            console.log(
-              `handleApplyChanges: Path changed from "${selectedElementPath}" to "${freshPath}"`
-            );
-            elementInIframe = findElementByPath(freshPath, iframeDoc);
-          }
-        }
-
-        // Attempt 3: Try with tag and class fragment
-        if (!elementInIframe && selectedElement) {
-          console.log(
-            "handleApplyChanges: Fresh path failed, trying tag+class fragment"
-          );
-          const tagName = selectedElement.tagName.toLowerCase();
-          const classList = originalClasses
-            .split(" ")
-            .filter((cls) => cls.trim().length > 0);
-
-          // Try with each class from original classes
-          for (const cls of classList) {
-            if (!cls) continue;
-            const query = `${tagName}[class*="${cls}"]`;
-            console.log(`handleApplyChanges: Trying query: ${query}`);
-            const elements = Array.from(
-              iframeDoc.querySelectorAll(query)
-            ) as HTMLElement[];
-
-            // If we found elements with this class, use the first one
-            if (elements.length > 0) {
-              console.log(
-                `handleApplyChanges: Found ${elements.length} elements with class containing '${cls}'`
-              );
-              elementInIframe = elements[0];
-              break;
-            }
-          }
-        }
-
-        // Attempt 4: Last-resort - try to find by tag and similar content/attributes
-        if (!elementInIframe && selectedElement) {
-          console.log(
-            "handleApplyChanges: Class fragment failed, trying content matching"
-          );
-          const tagName = selectedElement.tagName.toLowerCase();
-          const textContent = selectedElement.textContent
-            ?.trim()
-            .substring(0, 20);
-          const sameTags = Array.from(
-            iframeDoc.querySelectorAll(tagName)
-          ) as HTMLElement[];
-
-          // Try matching by content
-          if (textContent && textContent.length > 0) {
-            console.log(
-              `handleApplyChanges: Looking for ${tagName} with text "${textContent}..."`
-            );
-            const contentMatch = sameTags.find(
-              (el) =>
-                el.textContent?.includes(textContent) ||
-                el.innerText?.includes(textContent) ||
-                el.innerHTML?.includes(textContent)
-            );
-
-            if (contentMatch) {
-              console.log(
-                "handleApplyChanges: Found element with matching content"
-              );
-              elementInIframe = contentMatch;
-            }
-          }
-
-          // If still not found, try with attributes
-          if (!elementInIframe) {
-            for (const attr of Array.from(selectedElement.attributes)) {
-              if (
-                attr.name !== "class" &&
-                attr.name !== "style" &&
-                attr.value
-              ) {
-                console.log(
-                  `handleApplyChanges: Looking for ${tagName} with attribute ${attr.name}="${attr.value}"`
-                );
-                const attrMatch = sameTags.find(
-                  (el) => el.getAttribute(attr.name) === attr.value
-                );
-                if (attrMatch) {
-                  console.log(
-                    `handleApplyChanges: Found element with matching ${attr.name}`
-                  );
-                  elementInIframe = attrMatch;
-                  break;
-                }
-              }
-            }
-          }
+        let elementInIframe: HTMLElement | null = null;
+        try {
+          elementInIframe = iframeDoc.querySelector(
+            `[data-editing-id="${editingElementId}"]`
+          ) as HTMLElement | null;
+        } catch (findError) {
+           console.error("Error finding element by ID:", findError);
+           setProcessingFeedback(t('errors.findElementFailed'));
+           setTimeout(() => setProcessingFeedback(null), 3000);
+           setEditingElementId(null);
+           setShowEditor(false);
+           return;
         }
 
         if (elementInIframe) {
-          // Record change history
           setAppliedChanges((prev) => [
             ...prev,
             {
-              element: selectedElementPath,
+              element: selectedElementPath || `ID: ${editingElementId}`,
               before: originalClasses,
               after: newClasses,
             },
           ]);
 
           try {
-            // Apply the changes
-            console.log(
-              "Applying new class name:",
-              newClasses,
-              "to element:",
-              elementInIframe
-            );
+            console.log("Applying new class name:", newClasses, "to element:", elementInIframe);
+            const originalStyle = elementInIframe.getAttribute('style');
             elementInIframe.className = newClasses;
 
-            // Double-check the class was applied correctly
-            console.log(
-              "Element class after update:",
-              elementInIframe.className
-            );
             if (elementInIframe.className !== newClasses) {
-              console.warn(
-                "Class name did not apply correctly, force setting via setAttribute"
-              );
+              console.warn("Class name did not apply correctly, force setting via setAttribute");
               elementInIframe.setAttribute("class", newClasses);
             }
+            if (originalStyle && !elementInIframe.getAttribute('style')) {
+                 console.warn("Style attribute was cleared, restoring original style:", originalStyle);
+                 elementInIframe.setAttribute('style', originalStyle);
+             }
 
-            // Update from iframe - Get the FULL HTML including <head>
+            elementInIframe.removeAttribute('data-editing-id');
+            console.log("Removed temporary ID:", editingElementId);
+
             const updatedHtml = iframeDoc.documentElement.outerHTML;
-
-            // Update React state and save
             setLocalHtmlContent(updatedHtml);
             saveHtmlToLocalStorage(updatedHtml);
-
-            // Force re-render by updating the key
             setRenderKey((prev) => prev + 1);
 
-            console.log("Applied changes to iframe element, updated state, and triggered re-render");
-            setProcessingFeedback("Styles applied successfully");
+            console.log("Applied changes, updated state, triggered re-render");
+            setProcessingFeedback(t('feedback.stylesAppliedSuccess'));
           } catch (error) {
             console.error("Error applying changes to iframe:", error);
-            setProcessingFeedback("Error applying styles");
+            setProcessingFeedback(t('errors.applyStylesFailed'));
+            if (elementInIframe && elementInIframe.hasAttribute('data-editing-id')) {
+                 try {
+                    elementInIframe.removeAttribute('data-editing-id');
+                 } catch (e) {
+                    console.error("Error removing ID during error handling:", e);
+                 }
+            }
           } finally {
-            // Cleanup
+            if (elementInIframe?.hasAttribute('data-editing-id')) {
+                try {
+                   elementInIframe.removeAttribute('data-editing-id');
+                } catch (e) {
+                   console.error("Error in final ID cleanup:", e);
+                }
+            }
             setTimeout(() => setProcessingFeedback(null), 2000);
             setShowEditor(false);
             setSelectedElement(null);
             setSelectedElementPath(null);
+            setEditingElementId(null);
             setIsSelecting(false);
           }
         } else {
-          console.error(
-            "handleApplyChanges: ERROR - Could not find element in iframe with path:",
-            selectedElementPath
-          );
-
-          // Special error handling for specific tags that might be problematic
-          const tagMatch = selectedElementPath.match(/^([a-z0-9]+)/i);
-          const tag = tagMatch ? tagMatch[1].toLowerCase() : "unknown";
-
-          setProcessingFeedback(
-            `Error: Could not find target element (${tag}) to apply changes.`
-          );
-
-          // In case of error, try to save the current editor state anyway
-          setTimeout(() => {
-            setProcessingFeedback(null);
-          }, 3000);
+          console.error("handleApplyChanges: ERROR - Could not find element with ID:", editingElementId);
+          setProcessingFeedback(t('errors.findElementByIdFailed', { id: editingElementId || 'unknown' }));
+          setTimeout(() => setProcessingFeedback(null), 3000);
+          setShowEditor(false);
+          setSelectedElement(null);
+          setSelectedElementPath(null);
+          setEditingElementId(null);
+          setIsSelecting(false);
         }
       } else {
-        console.warn(
-          "handleApplyChanges: Cannot apply changes: No element path or iframe not ready."
-        );
-        setProcessingFeedback("Cannot apply changes");
-        setTimeout(() => setProcessingFeedback(null), 2000);
+        console.warn("handleApplyChanges: Cannot apply changes: No element ID or iframe not ready.");
+        if (!editingElementId) console.warn("Reason: editingElementId is null");
+        if (!iframeRef.current) console.warn("Reason: iframeRef is null");
+        if (iframeRef.current && !iframeRef.current.contentDocument) console.warn("Reason: iframe contentDocument is null");
+
+        setProcessingFeedback(t('errors.cannotApplyChanges'));
+        setTimeout(() => setProcessingFeedback(null), 3000);
+        setEditingElementId(null);
+        setShowEditor(false);
       }
     },
     [
+      editingElementId,
       selectedElementPath,
       originalClasses,
-      findElementByPath,
-      selectedElement,
-      getElementPath,
       setRenderKey,
+      t
     ]
   );
   return (
@@ -961,7 +867,7 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
         data-no-select
       >
         <h3 className="text-sm font-medium" data-no-select>
-          AI 生成预览 (Iframe)
+          {t('title')}
         </h3>
         <div className="flex items-center space-x-2" data-no-select>
           <DropdownMenu>
@@ -969,22 +875,22 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 px-2 text-xs bg-white"
-                title="下载选项"
+                className="h-7 px-2 text-xs bg-white dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+                title={t('buttons.downloadOptions')}
                 data-no-select
               >
                 <Download className="h-3.5 w-3.5 mr-1" />
-                <span>下载</span>
+                <span>{t('buttons.download')}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-white">
-              <DropdownMenuItem onClick={handleDownloadHtml}>
+            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800">
+              <DropdownMenuItem onClick={handleDownloadHtml} className="dark:text-gray-200 dark:hover:bg-gray-700">
                 <FileDown className="h-3.5 w-3.5 mr-2" />
-                下载为 HTML
+                {t('buttons.downloadHtml')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDownloadImage}>
+              <DropdownMenuItem onClick={handleDownloadImage} className="dark:text-gray-200 dark:hover:bg-gray-700">
                 <ImageDown className="h-3.5 w-3.5 mr-2" />
-                下载为图片
+                {t('buttons.downloadImage')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -993,12 +899,12 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
             onClick={handleClearStorage}
             variant="outline"
             size="sm"
-            className="h-7 px-2 text-xs"
-            title="清除本地存储"
+            className="h-7 px-2 text-xs dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+            title={t('buttons.clearStorageTooltip')}
             data-no-select
           >
             <Trash2 className="h-3.5 w-3.5 mr-1" />
-            <span>清除存储</span>
+            <span>{t('buttons.clearStorage')}</span>
           </Button>
 
           <Tabs
@@ -1009,20 +915,20 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
             className="h-8"
             data-no-select
           >
-            <TabsList className="h-7" data-no-select>
+            <TabsList className="h-7 dark:bg-gray-800 dark:border-gray-700" data-no-select>
               <TabsTrigger
                 value="ppt"
-                className="text-xs h-6 px-2"
+                className="text-xs h-6 px-2 dark:text-gray-400 data-[state=active]:dark:text-white data-[state=active]:dark:bg-gray-700"
                 data-no-select
               >
-                PPT
+                {t('tabs.ppt')}
               </TabsTrigger>
               <TabsTrigger
                 value="html"
-                className="text-xs h-6 px-2"
+                className="text-xs h-6 px-2 dark:text-gray-400 data-[state=active]:dark:text-white data-[state=active]:dark:bg-gray-700"
                 data-no-select
               >
-                HTML
+                {t('tabs.html')}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -1033,7 +939,7 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
         <Tabs value={activePreviewTab} className="h-full">
           <TabsContent value="ppt" className="h-full m-0 p-0">
             <div className="h-full flex flex-col">
-              <div className="p-2 border-b flex justify-end flex-shrink-0">
+              <div className="p-2 border-b flex justify-end flex-shrink-0 dark:border-gray-700">
                 {isSelecting ? (
                   <Button
                     onClick={handleCancelSelecting}
@@ -1041,7 +947,7 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
                     size="sm"
                     data-no-select
                   >
-                    Cancel Selection
+                    {t('buttons.cancelSelection')}
                   </Button>
                 ) : (
                   <Button
@@ -1050,7 +956,7 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
                     size="sm"
                     data-no-select
                   >
-                    Select Element to Edit
+                    {t('buttons.selectElement')}
                   </Button>
                 )}
               </div>
@@ -1058,10 +964,10 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
                 <iframe
                   ref={iframeRef}
                   key={`iframe-${renderKey}`}
-                  srcDoc={localHtmlContent}
-                  title="HTML Preview"
+                  srcDoc={getFullHtmlWithStyles(localHtmlContent)}
+                  title={t('iframeTitle')}
                   className="w-full h-full border-0 relative z-10"
-                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
                 />
                 {isSelecting && (
                   <div
@@ -1069,7 +975,7 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
                     data-no-select
                   >
                     <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                      Selection Mode Active
+                      {t('selectionModeActive')}
                     </span>
                   </div>
                 )}
@@ -1100,8 +1006,58 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
       )}
 
       {processingFeedback && (
-        <div className="processing-feedback">{processingFeedback}</div>
+        <div className="fixed bottom-4 right-4 bg-gray-900 text-white text-sm px-4 py-2 rounded shadow-lg z-50 animate-pulse">
+          {processingFeedback}
+        </div>
       )}
     </>
   );
 }
+
+// --- Helper Functions (Copied & Potentially Modified for HtmlPreview) ---
+
+// Helper function to ensure HTML has necessary styles linked
+const getFullHtmlWithStyles = (html: string): string => {
+  // Assume Tailwind styles are in globals.css at the root
+  // Adjust this path if your project's CSS output is different
+  // Use Tailwind CDN instead for broader compatibility in isolated iframe
+  const tailwindScript = '<script src="https://cdn.tailwindcss.com"></script>';
+  const fontAwesomeLink = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">';
+  const googleFontsLink = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">';
+  const headContent = `\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  ${tailwindScript}\n  ${fontAwesomeLink}\n  ${googleFontsLink}\n`;
+
+  // Create a temporary div to parse the HTML
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  const headElement = tempDiv.querySelector('head');
+  const bodyElement = tempDiv.querySelector('body');
+
+  // Check if it's a full document vs fragment
+  const isFullDocument = html.trim().startsWith('<!DOCTYPE') || html.trim().startsWith('<html');
+  const hasHead = !!headElement;
+  const hasBody = !!bodyElement;
+
+  if (isFullDocument) {
+      if (hasHead) {
+          // Inject into existing head if links/scripts aren't already there
+          let headHtml = headElement.innerHTML;
+          if (!headHtml.includes('cdn.tailwindcss.com')) headHtml += tailwindScript;
+          if (!headHtml.includes('font-awesome')) headHtml += fontAwesomeLink;
+          if (!headHtml.includes('fonts.googleapis.com')) headHtml += googleFontsLink;
+          headElement.innerHTML = headHtml; // Update head content
+          return tempDiv.innerHTML; // Return modified full HTML
+      } else {
+          // Add head if <html> exists but no <head>
+          const htmlTag = tempDiv.querySelector('html');
+          if (htmlTag) {
+              const newHead = document.createElement('head');
+              newHead.innerHTML = headContent;
+              htmlTag.insertBefore(newHead, htmlTag.firstChild);
+              return tempDiv.innerHTML;
+          }
+      }
+  } 
+
+  // If it's a fragment or body content, wrap it completely
+  return `<!DOCTYPE html>\n<html>\n<head>${headContent}</head>\n<body>\n${html}\n</body>\n</html>`;
+};

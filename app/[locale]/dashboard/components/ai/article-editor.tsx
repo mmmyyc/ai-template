@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import html2canvas from "html2canvas";
 import { HtmlPreview } from "@/app/[locale]/dashboard/components/common/html-preview";
+import { useTranslations } from 'next-intl';
 
 // ADD Style Injection useEffect
 const editorLayoutStyles = `
@@ -120,6 +121,8 @@ export default function ArticleEditor({
     },
   },
 }: ArticleEditorProps) {
+  const t = useTranslations('ArticleEditor');
+
   const [markdownContent, setMarkdownContent] = useState(initialContent);
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
 
@@ -153,7 +156,7 @@ export default function ArticleEditor({
   return (
     <div className="article-editor-container">
       <div className="bg-base-200 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between">
-        <h3 className="text-sm font-medium">文档编辑器</h3>
+        <h3 className="text-sm font-medium">{t('title')}</h3>
         <Tabs
           value={activeTab}
           onValueChange={(value: string) =>
@@ -164,11 +167,11 @@ export default function ArticleEditor({
           <TabsList className="h-7">
             <TabsTrigger value="edit" className="text-xs h-6 px-3 gap-1">
               <Edit className="h-3.5 w-3.5" />
-              <span>编辑</span>
+              <span>{t('tabs.edit')}</span>
             </TabsTrigger>
             <TabsTrigger value="preview" className="text-xs h-6 px-3 gap-1">
               <Eye className="h-3.5 w-3.5" />
-              <span>预览</span>
+              <span>{t('tabs.preview')}</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -180,7 +183,7 @@ export default function ArticleEditor({
           <TabsContent value="edit" className="h-full m-0 p-0">
             <div className="editor-content-area">
               <MarkdownEditor
-                initialContent={initialContent}
+                initialContent={markdownContent}
                 onChange={handleEditorChange}
                 onAIAction={onAIAction}
                 showAIButton={true}
@@ -197,7 +200,7 @@ export default function ArticleEditor({
                   <div className="flex flex-col items-center p-4 bg-base-100 dark:bg-gray-800 rounded shadow-lg">
                     <RefreshCw className="h-8 w-8 text-neutral-900 animate-spin mb-2 dark:text-neutral-50" />
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                      正在生成内容...
+                      {t('generatingMessage')}
                     </p>
                   </div>
                 </div>

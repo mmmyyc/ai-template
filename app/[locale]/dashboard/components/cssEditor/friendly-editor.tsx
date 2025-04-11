@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { X, Move } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getColorValue } from "./colorUtils"
+import { useTranslations } from 'next-intl'
 
 // Helper function copied from article-editor for consistency
 const findElementByPath = (path: string, container: Document | HTMLElement): HTMLElement | null => {
@@ -103,8 +104,6 @@ const colorOptions = [
   { value: "blue", label: "Blue" },
   { value: "purple", label: "Purple" },
   { value: "pink", label: "Pink" },
-  // { value: "white", label: "White" },
-  // { value: "black", label: "Black" }
 ]
 const colorIntensityOptions = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 
@@ -119,6 +118,8 @@ export function FriendlyEditor({
   onHtmlChange,
   className
 }: FriendlyEditorProps) {
+  const t = useTranslations('FriendlyEditor');
+
   // 存储原始类用于恢复
   const [initialClasses, setInitialClasses] = useState<string>(originalClasses);
   const [currentClasses, setCurrentClasses] = useState<string[]>(originalClasses.split(" ").filter(Boolean))
@@ -710,24 +711,68 @@ export function FriendlyEditor({
     initializeStylePropertiesFromClasses(updatedClasses);
   };
 
-  // 用于显示可删除的类标签
+  // ClassTag component with translated tooltip
   const ClassTag = ({ className }: { className: string }) => {
-    // 跳过空类名
     if (!className.trim()) return null;
-    
     return (
       <div className="inline-flex items-center bg-blue-50 text-blue-700 rounded px-2 py-1 text-xs m-1">
         {className}
-        <button 
+        <button
           type="button"
           className="ml-1 text-blue-500 hover:text-blue-700"
           onClick={() => handleRemoveClass(className)}
+          title={t('buttons.removeClassTooltip')}
         >
           <X className="h-3 w-3" />
         </button>
       </div>
     );
   };
+
+  // --- Translation Helper Functions --- START ---
+  const translateSelectOptionLabel = (
+    optionsArray: { value: string; label: string }[],
+    value: string,
+    keyPrefix: string,
+    valueProcessor: (v: string) => string = (v) => v // Optional processor for value (e.g., remove prefix)
+  ) => {
+    const option = optionsArray.find(opt => opt.value === value);
+    if (!option) return valueProcessor(value); // Fallback to processed value
+
+    // Generate key: convert label to lowercase and remove spaces for consistency
+    const labelKey = option.label.toLowerCase().replace(/\s+/g, '');
+    const fullKey = `${keyPrefix}.${labelKey}`;
+    const translated = t(fullKey);
+
+    // If translation returns the key itself, fallback to the original English label
+    return translated === fullKey ? option.label : translated;
+  };
+
+  const getFontWeightLabel = (value: string) => translateSelectOptionLabel(fontWeightOptions, value, 'fontWeightLabels', v => v.replace("font-", ""));
+  const getTextAlignLabel = (value: string) => translateSelectOptionLabel(textAlignOptions, value, 'textAlignLabels', v => v.replace("text-", ""));
+  const getDisplayLabel = (value: string) => translateSelectOptionLabel(displayOptions, value, 'displayLabels');
+  const getFlexDirectionLabel = (value: string) => translateSelectOptionLabel(flexDirectionOptions, value, 'flexDirectionLabels', v => v.replace("flex-", ""));
+  const getJustifyLabel = (value: string) => translateSelectOptionLabel(justifyOptions, value, 'justifyLabels', v => v.replace("justify-", ""));
+  const getAlignLabel = (value: string) => translateSelectOptionLabel(alignOptions, value, 'alignLabels', v => v.replace("items-", ""));
+  const getBorderRadiusLabel = (value: string) => translateSelectOptionLabel(borderRadiusOptions, value, 'borderRadiusLabels', v => v.replace("rounded-", "") || t('labels.default'));
+  const getShadowLabel = (value: string) => translateSelectOptionLabel(shadowOptions, value, 'shadowLabels', v => v.replace("shadow-", "") || t('labels.default'));
+
+  const getColorLabel = (value: string) => {
+    // Handle special cases first with dedicated keys
+    if (value === 'transparent') return t('colorLabels.transparent');
+    if (value === 'current') return t('colorLabels.current');
+    if (value === 'white') return t('colorLabels.white');
+    if (value === 'black') return t('colorLabels.black');
+
+    // Handle palette colors
+    const option = colorOptions.find(opt => opt.value === value);
+    if (!option) return value; // Fallback to raw value if not a known palette color
+
+    const key = `colorLabels.${option.label.toLowerCase()}`;
+    const translated = t(key);
+    return translated === key ? option.label : translated; // Fallback to English label if translation missing
+  };
+  // --- Translation Helper Functions --- END ---
 
   return (
     <div
@@ -748,9 +793,9 @@ export function FriendlyEditor({
       >
         <div className="flex items-center gap-2">
           <Move className="h-4 w-4 text-gray-500" />
-          <h3 className="font-medium">Style Editor</h3>
+          <h3 className="font-medium">{t('title')}</h3>
         </div>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onClose}>
+        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onClose} title={t('buttons.close')}>
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -759,29 +804,29 @@ export function FriendlyEditor({
         <div className="p-4 space-y-6">
           <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="w-full grid grid-cols-4">
-              <TabsTrigger value="text">Text</TabsTrigger>
-              <TabsTrigger value="layout">Layout</TabsTrigger>
-              <TabsTrigger value="colors">Colors</TabsTrigger>
-              <TabsTrigger value="effects">Effects</TabsTrigger>
+              <TabsTrigger value="text">{t('tabs.text')}</TabsTrigger>
+              <TabsTrigger value="layout">{t('tabs.layout')}</TabsTrigger>
+              <TabsTrigger value="colors">{t('tabs.colors')}</TabsTrigger>
+              <TabsTrigger value="effects">{t('tabs.effects')}</TabsTrigger>
             </TabsList>
 
             {/* TEXT TAB */}
             <TabsContent value="text" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="text-size">Text Size</Label>
-                <Select 
+                <Label htmlFor="text-size">{t('labels.textSize')}</Label>
+                <Select
                   value={fontSize || ""}
                   onValueChange={(value) => setFontSize(value)}
                 >
                   <SelectTrigger id="text-size" className={fontSize ? "border-blue-300" : ""}>
-                    <SelectValue placeholder="Select size">
-                      {fontSize ? `Size: ${fontSize}` : "Select size"}
+                    <SelectValue placeholder={t('placeholders.selectSize')}>
+                      {fontSize ? `${t('labels.sizePrefix')}: ${fontSize}` : t('placeholders.selectSize')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {fontSizeOptions.map((size) => (
                       <SelectItem key={size} value={size}>
-                        {size}
+                        {size} {/* Display raw value, label handled above */}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -789,20 +834,20 @@ export function FriendlyEditor({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="text-weight">Text Weight</Label>
+                <Label htmlFor="text-weight">{t('labels.textWeight')}</Label>
                 <Select
                   value={fontWeight || ""}
                   onValueChange={(value) => setFontWeight(value)}
                 >
                   <SelectTrigger id="text-weight" className={fontWeight ? "border-blue-300" : ""}>
-                    <SelectValue placeholder="Select weight">
-                      {fontWeight ? fontWeightOptions.find(option => option.value === fontWeight)?.label || fontWeight.replace("font-", "") : "Select weight"}
+                    <SelectValue placeholder={t('placeholders.selectWeight')}>
+                      {fontWeight ? getFontWeightLabel(fontWeight) : t('placeholders.selectWeight')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {fontWeightOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {getFontWeightLabel(option.value)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -810,20 +855,20 @@ export function FriendlyEditor({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="text-align">Text Alignment</Label>
+                <Label htmlFor="text-align">{t('labels.textAlign')}</Label>
                 <Select
                   value={textAlignment || ""}
                   onValueChange={(value) => setTextAlignment(value)}
                 >
                   <SelectTrigger id="text-align" className={textAlignment ? "border-blue-300" : ""}>
-                    <SelectValue placeholder="Select alignment">
-                      {textAlignment ? textAlignOptions.find(option => option.value === textAlignment)?.label || textAlignment.replace("text-", "") : "Select alignment"}
+                    <SelectValue placeholder={t('placeholders.selectAlign')}>
+                      {textAlignment ? getTextAlignLabel(textAlignment) : t('placeholders.selectAlign')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {textAlignOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {getTextAlignLabel(option.value)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -834,20 +879,20 @@ export function FriendlyEditor({
             {/* LAYOUT TAB */}
             <TabsContent value="layout" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="display">Display Type</Label>
+                <Label htmlFor="display">{t('labels.displayType')}</Label>
                 <Select
                   value={display || ""}
                   onValueChange={(value) => setDisplay(value)}
                 >
                   <SelectTrigger id="display" className={display ? "border-blue-300" : ""}>
-                    <SelectValue placeholder="Select display">
-                      {display ? displayOptions.find(option => option.value === display)?.label || display : "Select display"}
+                    <SelectValue placeholder={t('placeholders.selectDisplay')}>
+                      {display ? getDisplayLabel(display) : t('placeholders.selectDisplay')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {displayOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {getDisplayLabel(option.value)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -857,21 +902,21 @@ export function FriendlyEditor({
               {display === "flex" && (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="flex-direction">Direction</Label>
+                    <Label htmlFor="flex-direction">{t('labels.direction')}</Label>
                     <Select
                       value={flexDirection || ""}
                       onValueChange={(value) => setFlexDirection(value)}
                       disabled={display !== "flex"}
                     >
                       <SelectTrigger id="flex-direction" className={flexDirection ? "border-blue-300" : ""}>
-                        <SelectValue placeholder="Select direction">
-                          {flexDirection ? flexDirectionOptions.find(option => option.value === flexDirection)?.label || flexDirection.replace("flex-", "") : "Select direction"}
+                        <SelectValue placeholder={t('placeholders.selectDirection')}>
+                          {flexDirection ? getFlexDirectionLabel(flexDirection) : t('placeholders.selectDirection')}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {flexDirectionOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                             {getFlexDirectionLabel(option.value)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -879,21 +924,21 @@ export function FriendlyEditor({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="justify-content">Horizontal Alignment</Label>
+                    <Label htmlFor="justify-content">{t('labels.horizontalAlign')}</Label>
                     <Select
                       value={justifyContent || ""}
                       onValueChange={(value) => setJustifyContent(value)}
                       disabled={display !== "flex"}
                     >
                       <SelectTrigger id="justify-content" className={justifyContent ? "border-blue-300" : ""}>
-                        <SelectValue placeholder="Select justify">
-                          {justifyContent ? justifyOptions.find(option => option.value === justifyContent)?.label || justifyContent.replace("justify-", "") : "Select justify"}
+                        <SelectValue placeholder={t('placeholders.selectJustify')}>
+                          {justifyContent ? getJustifyLabel(justifyContent) : t('placeholders.selectJustify')}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {justifyOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                            {getJustifyLabel(option.value)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -901,21 +946,21 @@ export function FriendlyEditor({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="align-items">Vertical Alignment</Label>
+                    <Label htmlFor="align-items">{t('labels.verticalAlign')}</Label>
                     <Select
                       value={alignItems || ""}
                       onValueChange={(value) => setAlignItems(value)}
                       disabled={display !== "flex"}
                     >
                       <SelectTrigger id="align-items" className={alignItems ? "border-blue-300" : ""}>
-                        <SelectValue placeholder="Select alignment">
-                          {alignItems ? alignOptions.find(option => option.value === alignItems)?.label || alignItems.replace("items-", "") : "Select alignment"}
+                        <SelectValue placeholder={t('placeholders.selectAlignItems')}>
+                          {alignItems ? getAlignLabel(alignItems) : t('placeholders.selectAlignItems')}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {alignOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                            {getAlignLabel(option.value)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -924,180 +969,144 @@ export function FriendlyEditor({
                 </>
               )}
 
+              {/* Margin Controls */}
               <div className="space-y-4 mt-6">
                 <div className="flex justify-between items-center mb-2">
-                  <Label className="font-medium">Margin</Label>
+                  <Label className="font-medium">{t('labels.margin')}</Label>
                   <Button variant="outline" size="sm" onClick={() => setShowMarginPreview(!showMarginPreview)} className="h-6 px-2 text-xs">
-                    {showMarginPreview ? "Hide Preview" : "Show Preview"}
+                    {showMarginPreview ? t('buttons.hidePreview') : t('buttons.showPreview')}
                   </Button>
-              </div>
-
+                </div>
                 {showMarginPreview && (
                   <div className="mb-4">
                     <div className="relative w-full h-28 bg-gray-100 border rounded-md overflow-hidden">
-                      {/* 外部margin预览框 */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        {/* 顶部margin区域 */}
-                        <div 
+                        <div
                           className="absolute top-0 left-0 right-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
-                          style={{ height: `${marginTop * 4}px` }}
+                          style={{ height: `${Math.min(marginTop * 4, 50)}px` }} // Cap preview size
                         >
                           {marginTop > 0 && `mt-${marginTop}`}
                         </div>
-                        
-                        {/* 右侧margin区域 */}
-                        <div 
+                        <div
                           className="absolute top-0 right-0 bottom-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
-                          style={{ width: `${marginRight * 4}px` }}
+                          style={{ width: `${Math.min(marginRight * 4, 50)}px` }}
                         >
                           {marginRight > 0 && `mr-${marginRight}`}
                         </div>
-                        
-                        {/* 底部margin区域 */}
-                        <div 
+                        <div
                           className="absolute bottom-0 left-0 right-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
-                          style={{ height: `${marginBottom * 4}px` }}
+                          style={{ height: `${Math.min(marginBottom * 4, 50)}px` }}
                         >
                           {marginBottom > 0 && `mb-${marginBottom}`}
                         </div>
-                        
-                        {/* 左侧margin区域 */}
-                        <div 
+                        <div
                           className="absolute top-0 left-0 bottom-0 bg-blue-200 opacity-30 flex items-center justify-center text-xs"
-                          style={{ width: `${marginLeft * 4}px` }}
+                          style={{ width: `${Math.min(marginLeft * 4, 50)}px` }}
                         >
                           {marginLeft > 0 && `ml-${marginLeft}`}
                         </div>
-                        
-                        {/* 内部内容区域 */}
-                        <div 
-                          className="bg-white border border-gray-300 rounded" 
-                          style={{ 
-                            width: `calc(100% - ${(marginLeft + marginRight) * 4}px)`, 
-                            height: `calc(100% - ${(marginTop + marginBottom) * 4}px)`,
-                            padding: `${padding * 4}px`
+                        <div
+                          className="bg-white border border-gray-300 rounded"
+                          style={{
+                            width: `calc(100% - ${Math.min((marginLeft + marginRight) * 4, 100)}px)`,
+                            height: `calc(100% - ${Math.min((marginTop + marginBottom) * 4, 100)}px)`,
                           }}
                         >
                           <div className="w-full h-full flex items-center justify-center bg-gray-50 text-xs">
-                            Content
+                            {t('labels.content')}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 )}
-                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Top: {marginTop}</Label>
-                    <Slider value={[marginTop]} min={0} max={12} step={1} onValueChange={(value) => setMarginTop(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.topWithColon', { value: marginTop })}</Label>
+                    <Slider value={[marginTop]} min={0} max={64} step={1} onValueChange={(value) => setMarginTop(value[0])} />
                   </div>
-                  
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Right: {marginRight}</Label>
-                    <Slider value={[marginRight]} min={0} max={12} step={1} onValueChange={(value) => setMarginRight(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.rightWithColon', { value: marginRight })}</Label>
+                    <Slider value={[marginRight]} min={0} max={64} step={1} onValueChange={(value) => setMarginRight(value[0])} />
                   </div>
-                  
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Bottom: {marginBottom}</Label>
-                    <Slider value={[marginBottom]} min={0} max={12} step={1} onValueChange={(value) => setMarginBottom(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.bottomWithColon', { value: marginBottom })}</Label>
+                    <Slider value={[marginBottom]} min={0} max={64} step={1} onValueChange={(value) => setMarginBottom(value[0])} />
                   </div>
-                  
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Left: {marginLeft}</Label>
-                    <Slider value={[marginLeft]} min={0} max={12} step={1} onValueChange={(value) => setMarginLeft(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.leftWithColon', { value: marginLeft })}</Label>
+                    <Slider value={[marginLeft]} min={0} max={64} step={1} onValueChange={(value) => setMarginLeft(value[0])} />
                   </div>
                 </div>
               </div>
 
+              {/* Padding Controls */}
               <div className="space-y-4 mt-6">
-                <div className="flex justify-between items-center mb-2">
-                  <Label className="font-medium">Padding</Label>
+                 <div className="flex justify-between items-center mb-2">
+                  <Label className="font-medium">{t('labels.padding')}</Label>
                   <Button variant="outline" size="sm" onClick={() => setShowPaddingPreview(!showPaddingPreview)} className="h-6 px-2 text-xs">
-                    {showPaddingPreview ? "Hide Preview" : "Show Preview"}
+                    {showPaddingPreview ? t('buttons.hidePreview') : t('buttons.showPreview')}
                   </Button>
                 </div>
-                
                 {showPaddingPreview && (
-                  <div className="mb-4">
-                    <div className="relative w-full h-28 bg-gray-100 border rounded-md overflow-hidden">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div 
-                          className="bg-white border border-gray-300 rounded" 
-                          style={{ 
-                            width: `calc(100% - ${(marginLeft + marginRight) * 4}px)`, 
-                            height: `calc(100% - ${(marginTop + marginBottom) * 4}px)`
-                          }}
-                        >
-                          {/* 顶部padding区域 */}
-                          <div 
-                            className="absolute top-0 left-0 right-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
-                            style={{ height: `${paddingTop * 4}px` }}
-                          >
-                            {paddingTop > 0 && `pt-${paddingTop}`}
-                          </div>
-                          
-                          {/* 右侧padding区域 */}
-                          <div 
-                            className="absolute top-0 right-0 bottom-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
-                            style={{ width: `${paddingRight * 4}px` }}
-                          >
-                            {paddingRight > 0 && `pr-${paddingRight}`}
-                          </div>
-                          
-                          {/* 底部padding区域 */}
-                          <div 
-                            className="absolute bottom-0 left-0 right-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
-                            style={{ height: `${paddingBottom * 4}px` }}
-                          >
-                            {paddingBottom > 0 && `pb-${paddingBottom}`}
-                          </div>
-                          
-                          {/* 左侧padding区域 */}
-                          <div 
-                            className="absolute top-0 left-0 bottom-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
-                            style={{ width: `${paddingLeft * 4}px` }}
-                          >
-                            {paddingLeft > 0 && `pl-${paddingLeft}`}
-                          </div>
-                          
-                          {/* 内容区域 */}
-                          <div 
-                            className="absolute bg-gray-50 flex items-center justify-center text-xs"
-                            style={{ 
-                              top: `${paddingTop * 4}px`, 
-                              right: `${paddingRight * 4}px`, 
-                              bottom: `${paddingBottom * 4}px`, 
-                              left: `${paddingLeft * 4}px` 
-                            }}
-                          >
-                            Content
-                          </div>
+                   <div className="mb-4">
+                     <div className="relative w-full h-28 bg-gray-100 border rounded-md overflow-hidden">
+                        <div className="bg-white border border-gray-300 rounded w-full h-full relative">
+                            <div
+                                className="absolute top-0 left-0 right-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                                style={{ height: `${Math.min(paddingTop * 4, 50)}px` }}
+                            >
+                                {paddingTop > 0 && `pt-${paddingTop}`}
+                            </div>
+                            <div
+                                className="absolute top-0 right-0 bottom-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                                style={{ width: `${Math.min(paddingRight * 4, 50)}px` }}
+                            >
+                                {paddingRight > 0 && `pr-${paddingRight}`}
+                            </div>
+                            <div
+                                className="absolute bottom-0 left-0 right-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                                style={{ height: `${Math.min(paddingBottom * 4, 50)}px` }}
+                            >
+                                {paddingBottom > 0 && `pb-${paddingBottom}`}
+                            </div>
+                            <div
+                                className="absolute top-0 left-0 bottom-0 bg-green-200 opacity-30 flex items-center justify-center text-xs"
+                                style={{ width: `${Math.min(paddingLeft * 4, 50)}px` }}
+                            >
+                                {paddingLeft > 0 && `pl-${paddingLeft}`}
+                            </div>
+                            <div
+                                className="absolute bg-gray-50 flex items-center justify-center text-xs inset-0"
+                                style={{
+                                top: `${Math.min(paddingTop * 4, 50)}px`,
+                                right: `${Math.min(paddingRight * 4, 50)}px`,
+                                bottom: `${Math.min(paddingBottom * 4, 50)}px`,
+                                left: `${Math.min(paddingLeft * 4, 50)}px`,
+                                }}
+                            >
+                                {t('labels.content')}
+                            </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
+                     </div>
+                   </div>
                 )}
-                
-                <div className="grid grid-cols-2 gap-4">
+                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Top: {paddingTop}</Label>
-                    <Slider value={[paddingTop]} min={0} max={12} step={1} onValueChange={(value) => setPaddingTop(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.topWithColon', { value: paddingTop })}</Label>
+                    <Slider value={[paddingTop]} min={0} max={64} step={1} onValueChange={(value) => setPaddingTop(value[0])} />
                   </div>
-                  
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Right: {paddingRight}</Label>
-                    <Slider value={[paddingRight]} min={0} max={12} step={1} onValueChange={(value) => setPaddingRight(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.rightWithColon', { value: paddingRight })}</Label>
+                    <Slider value={[paddingRight]} min={0} max={64} step={1} onValueChange={(value) => setPaddingRight(value[0])} />
                   </div>
-                  
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Bottom: {paddingBottom}</Label>
-                    <Slider value={[paddingBottom]} min={0} max={12} step={1} onValueChange={(value) => setPaddingBottom(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.bottomWithColon', { value: paddingBottom })}</Label>
+                    <Slider value={[paddingBottom]} min={0} max={64} step={1} onValueChange={(value) => setPaddingBottom(value[0])} />
                   </div>
-                  
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-600">Left: {paddingLeft}</Label>
-                    <Slider value={[paddingLeft]} min={0} max={12} step={1} onValueChange={(value) => setPaddingLeft(value[0])} />
+                    <Label className="text-xs text-gray-600">{t('labels.leftWithColon', { value: paddingLeft })}</Label>
+                    <Slider value={[paddingLeft]} min={0} max={64} step={1} onValueChange={(value) => setPaddingLeft(value[0])} />
                   </div>
                 </div>
               </div>
@@ -1106,110 +1115,147 @@ export function FriendlyEditor({
             {/* COLORS TAB */}
             <TabsContent value="colors" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>Text Color</Label>
+                <Label>{t('labels.textColor')}</Label>
                 <div className="grid grid-cols-4 gap-2">
-                  {colorOptions.map((color) => (
+                  {/* Combine special colors and palette, ensuring labels are translated */}
+                  {[
+                    { value: "transparent", label: t('colorLabels.transparent') },
+                    { value: "current", label: t('colorLabels.current') },
+                    { value: 'white', label: t('colorLabels.white') },
+                    { value: 'black', label: t('colorLabels.black') },
+                    ...colorOptions.map(opt => ({ value: opt.value, label: getColorLabel(opt.value) })) // Use helper for palette
+                  ].map((color) => (
                     <div
                       key={color.value}
+                      title={color.label}
                       className={cn(
-                        "h-8 rounded-md cursor-pointer border-2",
-                        textColor === color.value ? "border-black" : "border-transparent",
-                        // 为白色添加灰色边框
-                        color.value === "white" ? "border border-gray-200" : ""
+                        "h-8 rounded-md cursor-pointer border-2 flex items-center justify-center",
+                        textColor === color.value ? "border-blue-500 ring-2 ring-blue-300" : "border-gray-300",
+                        color.value === "white" && "bg-white",
+                        color.value === "black" && "bg-black",
+                        color.value === "transparent" && "bg-transparent border-dashed",
+                        color.value === "current" && "bg-gray-200 text-gray-500 text-xs italic"
                       )}
-                      style={{ 
-                        backgroundColor: getColorValue(color.value, color.value === "white" || color.value === "black" ? 0 : 500)
+                      style={!["white", "black", "transparent", "current"].includes(color.value) ? {
+                        backgroundColor: getColorValue(color.value, 500)
+                      } : {}}
+                      onClick={() => {
+                        setTextColor(color.value);
+                        if (["white", "black", "transparent", "current"].includes(color.value)) {
+                           setTextColorIntensity(0); // No intensity for special colors
+                        } else if (textColorIntensity === 0) {
+                            setTextColorIntensity(500); // Default intensity if switching from special color
+                        }
                       }}
-                      onClick={() => setTextColor(color.value)}
-                    />
+                    >
+                      {color.value === "current" && t('colorLabels.autoIndicator')}
+                      {color.value === "transparent" && <X className="h-4 w-4 text-gray-400"/>}
+                    </div>
                   ))}
                 </div>
 
-                {textColor && textColor !== "white" && textColor !== "black" && (
-                  <div className="mt-2 space-y-2">
-                    <Label>Color Intensity: {textColorIntensity}</Label>
-                    <div className="flex items-center gap-3">
-                      <Slider
-                        value={[textColorIntensity]}
-                        min={100}
-                        max={900}
-                        step={100}
-                        onValueChange={(value) => setTextColorIntensity(value[0])}
-                        className="flex-1"
-                      />
-                      <div 
-                        className="w-6 h-6 rounded-md border"
-                        style={{ backgroundColor: getColorValue(textColor, textColorIntensity) }}
-                      />
+                 {textColor && !["white", "black", "transparent", "current"].includes(textColor) && (
+                    <div className="mt-2 space-y-2">
+                        <Label>{t('labels.colorIntensity', { value: textColorIntensity })}</Label>
+                        <div className="flex items-center gap-3">
+                        <Slider
+                            value={[textColorIntensity]}
+                            min={50}
+                            max={950}
+                            step={50}
+                            onValueChange={(value) => setTextColorIntensity(value[0])}
+                            className="flex-1"
+                        />
+                        <div
+                            className="w-6 h-6 rounded-md border"
+                            style={{ backgroundColor: getColorValue(textColor, textColorIntensity) }}
+                        />
+                        </div>
                     </div>
-                  </div>
-                )}
+                 )}
               </div>
 
               <div className="space-y-2">
-                <Label>Background Color</Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {colorOptions.map((color) => (
-                    <div
-                      key={color.value}
-                      className={cn(
-                        "h-8 rounded-md cursor-pointer border-2",
-                        bgColor === color.value ? "border-black" : "border-transparent",
-                        // 为白色添加灰色边框
-                        color.value === "white" ? "border border-gray-200" : ""
-                      )}
-                      style={{ 
-                        backgroundColor: getColorValue(color.value, color.value === "white" || color.value === "black" ? 0 : 500)
-                      }}
-                      onClick={() => setBgColor(color.value)}
-                    />
-                  ))}
-                </div>
+                 <Label>{t('labels.backgroundColor')}</Label>
+                 <div className="grid grid-cols-4 gap-2">
+                     {/* Combine special colors and palette for Background */}
+                     {[
+                        { value: "transparent", label: t('colorLabels.transparent') },
+                        { value: 'white', label: t('colorLabels.white') },
+                        { value: 'black', label: t('colorLabels.black') },
+                        ...colorOptions.map(opt => ({ value: opt.value, label: getColorLabel(opt.value) }))
+                     ].map((color) => (
+                        <div
+                          key={color.value}
+                          title={color.label}
+                          className={cn(
+                            "h-8 rounded-md cursor-pointer border-2 flex items-center justify-center",
+                            bgColor === color.value ? "border-blue-500 ring-2 ring-blue-300" : "border-gray-300",
+                             color.value === "white" && "bg-white",
+                             color.value === "black" && "bg-black",
+                             color.value === "transparent" && "bg-transparent border-dashed"
+                          )}
+                          style={!["white", "black", "transparent"].includes(color.value) ? {
+                            backgroundColor: getColorValue(color.value, 500)
+                          } : {}}
+                          onClick={() => {
+                            setBgColor(color.value);
+                            if (["white", "black", "transparent"].includes(color.value)) {
+                                setBgColorIntensity(0);
+                            } else if (bgColorIntensity === 0) {
+                                setBgColorIntensity(500);
+                            }
+                          }}
+                        >
+                           {color.value === "transparent" && <X className="h-4 w-4 text-gray-400"/>}
+                        </div>
+                      ))}
+                 </div>
 
-                {bgColor && bgColor !== "white" && bgColor !== "black" && (
-                  <div className="mt-2 space-y-2">
-                    <Label>Color Intensity: {bgColorIntensity}</Label>
-                    <div className="flex items-center gap-3">
-                      <Slider
-                        value={[bgColorIntensity]}
-                        min={100}
-                        max={900}
-                        step={100}
-                        onValueChange={(value) => setBgColorIntensity(value[0])}
-                        className="flex-1"
-                      />
-                      <div 
-                        className="w-6 h-6 rounded-md border"
-                        style={{ backgroundColor: getColorValue(bgColor, bgColorIntensity) }}
-                      />
+                 {bgColor && !["white", "black", "transparent"].includes(bgColor) && (
+                    <div className="mt-2 space-y-2">
+                      <Label>{t('labels.colorIntensity', { value: bgColorIntensity })}</Label>
+                      <div className="flex items-center gap-3">
+                        <Slider
+                          value={[bgColorIntensity]}
+                           min={50}
+                           max={950}
+                           step={50}
+                          onValueChange={(value) => setBgColorIntensity(value[0])}
+                          className="flex-1"
+                        />
+                        <div
+                          className="w-6 h-6 rounded-md border"
+                          style={{ backgroundColor: getColorValue(bgColor, bgColorIntensity) }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </TabsContent>
 
             {/* EFFECTS TAB */}
             <TabsContent value="effects" className="space-y-4 mt-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="border-switch">Border</Label>
+                <Label htmlFor="border-switch">{t('labels.border')}</Label>
                 <Switch id="border-switch" checked={hasBorder} onCheckedChange={setHasBorder} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="border-radius">Corner Roundness</Label>
+                <Label htmlFor="border-radius">{t('labels.cornerRadius')}</Label>
                 <Select
                   value={borderRadius || ""}
                   onValueChange={(value) => setBorderRadius(value)}
                 >
                   <SelectTrigger id="border-radius" className={borderRadius ? "border-blue-300" : ""}>
-                    <SelectValue placeholder="Select radius">
-                      {borderRadius ? borderRadiusOptions.find(option => option.value === borderRadius)?.label || (borderRadius.replace("rounded", "").replace("-", "") || "Default") : "Select radius"}
+                    <SelectValue placeholder={t('placeholders.selectRadius')}>
+                       {borderRadius ? getBorderRadiusLabel(borderRadius) : t('placeholders.selectRadius')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {borderRadiusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {getBorderRadiusLabel(option.value)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1217,20 +1263,20 @@ export function FriendlyEditor({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="shadow">Shadow</Label>
+                <Label htmlFor="shadow">{t('labels.shadow')}</Label>
                 <Select
                   value={shadow || ""}
                   onValueChange={(value) => setShadow(value)}
                 >
                   <SelectTrigger id="shadow" className={shadow ? "border-blue-300" : ""}>
-                    <SelectValue placeholder="Select shadow">
-                      {shadow ? shadowOptions.find(option => option.value === shadow)?.label || (shadow.replace("shadow", "").replace("-", "") || "Default") : "Select shadow"}
+                    <SelectValue placeholder={t('placeholders.selectShadow')}>
+                      {shadow ? getShadowLabel(shadow) : t('placeholders.selectShadow')}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {shadowOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {getShadowLabel(option.value)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1239,61 +1285,62 @@ export function FriendlyEditor({
             </TabsContent>
           </Tabs>
 
-          <div className="mt-4 pt-2 border-t">
+          {/* CSS Classes Section */}
+           <div className="mt-4 pt-2 border-t">
             <div className="flex justify-between items-center mb-2">
-              <Label className="font-medium">CSS Classes</Label>
+              <Label className="font-medium">{t('labels.cssClasses')}</Label>
               <Button variant="outline" size="sm" onClick={() => setShowRawCss(!showRawCss)} className="h-6 px-2 text-xs">
-                {showRawCss ? "Hide" : "Show"}
+                {showRawCss ? t('buttons.hide') : t('buttons.show')}
               </Button>
             </div>
-            
+
             {showRawCss && (
               <div className="space-y-3 max-h-[200px] overflow-y-auto pr-1">
                 <div>
-                  <Label className="text-xs font-medium text-gray-600">Original:</Label>
+                  <Label className="text-xs font-medium text-gray-600">{t('labels.original')}:</Label>
                   <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto break-all border border-gray-200 max-h-[60px] overflow-y-auto">
                     {initialClasses}
                   </div>
                 </div>
                 <div>
-                  <Label className="text-xs font-medium text-gray-600">Current:</Label>
+                  <Label className="text-xs font-medium text-gray-600">{t('labels.current')}:</Label>
                   <div className="bg-gray-50 p-2 rounded-md text-xs font-mono overflow-x-auto border border-gray-200 max-h-[60px] overflow-y-auto">
                     {updateClasses()}
                   </div>
                 </div>
                 <div>
-                  <Label className="text-xs font-medium text-gray-600">Edit Classes:</Label>
+                  <Label className="text-xs font-medium text-gray-600">{t('labels.editClasses')}:</Label>
                   <div className="bg-gray-50 p-2 rounded-md border border-gray-200 max-h-[80px] overflow-y-auto flex flex-wrap">
                     {currentClasses.map((cls, index) => (
                       <ClassTag key={`${cls}-${index}`} className={cls} />
                     ))}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
-                    点击标签上的 X 可删除对应的CSS类
+                    {t('helpers.removeClass')}
                   </div>
                 </div>
                 {initialClasses !== updateClasses() && (
                   <div className="text-xs text-blue-600">
-                    * Blue highlighted fields indicate properties that have been changed
+                    {t('helpers.changedFields')}
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          {/* 底部按钮，始终可见 */}
-          <div className="flex justify-between gap-2 pt-2 mt-2 border-t sticky bottom-0 bg-white pb-2">
+          {/* Action Buttons */}
+          <div className="flex justify-between gap-2 pt-2 mt-2 border-t sticky bottom-0 bg-white pb-2 z-10">
             <div>
-              <Button size="sm" variant="outline" onClick={handleCancel}>
-                Cancel
+              <Button size="sm" variant="outline" onClick={handleCancel} title={t('buttons.cancelTooltip')}>
+                {t('buttons.cancel')}
               </Button>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={handleReset}>
-                Reset
+              <Button size="sm" variant="outline" onClick={handleReset} title={t('buttons.resetTooltip')}>
+                {t('buttons.reset')}
               </Button>
-              <Button size="sm" onClick={handleApplyChanges}>
-                Apply Changes
+              <Button size="sm" onClick={handleApplyChanges} title={t('buttons.applyTooltip')}>
+                {t('buttons.apply')}
               </Button>
             </div>
           </div>
