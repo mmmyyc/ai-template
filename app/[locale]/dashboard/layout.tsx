@@ -22,8 +22,10 @@ export const metadata =  getSEOTags({
 
 export default async function Layout({
   children,
+  params
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
+  params: { locale: string };
 }) {
   const supabase = createClient();
 
@@ -31,7 +33,10 @@ export default async function Layout({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect(config.auth.loginUrl);
+    redirect({
+      href: config.auth.loginUrl,
+      locale: params.locale
+    });
   }
   return (
     <div className={inter.className}>
