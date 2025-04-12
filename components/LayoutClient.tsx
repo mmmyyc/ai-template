@@ -3,7 +3,7 @@
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/libs/supabase/client";
 import { useEffect, useState, ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { Crisp } from "crisp-sdk-web";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "react-hot-toast";

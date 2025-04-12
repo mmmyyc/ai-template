@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { downloadGeneratedImage } from "@/app/[locale]/dashboard/utils/download";

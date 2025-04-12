@@ -175,46 +175,30 @@
     "plans": {
       "free": {
         "name": "Free",
-        "description": "Providing high-quality desktop pets consisting of 25 high-quality pictures",
+        "description": "Generate professional AI slides with essential features",
         "features": {
-          "0": "Usage Limit 3 generations per month",
-          "1": "AI assistant",
-          "2": "Shimeji Customization",
-          "3": "HD Animated Images",
-          "4": "Fun Interaction",
-          "5": "Real-time Response",
-          "6": "25-frame Animation Set",
-          "7": "Human Character Customization"
+          "0": "Usage Limit 10 generations per month",
+          "1": "AI Key Point Extraction",
+          "2": "Deep Style Customization",
+          "3": "Professional Layouts",
+          "4": "Advanced Data Visualization",
+          "5": "Efficient Workflow",
+          "6": "Full Font & Color Control",
+          "7": "AI assistant"
         }
       },
       "basic": {
         "name": "Basic",
-        "description": "Providing high-quality desktop pets consisting of 25 high-quality pictures",
+        "description": "Generate a larger batch of AI slides with full customization",
         "features": {
-          "0": "Usage Limit 50 generations per month",
-          "1": "AI assistant",
-          "2": "Shimeji Customization",
-          "3": "HD Animated Images",
-          "4": "Fun Interaction",
-          "5": "Real-time Response",
-          "6": "25-frame Animation Set",
-          "7": "Human Character Customization"
-        }
-      },
-      "advanced": {
-        "name": "Advanced",
-        "description": "Providing high-quality desktop pets consisting of 46 high-quality pictures",
-        "features": {
-          "0": "Usage Limit 200 generations per month",
-          "1": "AI assistant",
-          "2": "Shimeji Customization",
-          "3": "HD Animated Images",
-          "4": "Fun Interaction",
-          "5": "Real-time Response",
-          "6": "46-frame Premium Animation",
-          "7": "Human Character Customization",
-          "8": "Pet Character Customization",
-          "9": "Multi-device Support"
+          "0": "Usage Limit 60 generations per purchase",
+          "1": "AI Key Point Extraction",
+          "2": "Deep Style Customization",
+          "3": "Professional Layouts",
+          "4": "Advanced Data Visualization",
+          "5": "Efficient Workflow",
+          "6": "Full Font & Color Control",
+          "7": "AI assistant"
         }
       }
     }

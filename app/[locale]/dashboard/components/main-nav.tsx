@@ -1,7 +1,7 @@
 'use client'
 
 import { Link } from '@/i18n/navigation';
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/i18n/navigation'
 import { Image, Upload } from 'lucide-react'
 import { DailyLimit } from './daily-limit'
 import ButtonAccount from '@/components/ButtonAccount'

@@ -1,6 +1,6 @@
 import { Inter } from 'next/font/google'
 import { MainNav } from './components/main-nav'
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/libs/supabase/server";
 import config from "@/config";
 import React from 'react';

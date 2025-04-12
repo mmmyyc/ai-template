@@ -1,56 +1,56 @@
 {
   "HomePage": {
-    "title": "AI 游乐场",
+    "title": "AI 演示文稿生成器",
     "back": "返回",
     "hero": {
-      "title": "创建你的完美桌面伙伴",
-      "subtitle": "使用 AI 技术生成独特的个性化桌面宠物",
+      "title": "在几分钟内创建专业演示文稿",
+      "subtitle": "使用我们的 AI 技术生成精确、可定制的 PPT 幻灯片",
       "tryButton": "立即体验",
       "watchButton": "观看演示"
     },
     "problem": {
-      "title": "数字时代的孤独正在影响我们的工作和生活",
-      "description": "每天面对冰冷的屏幕，缺乏互动和情感连接，使我们的工作变得单调，甚至影响心理健康",
+      "title": "传统 AI PPT 工具难以满足用户期望",
+      "description": "当前的 AI 演示工具在内容保真度、设计质量和实用性方面存在不足，造成的工作量比节省的还多",
       "steps": {
         "digital": {
-          "title": "冰冷的数字世界",
-          "description": "每天面对屏幕超过8小时，缺乏活力和互动"
+          "title": "内容被扭曲",
+          "description": "AI 会修改您的内容，添加废话，改变您的预期重点"
         },
         "burnout": {
-          "title": "工作倦怠",
-          "description": "感到孤独和压力，工作热情逐渐消退"
+          "title": "设计质量差",
+          "description": "通用模板，布局不协调，格式不一致"
         },
         "productivity": {
-          "title": "生产力下降",
-          "description": "难以集中注意力，创造灵感逐渐枯竭"
+          "title": "修复浪费时间",
+          "description": "花在修复 AI 输出上的时间与手动创建幻灯片一样多"
         }
       },
       "stats": {
-        "remote": "76% 的人在远程工作时感到孤独",
-        "environment": "52% 的人希望有更愉快的工作环境",
-        "efficiency": "89% 的人认为愉快的工作环境能提高效率"
+        "remote": "78% 的用户对 AI 生成内容的准确性不满意",
+        "environment": "65% 的人发现 AI 演示文稿的设计质量不令人满意",
+        "efficiency": "82% 的用户希望对幻灯片内容和格式有更多控制权"
       }
     },
     "features": {
-      "title": "为什么选择我们的桌面宠物？",
+      "title": "为什么选择我们的 AI PPT 生成器？",
       "list": {
         "ai": {
-          "title": "AI 驱动生成",
-          "description": "使用前沿 AI 技术创建独特的宠物"
+          "title": "一次一张幻灯片",
+          "description": "生成您精确需要的内容，完全掌控内容"
         },
         "customization": {
-          "title": "完全自定义",
-          "description": "个性化定制你的桌面伙伴的每个方面"
+          "title": "深度定制",
+          "description": "调整幻灯片的各个方面 - 样式、文本、颜色、间距"
         },
         "interaction": {
-          "title": "互动行为",
-          "description": "观察你的宠物对你的活动作出反应"
+          "title": "专业数据可视化",
+          "description": "自动从您的数据生成图表和图形"
         }
       }
     },
     "cta": {
-      "title": "准备好迎接你的新朋友了吗？",
-      "description": "今天就开始创建你的完美桌面伙伴",
+      "title": "准备好改变您的演示文稿体验了吗？",
+      "description": "开始创建没有烦恼的专业幻灯片",
       "button": "开始使用"
     },
     "pricing": {
@@ -60,7 +60,7 @@
         "title": "免费试用",
         "price": "0",
         "features": [
-          "每月 5 次生成",
+          "每月 10 张幻灯片",
           "基础自定义",
           "标准支持"
         ]
@@ -69,10 +69,10 @@
         "title": "专业版",
         "price": "9.99",
         "features": [
-          "无限生成",
+          "无限幻灯片",
           "高级自定义",
           "优先支持",
-          "抢先体验新功能"
+          "24种专业样式"
         ]
       }
     },
@@ -80,35 +80,39 @@
       "title": "常见问题",
       "questions": {
         "what": {
-          "question": "什么是桌面宠物？",
-          "answer": "桌面宠物是一个生活在你电脑屏幕上的小动画角色，会与你的活动互动。"
+          "question": "它与其他 AI PPT 工具有何不同？",
+          "answer": "我们的解决方案一次生成一张幻灯片，让您完全控制内容。我们专注于准确性和定制性，而不是生成充满废话的整套演示文稿。"
         },
         "how": {
           "question": "它是如何工作的？",
-          "answer": "我们的 AI 技术根据你的偏好生成独特的宠物。你可以自定义它们的外观和行为。"
+          "answer": "上传您的内容，选择您想要用于每张幻灯片的文本，我们的 AI 会生成一张专业设计的幻灯片。然后您可以根据喜好自定义布局、样式、颜色和字体。"
         },
         "system": {
-          "question": "支持哪些系统？",
-          "answer": "我们的桌面宠物支持 Windows、macOS 和 Linux 系统。"
+          "question": "我可以创建数据可视化吗？",
+          "answer": "是的！我们的工具包含专业数据可视化功能，可以将您的数据转化为清晰、有效的图表和图形。"
         }
       }
     }
   },
   "Navigation": {
     "imageGen": {
-      "title": "桌宠生成",
-      "description": "创建你的专属桌面伙伴"
+      "title": "幻灯片生成",
+      "description": "创建专业演示幻灯片"
     },
     "history": {
       "title": "生成历史",
-      "description": "查看你的历史生成记录"
+      "description": "查看您之前的幻灯片生成"
     },
     "store": {
-      "title": "桌宠商店",
-      "description": "下载社区创作"
+      "title": "模板库",
+      "description": "浏览专业幻灯片模板"
     },
     "pricing": "定价",
-    "docs": "文档"
+    "docs": "文档",
+    "uploadpdf": {
+      "title": "上传文档",
+      "description": "上传您的文档生成演示文稿"
+    }
   },
   "DailyLimit": {
     "title": "月度生成限额",
@@ -120,93 +124,93 @@
     "logout": "退出登录"
   },
   "WithWithout": {
-    "title": "改变您的桌面体验",
+    "title": "改变您的演示文稿体验",
     "without": {
-      "title": "没有Shimeji.ai",
+      "title": "传统 AI PPT 工具",
       "items": [
-        "复杂的宠物创建需要数周的工作",
-        "设置复杂的技术障碍",
-        "有限的自定义选项",
-        "安装麻烦，需要Java环境",
-        "需要艺术技能来创建角色"
+        "AI 会修改您的内容并添加不必要的废话",
+        "通用模板需要大量返工",
+        "对数据可视化和表格的处理能力差",
+        "难以学习提示技巧",
+        "生成节省的时间在修复错误中浪费掉了"
       ]
     },
     "with": {
-      "title": "使用Shimeji.ai",
+      "title": "我们的 AI PPT 生成器",
       "items": [
-        "只需描述或上传图片 - 几分钟内即可完成",
-        "一键安装，无需技术知识",
-        "为您的角色提供独特的动画和自定义行为",
-        "一切包含 - 无需Java或额外软件",
-        "无需艺术技能 - AI为您完成工作"
+        "您的内容，您的重点 - 一次一张幻灯片",
+        "深度定制样式、字体、颜色和间距",
+        "内置专业数据可视化",
+        "简单直观的用户体验",
+        "真正节省时间，减少修复需求"
       ]
     }
   },
   "CTA": {
-    "backgroundAlt": "愉快的工作环境",
-    "title": "用AI伙伴改变您的桌面体验",
-    "description": "夜神让您喜爱的角色在几分钟内栩栩如生地出现在您的屏幕上。无需艺术技能 - 只需描述或上传图片，看着您的桌面焕发生机！",
+    "backgroundAlt": "专业演示文稿",
+    "title": "用 AI 精确性改变您的演示文稿",
+    "description": "我们的 AI PPT 生成器创建真正节省时间的专业质量幻灯片。不再有通用模板或内容扭曲 - 只需选择文本，生成幻灯片，并定制到完美！",
     "tryNowButton": "立即体验",
-    "exploreStoreButton": "探索商店",
+    "exploreStoreButton": "探索模板",
     "features": {
-      "0": "完全免费",
-      "1": "定期更新",
-      "2": "官方{appName}产品"
+      "0": "24种专业样式",
+      "1": "完全内容控制",
+      "2": "数据可视化工具"
     }
   },
   "VideoSection": {
     "title": "了解工作原理",
-    "description": "观看我们的快速教程，了解如何在几分钟内创建自己的桌面宠物",
+    "description": "观看我们的快速教程，了解如何在几分钟内创建专业演示文稿",
     "videoUrl": "https://www.youtube.com/embed/-9f5yG_NkXM?si=0uDxiUxkAR_GmYmi",
-    "videoTitle": "夜神入门指南",
+    "videoTitle": "AI PPT 生成器入门指南",
     "tryNowButton": "立即尝试"
   },
   "Pricing": {
-    "title": "快速经济地获取高级夜神宠物",
+    "title": "快速经济地获取专业演示文稿",
     "popularBadge": "热门",
     "currency": "人民币",
-    "paidPlanSubtext": "获取高质量个性化夜神宠物",
+    "paidPlanSubtext": "获取高质量个性化演示文稿",
     "freePlanButton": "立即尝试",
-    "freePlanSubtext": "开始使用，每月免费3次生成",
+    "freePlanSubtext": "开始使用，每月免费10次生成",
     "plans": {
       "free": {
         "name": "免费版",
-        "description": "提供25个高质量画面组成的桌面宠物",
+        "description": "使用基本功能生成专业 AI 幻灯片",
         "features": {
-          "0": "每月使用限制3次生成",
-          "1": "AI助手",
-          "2": "夜神定制",
-          "3": "高清动画图像",
-          "4": "趣味互动",
-          "5": "实时响应",
-          "6": "25帧动画套装",
-          "7": "人物角色定制"
+          "0": "每月使用限制10次生成",
+          "1": "AI 关键点提取",
+          "2": "深度样式定制",
+          "3": "专业布局",
+          "4": "高级数据可视化",
+          "5": "高效工作流程",
+          "6": "完整字体和颜色控制",
+          "7": "AI 助手"
         }
       },
       "basic": {
         "name": "基础版",
-        "description": "提供25个高质量画面组成的桌面宠物",
+        "description": "生成更多完全可定制的 AI 幻灯片",
         "features": {
-          "0": "每月使用限制50次生成",
-          "1": "AI助手",
-          "2": "夜神定制",
-          "3": "高清动画图像",
-          "4": "趣味互动",
-          "5": "实时响应",
-          "6": "25帧动画套装",
-          "7": "人物角色定制"
+          "0": "每次购买限制60次生成",
+          "1": "AI 关键点提取",
+          "2": "深度样式定制",
+          "3": "专业布局",
+          "4": "高级数据可视化",
+          "5": "高效工作流程",
+          "6": "完整字体和颜色控制",
+          "7": "AI 助手"
         }
       },
       "advanced": {
         "name": "高级版",
-        "description": "提供46个高质量画面组成的桌面宠物",
+        "description": "为需要更多定制和控制的用户提供",
         "features": {
           "0": "每月使用限制200次生成",
-          "1": "AI助手",
-          "2": "夜神定制",
-          "3": "高清动画图像",
-          "4": "趣味互动",
-          "5": "实时响应",
+          "1": "AI 关键点提取",
+          "2": "深度样式定制",
+          "3": "专业布局",
+          "4": "高级数据可视化",
+          "5": "高效工作流程",
           "6": "46帧高级动画",
           "7": "人物角色定制",
           "8": "宠物角色定制",
@@ -219,37 +223,37 @@
     "title": "常见问题",
     "items": {
       "0": {
-        "question": "夜神桌面宠物有哪些功能？",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>我们的AI模型专门训练用于生成高质量桌面宠物。每个夜神宠物包括：</p><ul class='list-disc list-inside'><li>基础版：25个高质量动画帧</li><li>高级版：46个高级动画帧</li><li>无需担心系统要求，我们的产品会自动为您处理一切！</li><li>交互式AI聊天</li><li>角色定制</li><li>自定义宠物外观和行为</li><li>完整动画系统</li></ul></div>"
+        "question": "您的 AI PPT 生成器有何不同？",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>我们的方法解决了传统 AI 演示工具的核心问题：</p><ul class='list-disc list-inside'><li>内容控制：我们基于用户选择的文本一次生成一张幻灯片</li><li>定制化：对样式、字体、颜色和间距的深度控制</li><li>效率：自动从材料中提取关键点</li><li>数据可视化：内置专业图表工具</li><li>用户友好：无需特殊提示技巧</li></ul></div>"
       },
       "1": {
-        "question": "系统要求是什么？",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>运行夜神桌面宠物，您需要：</p><ul class='list-disc list-inside'><li>使用夜神？您已准备就绪！无需额外设置 - 我们的软件包中包含一切。</li><li>无需安装Java 21或更高版本</li></ul></div>"
+        "question": "如何获得最佳结果？",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>为获得最佳效果，我们建议：</p><ul class='list-disc list-inside'><li>为每张幻灯片选择特定文本段落（而非整个文档）</li><li>如果处理较长内容，先让 AI 提取关键点</li><li>使用我们的样式定制工具匹配您的品牌指南</li><li>为可视化准备结构化格式的数据</li></ul></div>"
       },
       "2": {
-        "question": "如何获得更好的生成结果？",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>为获得最佳效果，我们建议：</p><ul class='list-disc list-inside'><li>使用简单明了的描述</li><li>上传参考图片以提高准确性</li><li>如果对结果不满意，可以尝试重新生成</li></ul></div>"
+        "question": "我可以创建数据可视化和图表吗？",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>是的！与许多 AI 演示工具不同，我们在数据可视化方面表现出色：</p><ul class='list-disc list-inside'><li>支持图表、图形和表格</li><li>直接导入数据或在我们的界面中输入</li><li>可定制颜色、标签和图例</li><li>适合演示的专业质量输出</li></ul></div>"
       },
       "3": {
         "question": "退款政策是什么？",
-        "answer": "<p>如果您对我们的服务不满意，我们提供购买后7天内全额退款。请通过support@ycamie.com联系我们</p>"
+        "answer": "<p>如果您对我们的服务不满意，我们提供购买后7天内全额退款。请通过support@example.com联系我们</p>"
       },
       "4": {
         "question": "需要其他帮助？",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>如果您有任何问题或建议，欢迎通过以下方式联系我们：</p><ul class='list-disc list-inside'><li>电子邮件：mmmmmyyc@ycamie.com</li><li>加入我们的社区讨论</li><li>查看我们的文档</li></ul></div>"
+        "answer": "<div class='space-y-2 leading-relaxed'><p>如果您有任何问题或建议，欢迎通过以下方式联系我们：</p><ul class='list-disc list-inside'><li>电子邮件：support@example.com</li><li>查看我们的文档获取教程</li><li>加入我们的社区讨论</li></ul></div>"
       }
     }
   },
   "Footer": {
-    "description": "为您的数字世界注入欢乐，为工作增添乐趣",
+    "description": "通过 AI 精确性改变您的演示体验，节省时间的同时保持完全内容控制",
     "copyright": "版权所有 © {year} - 保留所有权利",
     "categories": {
       "product": {
         "title": "产品",
         "links": {
           "0": "功能",
-          "1": "宠物商店",
-          "2": "下载",
+          "1": "模板库",
+          "2": "定价",
           "3": "支持"
         }
       },
@@ -257,7 +261,7 @@
         "title": "资源",
         "links": {
           "0": "教程",
-          "1": "功能"
+          "1": "文档"
         }
       },
       "legal": {
@@ -277,43 +281,43 @@
     }
   },
   "FeaturesListicle": {
-    "title": "为您的数字生活增添温暖和陪伴",
-    "description": "我们精心设计了丰富的互动功能和个性化选项，让您的桌面更加生动活泼。无论您是在工作还是学习，都能感受到可爱伙伴带来的温暖和快乐。",
+    "title": "AI 演示文稿创建中的精确性和控制力",
+    "description": "我们设计的 AI PPT 生成器解决了传统工具的痛点，让您在节省宝贵时间的同时完全掌控内容。",
     "features": {
       "aiCreation": {
-        "name": "AI 创作",
+        "name": "内容控制",
         "bulletPoints": {
-          "0": "每月200次高质量生成",
-          "1": "支持角色和宠物自定义",
-          "2": "46帧高质量动画效果",
-          "3": "持续的模型优化和更新"
+          "0": "一次一张幻灯片生成",
+          "1": "您的内容，您的重点 - 没有不必要的添加",
+          "2": "智能关键点提取",
+          "3": "无内容扭曲或重点偏移"
         }
       },
       "personalization": {
-        "name": "个性化定制",
+        "name": "深度定制",
         "bulletPoints": {
-          "0": "自定义角色外观和动作",
-          "1": "使用AI技术与您的夜神自然聊天",
-          "2": "通过聊天命令指导您的夜神行动",
-          "3": "随意添加新的夜神角色"
+          "0": "24种专业设计样式",
+          "1": "调整字体、颜色、大小和间距",
+          "2": "微调每个元素的外观",
+          "3": "完美匹配您的品牌指南"
         }
       },
       "convenience": {
-        "name": "极度便捷",
+        "name": "真正的时间节省",
         "bulletPoints": {
-          "0": "一键安装，无需Java环境",
-          "1": "预设好的动画帧随时可用",
-          "2": "全面的教程和文档支持",
-          "3": "简单易用的界面适合所有用户"
+          "0": "自动提取关键点",
+          "1": "减少修复 AI 输出的时间",
+          "2": "简化工作流程 - 选择、生成、定制",
+          "3": "专业效果，最少努力"
         }
       },
       "interactiveExperience": {
-        "name": "互动体验",
+        "name": "数据可视化",
         "bulletPoints": {
-          "0": "实时响应互动",
-          "1": "智能窗口检测和跟踪",
-          "2": "可爱的走路和攀爬动画",
-          "3": "丰富的表情和动作系统"
+          "0": "专业图表功能",
+          "1": "将数据转化为引人注目的视觉效果",
+          "2": "多种图表类型和格式选项",
+          "3": "数据丰富的演示文稿变得简单"
         }
       }
     }
@@ -379,5 +383,19 @@
       "changeToCard": "切换到卡片模式",
       "changeToPPT": "切换到PPT模式"
     }
+  },
+  "Dashboard": {
+    "folderManagementTitle": "文件夹管理",
+    "myFoldersTitle": "我的文件夹",
+    "newFolderButton": "新建文件夹",
+    "newFolderNamePlaceholder": "输入文件夹名称",
+    "createButton": "创建",
+    "createFolderError": "创建文件夹失败",
+    "createFolderFailLog": "创建文件夹失败:",
+    "listFolderError": "获取文件夹列表失败",
+    "listFolderFailLog": "获取文件夹失败:",
+    "listFolderNetworkError": "获取文件夹时发生网络错误",
+    "noFoldersMessage": "没有文件夹，请创建新文件夹",
+    "createdOnLabel": "创建于"
   }
 } 

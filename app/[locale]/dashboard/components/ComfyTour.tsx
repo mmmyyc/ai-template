@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/navigation';
 
 type ComfyTourProps = {
   run: boolean;

@@ -10,7 +10,6 @@ import ClientLayout from "@/components/LayoutClient";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale, getTranslations } from 'next-intl/server';
 import { locales } from "@/i18n/config";
-import { notFound } from "next/navigation";
 const font = Inter({ subsets: ["latin"] });
 
 export const viewport: Viewport = {

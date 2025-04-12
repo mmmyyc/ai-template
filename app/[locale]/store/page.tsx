@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import apiClient from '@/libs/api';
 import Image from 'next/image';
 import { downloadGeneratedImage } from "@/app/[locale]/dashboard/utils/download";
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 // import { getSEOTags } from "@/libs/seo";
 // import config from "@/config";
 
