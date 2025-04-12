@@ -14,6 +14,20 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 }); 
   }
+  // 获取用户 profile 信息
+  const { data: profile } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("email", user?.email)
+  .single();
+
+  if (!profile) {
+    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  }
+
+  if(profile.available_uses <= 0){
+    return NextResponse.json({ error: "No available uses left" }, { status: 403 });
+  }
 
   // 从请求体解构，messages 这里是客户端传来的字符串
   const { messages: userInputString, options, language, style, generateType } = await req.json(); 
@@ -23,20 +37,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request: messages should be a string." }, { status: 400 });
   }
 
-  // 获取用户 profile 信息
-  const { data: profile } = await supabase
-  .from("profiles")
-  .select("*")
-  .eq("email", user?.email)
-  .single();
-  
-  if (!profile) {
-    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-  }
-
-  if (profile.available_uses <= 0) {
-    return NextResponse.json({ error: "No available uses left" }, { status: 403 });
-  }
   let systemPrompt = "";
   if(generateType === "PPT"){
     // --- 构建正确的消息数组 --- 
@@ -65,11 +65,18 @@ export async function POST(req: Request) {
       model: anthropic('claude-3-7-sonnet-20250219'),
       messages: finalMessages 
     });
+    // 更新用户可用次数和最多使用次数
+    let available_uses = profile.available_uses - 1;
+    let max_uses = profile.max_uses;
+    if(available_uses < 10){
+      max_uses = 10;
+    }
     // 消息队列发送成功后，更新用户可用次数
     const { error: updateError } = await supabase
     .from("profiles")
     .update({
       available_uses: profile.available_uses - 1,
+      max_uses: max_uses,
     })
     .eq("id", profile?.id);
     return NextResponse.json({ data: { text } });

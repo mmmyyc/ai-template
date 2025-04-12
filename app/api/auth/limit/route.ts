@@ -12,14 +12,14 @@ export async function GET() {
       return NextResponse.json({ 
         data: { 
           used: 0,
-          max: 3  // 未登录用户默认限制
+          max: 10  // 未登录用户默认限制
         } 
       });
     }
 
     const { data: userData } = await supabase
       .from("profiles")
-      .select("*")
+      .select("available_uses, max_uses")
       .eq("id", user.id)
       .single();
 
@@ -27,16 +27,13 @@ export async function GET() {
       return NextResponse.json({ 
         data: { 
           used: 0,
-          max: 3  // 免费用户默认限制
+          max: 10  // 免费用户默认限制
         } 
       });
     }
 
     // 根据用户计划返回对应的限制
-    const max = 
-      userData.plan === "basic" ? 50 :     // 基础版用户
-      userData.plan === "advanced" ? 200 :  // 高级版用户
-      3;                                    // 免费版用户
+    const max = userData.max_uses;
 
     return NextResponse.json({ 
       data: { 
@@ -52,7 +49,7 @@ export async function GET() {
         error: "Failed to fetch limit", 
         data: { 
           used: 0,
-          max: 3  // 错误情况下默认限制
+          max: 10  // 错误情况下默认限制
         } 
       },
       { status: 500 }
