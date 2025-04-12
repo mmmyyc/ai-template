@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
             price_id: priceId,
             has_access: true,
             plan: priceId === config.stripe.plans[1].priceId ? "basic" : "advanced",
-            available_uses : (priceId === config.stripe.plans[1].priceId ? 50 : 200),
+            available_uses : (priceId === config.stripe.plans[1].priceId ? user.available_uses + 60 : user.available_uses + 10),
           })
           .eq("id", user?.id);
         // Extra: send email with user link, product page, etc...
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
         // 获取用户当前的配置信息
         const { data: currentProfile } = await supabase
           .from("profiles")
-          .select("price_id")
+          .select("price_id, available_uses")
           .eq("customer_id", customerId)
           .single();
 
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
               price_id: newPriceId,
               has_access: true,
               plan: newPriceId === config.stripe.plans[1].priceId ? "basic" : "advanced",
-              available_uses: newPriceId === config.stripe.plans[1].priceId ? 50 : 200
+              available_uses: newPriceId === config.stripe.plans[1].priceId ? currentProfile.available_uses + 60 : currentProfile.available_uses + 10
             })
             .eq("customer_id", customerId);
         }
@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
           .update({ 
             has_access: false, 
             plan: "free",
-            available_uses: 3,
+            available_uses: 10,
             price_id: null
           })
           .eq("customer_id", subscription.customer);
@@ -223,7 +223,7 @@ export async function POST(req: NextRequest) {
         await supabase
           .from("profiles")
           .update({ has_access: true , plan: priceId === config.stripe.plans[1].priceId ? "basic" : "advanced" ,
-             available_uses: priceId === config.stripe.plans[1].priceId ? 50 : 200
+             available_uses: priceId === config.stripe.plans[1].priceId ? profile.available_uses + 60 : profile.available_uses + 10
             })
           .eq("customer_id", customerId);
 

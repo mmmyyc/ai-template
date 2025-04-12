@@ -3,7 +3,7 @@ import { ConfigProps } from "./types/config";
 
 const config = {
   // REQUIRED
-  appName: "YCamie",
+  appName: "SlideCraftAI",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
     "Get high-quality personalized Shimeji desktop pets without spending weeks on customization or hundreds of dollars.",
