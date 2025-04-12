@@ -119,7 +119,7 @@ const Pricing = () => {
                 <div className="space-y-2">
                   {plan.name !== t(`plans.free.name`) && (
                     <>
-                      <ButtonCheckout priceId={plan.priceId} />
+                      <ButtonCheckout priceId={plan.priceId} mode="payment" />
                       <p className="flex items-center justify-center gap-2 text-sm text-center text-base-content/80 font-medium relative">
                         {t('paidPlanSubtext')}
                       </p>

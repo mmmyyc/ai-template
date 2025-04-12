@@ -3,40 +3,27 @@
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import {
   Sparkles,
   RefreshCw,
   Upload,
-  Settings,
+  Pencil,
+  Loader2
 } from "lucide-react"
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import 'katex/dist/katex.min.css'
 import {
   ContextMenu,
+  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
   ContextMenuSeparator,
+  ContextMenuLabel,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
 } from "@/components/ui/context-menu"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { useTranslations } from 'next-intl'; // Import the hook
 
 // --- Define AI Style Options --- 
@@ -81,11 +68,13 @@ export interface MarkdownEditorProps {
   initialContent?: string
   placeholder?: string
   onChange?: (content: string) => void
-  onAIAction?: (selectedText: string, language: string, style: string) => void
+  onAIAction?: (selectedText: string, language: string, style: string , generateType: string) => void
   showAIButton?: boolean
   isGenerating?: boolean
   className?: string
   height?: string | number
+  title?: string
+  generating?: boolean
 }
 
 export default function MarkdownEditor({
@@ -97,6 +86,8 @@ export default function MarkdownEditor({
   isGenerating = false,
   className = "",
   height = "100%",
+  title = "",
+  generating = false
 }: MarkdownEditorProps) {
   // 只用一个状态来存储编辑器实例，更接近官方示例
   const [vd, setVd] = useState<Vditor>()
@@ -104,6 +95,7 @@ export default function MarkdownEditor({
   const containerRef = useRef<HTMLDivElement>(null)
   // Add state for AI settings
   const [aiLanguage, setAiLanguage] = useState("Chinese")
+  const [generateType, setGenerateType] = useState("PPT")
   // Initialize aiStyle with the description of the default option
   const [aiStyle, setAiStyle] = useState(aiStyleOptions[0].description) 
   const t = useTranslations('MarkdownEditor'); // Initialize useTranslations
@@ -147,6 +139,9 @@ export default function MarkdownEditor({
     input.click()
   }, [vd, onChange])
   
+  const handleChangeGenerateType = () => {
+    setGenerateType(generateType === "PPT" ? "Card" : "PPT")
+  }
   // 严格遵循官方示例的初始化模式，最小化依赖项
   useEffect(() => {
     // 唯一的编辑器ID
@@ -253,147 +248,99 @@ export default function MarkdownEditor({
     }
   // 空依赖数组确保只初始化一次，完全遵循官方示例
   }, [])
-
-  // 处理AI操作
-  const handleAIAction = useCallback(() => {
-    if (vd && onAIAction) {
-      const selectedText = vd.getSelection()
-      if (selectedText) {
-        // Pass language and style
-        onAIAction(selectedText, aiLanguage, aiStyle) 
-      }
-    }
-  }, [vd, onAIAction, aiLanguage, aiStyle]);
   
   // 禁用AI按钮逻辑
   const isAIButtonDisabled = isGenerating || !isTextSelected
   
-  // 右键菜单事件处理
-  const handleContextMenu = useCallback(() => {
-    if (vd) {
-      const selection = vd.getSelection();
-      setIsTextSelected(!!selection && selection.length > 0);
+  // --- AI Action Button Logic ---
+  const handleAIButtonClick = useCallback(() => {
+    if (vd && onAIAction && isTextSelected) {
+      const selectedText = vd.getSelection()
+      if (selectedText) {
+        onAIAction(selectedText, aiLanguage, aiStyle, generateType)
+      }
     }
-  }, [vd]);
+  }, [vd, onAIAction, isTextSelected, aiLanguage, aiStyle, generateType])
 
   return (
-    <div className={`flex flex-col h-full ${className}`} style={{ height }}>
-      {/* 顶部操作栏 */}
-      <div className="flex items-center justify-end gap-2 mb-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-1"
-          onClick={handleUploadMd}
-        >
-          <Upload className="h-3.5 w-3.5" />
-          <span>{t('buttons.uploadMarkdown')}</span>
-        </Button>
-        
-        {/* Settings Popover */}
-          <Popover>
-            <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" className="h-8 w-8">
-              <Settings className="h-4 w-4" />
-              <span className="sr-only">{t('settings.tooltip')}</span>
-              </Button>
-            </PopoverTrigger>
-          <PopoverContent className="w-60">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">{t('settings.title')}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {t('settings.description')}
-                </p>
-              </div>
-              <div className="grid gap-2">
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="ai-language">{t('settings.languageLabel')}</Label>
-                  <Select 
-                    value={aiLanguage} 
-                    onValueChange={setAiLanguage}
-                  >
-                    <SelectTrigger id="ai-language" className="col-span-2 h-8">
-                      <SelectValue placeholder={t('settings.languagePlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Chinese">{t('settings.languageChinese')}</SelectItem>
-                      <SelectItem value="English">{t('settings.languageEnglish')}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="ai-style">{t('settings.styleLabel')}</Label>
-                  <Select 
-                    value={aiStyle} 
-                    onValueChange={setAiStyle}
-                  >
-                    <SelectTrigger id="ai-style" className="col-span-2 h-8">
-                      <SelectValue placeholder={t('settings.stylePlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <TooltipProvider>
-                        {/* Map over the aiStyleOptions array */} 
-                        {aiStyleOptions.map((option) => (
-                          <Tooltip key={option.value} delayDuration={100}>
-                            <TooltipTrigger asChild>
-                              {/* Set value to description */}
-                              <SelectItem value={option.description}>
-                                {t(`aiStyles.${option.value}.label`, {}, { defaultValue: option.label })}
-                              </SelectItem>
-                            </TooltipTrigger>
-                            <TooltipContent side="right" align="start" style={{backgroundColor: "white"}}>
-                              <p>{t(`aiStyles.${option.value}.description`, {}, { defaultValue: option.description })}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        ))}
-                      </TooltipProvider>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-        
-      {/* Vditor编辑器容器 - 使用ContextMenu包装 */}
+    <div className={`vditor-container flex flex-col bg-background ${className}`} style={{ height }}>
+      {/* Editor Area with Context Menu */}
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          <div 
-            ref={containerRef}
-            className="vditor flex-1 overflow-hidden relative"
-            onContextMenu={handleContextMenu}
-          />
+          <div ref={containerRef} className="flex-grow relative min-h-0 bg-white" />
         </ContextMenuTrigger>
-        <ContextMenuContent className="bg-white">
-          <ContextMenuItem 
-            disabled={isGenerating || !isTextSelected}
-            onClick={handleAIAction}
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-2" />
-            <span>{isGenerating ? t('contextMenu.generating') : t('contextMenu.aiGenerate')}</span>
-          </ContextMenuItem>
-          <ContextMenuSeparator />
+        <ContextMenuContent className="w-48 bg-background bg-white">
+            {/* AI Action Trigger (if text selected and button enabled) */}
+            {showAIButton && isTextSelected && (
+            <>
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                onClick={handleAIButtonClick}
+                disabled={isGenerating}
+                className="text-blue-600 dark:text-blue-400 focus:text-white focus:bg-blue-600 dark:focus:bg-blue-500"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    {t('buttons.generating')}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {t('buttons.generateAI')} {generateType}
+                  </>
+                )}
+              </ContextMenuItem>
+            </>
+          )}
+          {/* Upload Item */}
           <ContextMenuItem onClick={handleUploadMd}>
-            <Upload className="h-3.5 w-3.5 mr-2" />
+             <Upload className="mr-2 h-4 w-4" />
             <span>{t('contextMenu.uploadMarkdown')}</span>
           </ContextMenuItem>
+          <ContextMenuItem onClick={handleChangeGenerateType}>
+            <Pencil className="mr-2 h-4 w-4" />
+            <span>{generateType === "PPT" ? t('contextMenu.changeToCard') : t('contextMenu.changeToPPT')}</span>
+          </ContextMenuItem>
+          {/* Language Submenu */}
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>{t('contextMenu.languageLabel')}</ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48 bg-white">
+              <ContextMenuCheckboxItem
+                checked={aiLanguage === 'Chinese'}
+                onSelect={() => setAiLanguage('Chinese')}
+              >
+                {t('settings.languageChinese')}
+              </ContextMenuCheckboxItem>
+              <ContextMenuCheckboxItem
+                checked={aiLanguage === 'English'}
+                onSelect={() => setAiLanguage('English')}
+              >
+                {t('settings.languageEnglish')}
+              </ContextMenuCheckboxItem>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+
+          {/* Style Submenu */}
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>{t('contextMenu.styleLabel')}</ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-64 max-h-80 overflow-y-auto bg-white">
+              {aiStyleOptions.map((option) => (
+                <ContextMenuCheckboxItem
+                  key={option.value} 
+                  checked={aiStyle === option.description} 
+                  onSelect={() => setAiStyle(option.description)} 
+                >
+                  {option.label}
+                  <span className="text-xs text-muted-foreground ml-2 truncate bg-white">
+                    ({option.description.split(': ')[1] || option.description})
+                  </span>
+                </ContextMenuCheckboxItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
         </ContextMenuContent>
       </ContextMenu>
-      
-      {/* 悬浮上传按钮，在移动设备上更容易点击 */}
-      <div className="absolute bottom-20 right-4 z-10">
-        <Button
-          variant="outline"
-          size="icon"
-          className="rounded-full h-10 w-10 shadow-md bg-background"
-          onClick={handleUploadMd}
-          title={t('buttons.uploadMarkdownTooltip')}
-        >
-          <Upload className="h-4 w-4" />
-        </Button>
-      </div>
     </div>
   )
 }

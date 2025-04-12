@@ -50,7 +50,7 @@ export const createCheckout = async ({
         extraParams.customer_creation = "always";
         // The option below costs 0.4% (up to $2) per invoice. Alternatively, you can use https://zenvoice.io/ to create unlimited invoices automatically.
         // extraParams.invoice_creation = { enabled: true };
-        extraParams.payment_intent_data = { setup_future_usage: "on_session" };
+        // extraParams.payment_intent_data = { setup_future_usage: "on_session" };
       }
       if (user?.email) {
         extraParams.customer_email = user.email;
@@ -62,6 +62,7 @@ export const createCheckout = async ({
       mode,
       allow_promotion_codes: true,
       client_reference_id: clientReferenceId,
+      payment_method_types: ['card', 'alipay'],
       line_items: [
         {
           price: priceId,

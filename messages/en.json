@@ -9,57 +9,57 @@
     "logout": "Logout"
   },
   "HomePage": {
-    "title": "AI Playground",
+    "title": "AI Presentation Generator",
     "back": "Back",
     "hero": {
-      "title": "Create Your Perfect Desktop Companion",
-      "subtitle": "Generate unique and personalized desktop pets with AI technology",
+      "title": "Create Professional Presentations in Minutes",
+      "subtitle": "Generate precise, customizable PPT slides with our AI technology",
       "tryButton": "Try Now",
       "watchButton": "Watch Demo"
     },
     "problem": {
-      "title": "Loneliness in the Digital Age is Affecting Our Work and Life",
-      "description": "Facing cold screens every day, lacking interaction and emotional connection, makes our work monotonous and even affects mental health",
+      "title": "Traditional AI PPT Tools Fall Short of User Expectations",
+      "description": "Current AI presentation tools struggle with content fidelity, design quality, and practical usability, creating more work than they save",
       "steps": {
         "digital": {
-          "title": "Cold Digital World",
-          "description": "Over 8 hours facing screens daily, lacking vitality and interaction"
+          "title": "Content Gets Distorted",
+          "description": "AI alters your content, adds fluff, and changes your intended focus"
         },
         "burnout": {
-          "title": "Work Burnout",
-          "description": "Feeling lonely and stressed, work passion gradually fading"
+          "title": "Poor Design Quality",
+          "description": "Generic templates with awkward layouts and inconsistent formatting"
         },
         "productivity": {
-          "title": "Decreased Productivity",
-          "description": "Difficulty focusing, creative inspiration gradually depleting"
+          "title": "Time Wasted on Fixes",
+          "description": "Spending as much time fixing AI output as creating slides manually"
         }
       },
       "stats": {
-        "remote": "76% of people feel lonely when working remotely",
-        "environment": "52% want a more enjoyable work environment",
-        "efficiency": "89% believe a happy work environment boosts efficiency"
+        "remote": "78% of users are unhappy with AI-generated content accuracy",
+        "environment": "65% find design quality of AI presentations unsatisfactory",
+        "efficiency": "82% want more control over slide content and formatting"
       }
     },
     "features": {
-      "title": "Why Choose Our Desktop Pets?",
+      "title": "Why Choose Our AI PPT Generator?",
       "list": {
         "ai": {
-          "title": "AI-Powered Generation",
-          "description": "Create unique pets using cutting-edge AI technology"
+          "title": "One Slide at a Time",
+          "description": "Generate precisely what you need with complete content control"
         },
         "customization": {
-          "title": "Full Customization",
-          "description": "Personalize every aspect of your desktop companion"
+          "title": "Deep Customization",
+          "description": "Adjust every aspect of your slides - style, text, colors, spacing"
         },
         "interaction": {
-          "title": "Interactive Behavior",
-          "description": "Watch your pet react to your activities"
+          "title": "Professional Data Visualization",
+          "description": "Automatically generate charts and graphs from your data"
         }
       }
     },
     "cta": {
-      "title": "Ready to Meet Your New Friend?",
-      "description": "Start creating your perfect desktop companion today",
+      "title": "Ready to Transform Your Presentations?",
+      "description": "Start creating professional-looking slides without the frustration",
       "button": "Get Started"
     },
     "pricing": {
@@ -69,7 +69,7 @@
         "title": "Free Trial",
         "price": "0",
         "features": [
-          "5 generations per month",
+          "5 slides per month",
           "Basic customization",
           "Standard support"
         ]
@@ -78,10 +78,10 @@
         "title": "Pro",
         "price": "9.99",
         "features": [
-          "Unlimited generations",
+          "Unlimited slides",
           "Advanced customization",
           "Priority support",
-          "Early access to new features"
+          "24 professional styles"
         ]
       }
     },
@@ -89,69 +89,73 @@
       "title": "Frequently Asked Questions",
       "questions": {
         "what": {
-          "question": "What is a desktop pet?",
-          "answer": "A desktop pet is a small animated character that lives on your computer screen and interacts with your activities."
+          "question": "How is this different from other AI PPT tools?",
+          "answer": "Our solution generates one slide at a time, giving you complete control over content. We focus on accuracy and customization rather than producing entire decks filled with fluff."
         },
         "how": {
           "question": "How does it work?",
-          "answer": "Our AI technology generates unique pets based on your preferences. You can customize their appearance and behavior."
+          "answer": "Upload your content, select the text you want for each slide, and our AI generates a professionally designed slide. Then customize the layout, style, colors, and fonts to your liking."
         },
         "system": {
-          "question": "What systems are supported?",
-          "answer": "Our desktop pets work on Windows, macOS, and Linux systems."
+          "question": "Can I create data visualizations?",
+          "answer": "Yes! Our tool includes professional data visualization capabilities that can transform your data into clear, effective charts and graphs."
         }
       }
     }
   },
   "Navigation": {
+    "pricing": "Pricing",
+    "docs": "Documentation",
     "imageGen": {
-      "title": "DeskPet Generation",
-      "description": "Create your unique desktop companion"
+      "title": "Slide Generation",
+      "description": "Create professional presentation slides"
     },
     "history": {
       "title": "Generation History",
-      "description": "View your previous generations"
+      "description": "View your previous slide generations"
     },
     "store": {
-      "title": "Shimeji Store",
-      "description": "Download community creations"
+      "title": "Template Library",
+      "description": "Browse professional slide templates"
     },
-    "pricing": "Pricing",
-    "docs": "Documentation"
+    "uploadpdf": {
+      "title": "Upload Document",
+      "description": "Upload your documents to generate presentations"
+    }
   },
   "WithWithout": {
-    "title": "Transform Your Desktop Experience",
+    "title": "Transform Your Presentation Experience",
     "without": {
-      "title": "Without YCamie",
+      "title": "Traditional AI PPT Tools",
       "items": [
-        "Complex pet creation requiring weeks of work",
-        "Technical barriers with complicated setup",
-        "Limited customization options",
-        "Installation hassles requiring Java environment",
-        "Need artistic skills to create characters"
+        "AI alters your content and adds unnecessary fluff",
+        "Generic templates requiring significant rework",
+        "Poor handling of data visualizations and tables",
+        "Difficult to learn prompting techniques",
+        "Time saved in generation lost in fixing errors"
       ]
     },
     "with": {
-      "title": "With YCamie",
+      "title": "Our AI PPT Generator",
       "items": [
-        "Just describe or upload an image - ready in minutes",
-        "One-click install with no technical knowledge needed",
-        "Unique animations and custom behaviors for your character",
-        "Everything included - no Java or extra software needed",
-        "No artistic skills required - AI does the work for you"
+        "Your content, your focus - one slide at a time",
+        "Deep customization of styles, fonts, colors and spacing",
+        "Professional data visualization built-in",
+        "Simple, intuitive user experience",
+        "Genuinely saves time with less fixing needed"
       ]
     }
   },
   "CTA": {
-    "backgroundAlt": "Happy Work Environment",
-    "title": "Transform Your Desktop with AI Companions",
-    "description": "YCamie brings your favorite characters to life on your screen in minutes. No artistic skills needed - just describe or upload an image, and watch your desktop come alive!",
+    "backgroundAlt": "Professional Presentation",
+    "title": "Transform Your Presentations with AI Precision",
+    "description": "Our AI PPT Generator creates professional-quality slides that actually save you time. No more generic templates or content distortion - just select your text, generate a slide, and customize to perfection!",
     "tryNowButton": "Try Now",
-    "exploreStoreButton": "Explore Store",
+    "exploreStoreButton": "Explore Templates",
     "features": {
-      "0": "Completely Free",
-      "1": "Regular Updates",
-      "2": "Official {appName} Product"
+      "0": "24 Professional Styles",
+      "1": "Complete Content Control",
+      "2": "Data Visualization Tools"
     }
   },
   "VideoSection": {
@@ -219,45 +223,45 @@
     "title": "Frequently Asked Questions",
     "items": {
       "0": {
-        "question": "What features do YCamie Shimeji pets have?",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>Our AI model is specially trained to generate high-quality desktop pets. Each Shimeji includes:</p><ul class='list-disc list-inside'><li>Basic: 25 high-quality animation frames</li><li>Advanced: 46 premium animation frames</li><li>Don't worry about the system requirements, our product handles everything automatically for you!</li><li>Interactive AI Chat</li><li>Character Customization</li><li>Customize the pet's appearance and behavior</li><li>Complete animation system</li></ul></div>"
+        "question": "What makes your AI PPT generator different?",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>Our approach solves the core problems with typical AI presentation tools:</p><ul class='list-disc list-inside'><li>Content Control: We generate one slide at a time based on user-selected text</li><li>Customization: Deep control over styles, fonts, colors, and spacing</li><li>Efficiency: Extract key points from your materials automatically</li><li>Data Visualization: Professional charting tools built in</li><li>User-Friendly: No special prompting skills needed</li></ul></div>"
       },
       "1": {
-        "question": "What are the system requirements?",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>To run YCamie Shimeji pets, you need:</p><ul class='list-disc list-inside'><li>Using YCamie? You're all set! No additional setup required - everything is included in our package.</li><li>Don't need to install Java 21 or higher installed on your computer</li></ul></div>"
+        "question": "How do I get the best results?",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>For optimal results, we recommend:</p><ul class='list-disc list-inside'><li>Select specific text segments for each slide (not entire documents)</li><li>Let the AI extract key points first if working with longer content</li><li>Use our style customization tools to match your brand guidelines</li><li>Prepare data in a structured format for visualizations</li></ul></div>"
       },
       "2": {
-        "question": "How can I get better generation results?",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>For best results, we recommend:</p><ul class='list-disc list-inside'><li>Use simple and clear descriptions</li><li>Upload a reference image to improve accuracy</li><li>Try regenerating if you're not satisfied with the results</li></ul></div>"
+        "question": "Can I create data visualizations and charts?",
+        "answer": "<div class='space-y-2 leading-relaxed'><p>Yes! Unlike many AI presentation tools, we excel at data visualization:</p><ul class='list-disc list-inside'><li>Support for charts, graphs, and tables</li><li>Import data directly or enter in our interface</li><li>Customizable colors, labels, and legends</li><li>Professional-quality output that's presentation-ready</li></ul></div>"
       },
       "3": {
         "question": "What's your refund policy?",
-        "answer": "<p>We offer a full refund within 7 days of purchase if you're not satisfied with our service. Please contact us at support@ycamie.com</p>"
+        "answer": "<p>We offer a full refund within 7 days of purchase if you're not satisfied with our service. Please contact us at support@example.com</p>"
       },
       "4": {
         "question": "Need help with something else?",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>If you have any questions or suggestions, feel free to reach out through:</p><ul class='list-disc list-inside'><li>Email us at: mmmmmyyc@ycamie.com</li><li>Join our community discussions</li><li>Check our documentation</li></ul></div>"
+        "answer": "<div class='space-y-2 leading-relaxed'><p>If you have any questions or suggestions, feel free to reach out through:</p><ul class='list-disc list-inside'><li>Email us at: support@example.com</li><li>Check our documentation for tutorials</li><li>Join our community discussions</li></ul></div>"
       }
     }
   },
   "Footer": {
-    "description": "Fill your digital world with joy, adding fun to your work",
+    "description": "Transform your presentation experience with AI precision, saving time while maintaining complete content control",
     "copyright": "Copyright © {year} - All rights reserved",
     "categories": {
       "product": {
         "title": "PRODUCT",
         "links": {
           "0": "Features",
-          "1": "Pet Store",
-          "2": "Download",
+          "1": "Template Library",
+          "2": "Pricing",
           "3": "Support"
         }
       },
       "resources": {
         "title": "RESOURCES",
         "links": {
-          "0": "Tutorial",
-          "1": "Features"
+          "0": "Tutorials",
+          "1": "Documentation"
         }
       },
       "legal": {
@@ -277,43 +281,43 @@
     }
   },
   "FeaturesListicle": {
-    "title": "Adding Warmth and Companionship to Your Digital Life",
-    "description": "We've carefully designed rich interactive features and personalization options to make your desktop more lively. Whether you're working or studying, you'll feel the warmth and joy brought by your cute companion.",
+    "title": "Precision and Control in AI Presentation Creation",
+    "description": "We've designed our AI PPT generator to address the pain points of traditional tools, giving you complete control over content while saving you valuable time.",
     "features": {
       "aiCreation": {
-        "name": "AI Creation",
+        "name": "Content Control",
         "bulletPoints": {
-          "0": "200 high-quality generations per month",
-          "1": "Support for character and pet customization",
-          "2": "46-frame high-quality animation effects",
-          "3": "Continuous model optimization and updates"
+          "0": "One slide at a time generation",
+          "1": "Your content, your focus - no unwanted additions",
+          "2": "Intelligent key point extraction",
+          "3": "No content distortion or emphasis shifting"
         }
       },
       "personalization": {
-        "name": "Personalization",
+        "name": "Deep Customization",
         "bulletPoints": {
-          "0": "Customize character appearance and actions",
-          "1": "Chat naturally with your Shimeji using AI technology",
-          "2": "Direct your Shimeji's actions through chat commands",
-          "3": "Feel free to add shimeji"
+          "0": "24 professional design styles",
+          "1": "Adjust fonts, colors, sizes, and spacing",
+          "2": "Fine-tune every element's appearance",
+          "3": "Match your brand guidelines perfectly"
         }
       },
       "convenience": {
-        "name": "Extremely Convenient",
+        "name": "Genuine Time Savings",
         "bulletPoints": {
-          "0": "One-click installation with no Java required",
-          "1": "Pre-designed animation frames ready to use",
-          "2": "Comprehensive tutorials and documentation",
-          "3": "Easy-to-use interface for all users"
+          "0": "Extract key points automatically",
+          "1": "Less time fixing AI output",
+          "2": "Simplified workflow - select, generate, customize",
+          "3": "Professional results with minimal effort"
         }
       },
       "interactiveExperience": {
-        "name": "Interactive Experience",
+        "name": "Data Visualization",
         "bulletPoints": {
-          "0": "Real-time responsive interactions",
-          "1": "Smart window detection and tracking",
-          "2": "Adorable walking and climbing animations",
-          "3": "Rich expression and action system"
+          "0": "Professional charting capabilities",
+          "1": "Turn data into compelling visuals",
+          "2": "Multiple chart types and formatting options",
+          "3": "Data-rich presentations made simple"
         }
       }
     }
@@ -463,8 +467,13 @@
     },
     "generatingMessage": "Generating content..."
   },
+  "GenerationPage": {
+    "header": "AI Generation Preview"
+  },
   "HtmlPreview": {
-    "title": "AI Generation Preview (Iframe)",
+    "title": "AI Generation Preview",
+    "titleInputLabel": "Title",
+    "titleInputPlaceholder": "Enter a title for your generation",
     "tabs": {
       "ppt": "PPT",
       "html": "HTML"
@@ -477,7 +486,9 @@
       "clearStorage": "Clear Storage",
       "clearStorageTooltip": "Clear locally stored HTML content",
       "cancelSelection": "Cancel Selection",
-      "selectElement": "Select Element to Edit"
+      "selectElement": "Select Element to Edit",
+      "saveHtml": "Save HTML",
+      "saveHtmlTooltip": "Save the HTML content to your folder"
     },
     "feedback": {
       "storageCleared": "Local storage cleared",
@@ -490,7 +501,9 @@
       "generatingImage": "Generating image...",
       "processingImage": "Processing image...",
       "applyingStyles": "Applying styles...",
-      "stylesAppliedSuccess": "Styles applied successfully"
+      "stylesAppliedSuccess": "Styles applied successfully",
+      "htmlSavedSuccess": "HTML saved successfully",
+      "htmlSavedFailed": "HTML save failed"
     },
     "errors": {
       "iframeNotAvailable": "Iframe content not available",
@@ -514,7 +527,11 @@
   "MarkdownEditor": {
     "buttons": {
       "uploadMarkdown": "Upload Markdown",
-      "uploadMarkdownTooltip": "Upload Markdown document"
+      "uploadMarkdownTooltip": "Upload Markdown document",
+      "generateAI": "Generate AI",
+      "generateAITooltip": "Generate AI content",
+      "generating": "Generating...",
+      "generatingTooltip": "Generating AI content..."
     },
     "settings": {
       "tooltip": "AI Settings",
@@ -525,7 +542,8 @@
       "languageChinese": "Chinese",
       "languageEnglish": "English",
       "styleLabel": "Style",
-      "stylePlaceholder": "Select style"
+      "stylePlaceholder": "Select style",
+      "generateMode": "Generate Mode"
     },
     "aiStyles": {
       "default": {
@@ -556,7 +574,30 @@
     "contextMenu": {
       "generating": "Generating...",
       "aiGenerate": "AI Generate",
-      "uploadMarkdown": "Upload Markdown Document"
+      "uploadMarkdown": "Upload Markdown Document",
+      "aiSettingsLabel": "AI Settings",
+      "languageLabel": "Language",
+      "languageChinese": "Chinese",
+      "languageEnglish": "English",
+      "styleLabel": "Style",
+      "stylePlaceholder": "Select style",
+      "changeGenerateType": "Change Generate Type",
+      "changeToCard": "Switch to Card Mode",
+      "changeToPPT": "Switch to PPT Mode"
     }
+  },
+  "Dashboard": {
+    "folderManagementTitle": "Folder Management",
+    "myFoldersTitle": "My Folders",
+    "newFolderButton": "New Folder",
+    "newFolderNamePlaceholder": "Enter folder name",
+    "createButton": "Create",
+    "createFolderError": "Failed to create folder",
+    "createFolderFailLog": "Create folder failed:",
+    "listFolderError": "Failed to fetch folder list",
+    "listFolderFailLog": "Failed to fetch folders:",
+    "listFolderNetworkError": "Network error occurred while fetching folders",
+    "noFoldersMessage": "No folders found. Please create a new folder.",
+    "createdOnLabel": "Created on"
   }
 } 

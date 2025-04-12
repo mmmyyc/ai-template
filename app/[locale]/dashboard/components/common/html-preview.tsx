@@ -6,25 +6,16 @@ import { ElementSelector } from "@/components/element-selector";
 import { FriendlyEditor } from "@/app/[locale]/dashboard/components/cssEditor/friendly-editor";
 import { Button } from "@/components/ui/button";
 import {
-  Sparkles,
-  RefreshCw,
-  Edit,
-  Eye,
-  Code,
   Trash2,
   Download,
   FileDown,
   ImageDown,
+  Save,
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MarkdownEditor from "@/app/[locale]/dashboard/components/common/markdown-editor";
-import parse, {
-  HTMLReactParserOptions,
-  Element as HtmlParserElement,
-  domToReact,
-  DOMNode,
-} from "html-react-parser";
+import apiClient from "@/libs/api";
 import {
   saveHtmlToLocalStorage,
   loadHtmlFromLocalStorage,
@@ -39,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import html2canvas from "html2canvas";
 import { useTranslations } from 'next-intl';
+import { Input } from "@/components/ui/input";
 
 // Helper function to inject styles into an iframe
 const injectStylesIntoIframe = (
@@ -114,8 +106,9 @@ const selectionModeStyles = `
     }
   `;
 
-export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
+export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, folderName: string }) {
   const t = useTranslations('HtmlPreview');
+  const [htmlTitle, setHtmlTitle] = useState("");
 
   const [selectedElementPath, setSelectedElementPath] = useState<string | null>(
     null
@@ -355,6 +348,26 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
     setProcessingFeedback(t('feedback.storageCleared'));
     setTimeout(() => setProcessingFeedback(null), 2000);
     console.log("Cleared local storage for HTML content");
+  };
+
+  const handleSaveHtml = async () => {
+    const htmlContentToSave = iframeRef.current?.contentDocument?.documentElement.outerHTML;
+    const formData = new URLSearchParams();
+    formData.append('folderName', folderName);
+    formData.append('content', htmlContentToSave);
+    formData.append('title', htmlTitle);
+    if (htmlContentToSave) {
+      try {
+        const response = await apiClient.post('/html-ppt/createHtml', formData)
+        if(response.data.htmlId) {
+          toast.success(t('feedback.htmlSavedSuccess'));
+        } else {
+          toast.error(t('feedback.htmlSavedFailed'));
+        }
+      } catch (error) {
+        toast.error(t('feedback.htmlSavedFailed'));
+      }
+    }
   };
 
   // 改进下载HTML功能，添加PPT模式下的样式
@@ -863,7 +876,7 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
   return (
     <>
       <div
-        className="bg-base-200 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between sticky top-0 z-10 flex-shrink-0"
+        className="bg-base-20 px-4 py-2 border-b flex items-center justify-between sticky top-0 z-10 flex-shrink-0"
         data-no-select
       >
         <h3 className="text-sm font-medium" data-no-select>
@@ -906,7 +919,16 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
             <Trash2 className="h-3.5 w-3.5 mr-1" />
             <span>{t('buttons.clearStorage')}</span>
           </Button>
-
+          <Button
+            onClick={handleSaveHtml}
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-xs dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+            title={t('buttons.saveHtmlTooltip')}
+          >
+            <Save className="h-3.5 w-3.5 mr-1" />
+            <span>{t('buttons.saveHtml')}</span>
+          </Button>
           <Tabs
             value={activePreviewTab}
             onValueChange={(value: string) =>
@@ -939,26 +961,40 @@ export function HtmlPreview({ htmlContent }: { htmlContent: string }) {
         <Tabs value={activePreviewTab} className="h-full">
           <TabsContent value="ppt" className="h-full m-0 p-0">
             <div className="h-full flex flex-col">
-              <div className="p-2 border-b flex justify-end flex-shrink-0 dark:border-gray-700">
-                {isSelecting ? (
-                  <Button
-                    onClick={handleCancelSelecting}
-                    variant="destructive"
-                    size="sm"
+              <div className="p-2 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700" data-no-select>
+                <div className="flex items-center gap-2 flex-grow mr-4">
+                  <span className="text-sm font-medium whitespace-nowrap">{t('titleInputLabel')}</span>
+                  <Input
+                    type="text"
+                    placeholder={t('titleInputPlaceholder')}
+                    value={htmlTitle}
+                    onChange={(e) => setHtmlTitle(e.target.value)}
+                    className="h-8 text-sm flex-grow min-w-[150px] dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                     data-no-select
-                  >
-                    {t('buttons.cancelSelection')}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleStartSelecting}
-                    variant="default"
-                    size="sm"
-                    data-no-select
-                  >
-                    {t('buttons.selectElement')}
-                  </Button>
-                )}
+                  />
+                </div>
+                <div className="flex-shrink-0">
+                  {isSelecting ? (
+                    <Button
+                      onClick={handleCancelSelecting}
+                      variant="destructive"
+                      size="sm"
+                      data-no-select
+                    >
+                      {t('buttons.cancelSelection')}
+                    </Button>
+                  ) : (
+                    
+                    <Button
+                      onClick={handleStartSelecting}
+                      variant="default"
+                      size="sm"
+                      data-no-select
+                    >
+                      {t('buttons.selectElement')}
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="flex-grow relative bg-gray-100 dark:bg-gray-800">
                 <iframe

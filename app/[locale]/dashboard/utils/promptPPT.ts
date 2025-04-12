@@ -1,4 +1,4 @@
-export const prompt = (language: string, style: string) => `
+export const promptPPT = (language: string, style: string) => `
 # 创建单页HTML演示 - 幻灯片生成提示词 (v2 - 强化内容)
 
 目标：创建一个单页HTML文件，作为演示文稿（如PowerPoint）中的一页幻灯片。请严格按照以下规范执行。

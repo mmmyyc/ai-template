@@ -9,7 +9,7 @@
  * @param text 输入文本内容
  * @returns 返回HTML内容和元数据
  */
-export async function generateSlideComponent(text: string, language: string, style: string): Promise<{
+export async function generateSlideComponent(text: string, language: string, style: string, generateType: string): Promise<{
   htmlContent: string;
   slideData: {
     id: string;
@@ -31,6 +31,7 @@ export async function generateSlideComponent(text: string, language: string, sty
         messages: userPrompt,
         language: language,
         style: style,
+        generateType: generateType,
         options: {
           useMock: true,
           mockType: 'htmlContent'

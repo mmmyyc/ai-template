@@ -2,7 +2,7 @@
 
 import { Link } from '@/i18n/navigation';
 import { usePathname } from 'next/navigation'
-import { Image, Layers, Send, Settings, History, HelpCircle, ShoppingBag } from 'lucide-react'
+import { Image, Upload } from 'lucide-react'
 import { DailyLimit } from './daily-limit'
 import ButtonAccount from '@/components/ButtonAccount'
 import { useTranslations } from 'next-intl'
@@ -20,20 +20,26 @@ export function MainNav() {
       description: t('Navigation.imageGen.description')
     },
     { 
-      id: 'history', 
-      name: t('Navigation.history.title'), 
-      icon: History, 
-      href: '/dashboard/history',
-      description: t('Navigation.history.description')
+      id: 'uploadpdf', 
+      name: t('Navigation.uploadpdf.title'), 
+      icon: Upload, 
+      href: '/dashboard/uploadpdf',
+      description: t('Navigation.uploadpdf.description')
     },
-    { 
-      id: 'store', 
-      name: t('Navigation.store.title'), 
-      icon: ShoppingBag, 
-      href: '/store',
-      description: t('Navigation.store.description')
-    },
-    // { id: 'text-gen', name: 'Text Generation', icon: Send, href: '/dashboard/text-generation' },
+    // { 
+    //   id: 'history', 
+    //   name: t('Navigation.history.title'), 
+    //   icon: History, 
+    //   href: '/dashboard/history',
+    //   description: t('Navigation.history.description')
+    // },
+    // { 
+    //   id: 'store', 
+    //   name: t('Navigation.store.title'), 
+    //   icon: ShoppingBag, 
+    //   href: '/store',
+    //   description: t('Navigation.store.description')
+    // },
     // { id: 'chat', name: 'Chat', icon: Layers, href: '/dashboard/chat' },
     // { id: 'settings', name: 'Settings', icon: Settings, href: '/dashboard/settings' },
   ]

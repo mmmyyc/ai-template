@@ -38,10 +38,10 @@ const LandingPage = () => {
         <FeaturesListicle />
 
         {/* CTA Section */}
-        <CTA />
+        {/* <CTA /> */}
 
         {/* Video Section */}
-        <VideoSection />
+        {/* <VideoSection /> */}
         
         {/* Price Section */}
         <Pricing />

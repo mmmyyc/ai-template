@@ -86,7 +86,8 @@ interface ArticleEditorProps {
   onAIAction?: (
     selectedText: string,
     language: string,
-    style: string
+    style: string,
+    generateType: string
   ) => Promise<void>;
   isGenerating?: boolean;
   generatedComponentCode?: string;
@@ -101,6 +102,7 @@ interface ArticleEditorProps {
       color: string;
     };
   };
+  folderName?: string;
 }
 
 export default function ArticleEditor({
@@ -120,6 +122,7 @@ export default function ArticleEditor({
       color: "#000000",
     },
   },
+  folderName = "",
 }: ArticleEditorProps) {
   const t = useTranslations('ArticleEditor');
 
@@ -155,7 +158,7 @@ export default function ArticleEditor({
 
   return (
     <div className="article-editor-container">
-      <div className="bg-base-200 dark:bg-gray-900 px-4 py-2 border-b flex items-center justify-between">
+      <div className="bg-base-20 px-4 py-2 border-b flex items-center justify-between">
         <h3 className="text-sm font-medium">{t('title')}</h3>
         <Tabs
           value={activeTab}
@@ -205,7 +208,7 @@ export default function ArticleEditor({
                   </div>
                 </div>
               ) : null}
-              <HtmlPreview htmlContent={htmlContent} />
+              <HtmlPreview htmlContent={htmlContent} folderName={folderName} />
             </div>
           </TabsContent>
         </Tabs>

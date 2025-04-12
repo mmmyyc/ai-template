@@ -317,5 +317,67 @@
         }
       }
     }
+  },
+  "MarkdownEditor": {
+    "buttons": {
+      "uploadMarkdown": "上传Markdown",
+      "uploadMarkdownTooltip": "上传Markdown文档",
+      "generateAI": "AI生成",
+      "generateAITooltip": "生成AI内容",
+      "generating": "生成中...",
+      "generatingTooltip": "正在生成AI内容..."
+    },
+    "settings": {
+      "tooltip": "AI设置",
+      "title": "AI设置",
+      "description": "配置AI生成语言和风格",
+      "languageLabel": "语言",
+      "languagePlaceholder": "选择语言",
+      "languageChinese": "中文",
+      "languageEnglish": "英文",
+      "styleLabel": "风格",
+      "stylePlaceholder": "选择风格",
+      "generateMode": "生成模式"
+    },
+    "aiStyles": {
+      "default": {
+        "label": "默认",
+        "description": "标准AI写作风格"
+      },
+      "creative": {
+        "label": "创意",
+        "description": "更具想象力和表现力的风格"
+      },
+      "technical": {
+        "label": "技术",
+        "description": "正式精确的风格"
+      },
+      "simplified": {
+          "label": "简化",
+          "description": "将复杂内容转换为易于理解的语言"
+      },
+      "summarization": {
+          "label": "总结",
+          "description": "提取关键点创建简明摘要"
+      },
+      "expansion": {
+          "label": "扩展",
+          "description": "扩展现有内容以提供更多细节"
+      }
+    },
+    "contextMenu": {
+      "generating": "生成中...",
+      "aiGenerate": "AI生成",
+      "uploadMarkdown": "上传Markdown文档",
+      "aiSettingsLabel": "AI设置",
+      "languageLabel": "语言",
+      "languageChinese": "中文",
+      "languageEnglish": "英文",
+      "styleLabel": "风格",
+      "stylePlaceholder": "选择风格",
+      "changeGenerateType": "更改生成类型",
+      "changeToCard": "切换到卡片模式",
+      "changeToPPT": "切换到PPT模式"
+    }
   }
 } 

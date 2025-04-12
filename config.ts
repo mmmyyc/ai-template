@@ -54,16 +54,16 @@ const config = {
         // REQUIRED — we use this to find the plan in the webhook (for instance if you want to update the user's credits based on the plan)
         priceId:
           process.env.NODE_ENV === "development"
-            ? "price_1Qd6FHQeZYgpkJjDDc6FqLgz"
-            : "price_1Qrc5JHbfXTB6MRpjUpZonfp",
+            ? "price_1RCzzGQeZYgpkJjDh6vG3ToI"
+            : "price_1RBboGHbfXTB6MRp7vkNCuLc",
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Basic",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
         description: "providing high-quality desktop pets consisting of 25 high-quality pictures",
         // The price you want to display, the one user will be charged on Stripe.
-        price: 14,
+        price: 3,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
-        priceAnchor: 29,
+        priceAnchor: 5,
         features: [
           {
             name: "Usage Limit 50 generations per month",
@@ -81,37 +81,6 @@ const config = {
 
           { name: "25-frame Animation Set" },
           { name: "Human Character Customization" },
-        ],
-      },
-      {
-        priceId:
-          process.env.NODE_ENV === "development"
-            ? "price_1Qd6iuQeZYgpkJjDCVuW3gEN"
-            : "price_1Qrc66HbfXTB6MRp6FpKmgmJ",
-        // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
-        isFeatured: true,
-        name: "Advanced",
-        description: "providing high-quality desktop pets consisting of 46 high-quality pictures",
-        price: 24,
-        priceAnchor: 39,
-        features: [
-          {
-            name: "Usage Limit 200 generations per month",
-          },
-          {
-            name: "AI assistant",
-          },
-          {
-            name: "Shimeji Customization",
-          },
-          { name: "HD Animated Images" },
-          { name: "Fun Interaction" },
-          { name: "Real-time Response" },
-
-          { name: "46-frame Premium Animation" },
-          { name: "Human Character Customization" },
-          { name: "Pet Character Customization" },
-          { name: "Multi-device Support" },
         ],
       },
     ],
