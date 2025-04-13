@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { useEffect } from "react"
 import {useRouter} from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-
+import {useFormatter} from 'next-intl';
 type UserFolder = {
   id: string
   name: string
@@ -87,8 +87,9 @@ export function FolderManager() {
       setFolders([]); // Ensure folders is an empty array on fetch failure
     })
   }, []);
+  const format = useFormatter();
   const formatDate = (date: string) => {    
-    return new Date(date).toLocaleDateString("zh-CN", {
+    return format.dateTime(new Date(date), {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",

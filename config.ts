@@ -55,7 +55,7 @@ const config = {
         priceId:
           process.env.NODE_ENV === "development"
             ? "price_1RCzzGQeZYgpkJjDh6vG3ToI"
-            : "price_1RBboGHbfXTB6MRp7vkNCuLc",
+            : "price_1RDKs0QWD2AXxLGFy8bKUxBo",
         //  REQUIRED - Name of the plan, displayed on the pricing page
         name: "Basic",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others

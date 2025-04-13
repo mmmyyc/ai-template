@@ -8,8 +8,9 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/react"
 import ClientLayout from "@/components/LayoutClient";
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, setRequestLocale, getTranslations } from 'next-intl/server';
+import { getMessages, setRequestLocale} from 'next-intl/server';
 import { locales } from "@/i18n/config";
+import { notFound } from "next/navigation";
 const font = Inter({ subsets: ["latin"] });
 
 export const viewport: Viewport = {
@@ -56,25 +57,11 @@ const themeScript = `
 	document.documentElement.setAttribute('data-theme', theme);
 `;
 
-export default async function LocaleLayout({
-	children,
-	params: { locale }
+export default function RootLayout({
+	children
 }: {
 	children: ReactNode;
-	params: { locale: string };
 }) {
-	// Validate that the incoming locale is valid
-	// if (!locales.includes(locale as any)) {
-	// 	notFound();
-	// }
-
-	// 启用静态渲染
-	setRequestLocale(locale);
-
-	const messages = await getMessages();
-	
-
-
 	return (
 		<html suppressHydrationWarning>
 			<head>
@@ -82,17 +69,10 @@ export default async function LocaleLayout({
 				<link rel="icon" href="/favicon.ico" sizes="any" />
 			</head>
 			<body className={font.className}>
-			<NextIntlClientProvider messages={messages} locale={locale}>
-				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
-				<ClientLayout>
-					{children}
-				</ClientLayout>
-			</NextIntlClientProvider>
+				{children}
 				<Analytics />
 				<GoogleAnalytics gaId="G-4KMJNL5ZMF" />
 			</body>
 		</html>
-
-
 	);
 }
