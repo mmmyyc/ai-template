@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 // // You can override them in each page passing params to getSOTags() function.
 // export const metadata = getSEOTags({
 // 	title: "Shimeji AI Desktop Pet Generator| Free Trial",
-// 	keywords: "YCamie, desktop pets, personalized Shimeji, animated desktop characters, Shimeji customization"
+// 	keywords: "SlidesCraft, desktop pets, personalized Shimeji, animated desktop characters, Shimeji customization"
 // });
 
 // 使用动态生成metadata
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: { locale: string } 
 	// 可以根据不同语言生成不同标题
 	return getSEOTags({
 		title: locale === 'zh' ? "Shimeji AI 桌面宠物生成器 | 免费试用" : "Shimeji AI Desktop Pet Generator | Free Trial",
-		keywords: "YCamie, desktop pets, personalized Shimeji, animated desktop characters, Shimeji customization"
+		keywords: "SlidesCraft, desktop pets, personalized Shimeji, animated desktop characters, Shimeji customization"
 	});
 }
 

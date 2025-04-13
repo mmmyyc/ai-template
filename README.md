@@ -1,6 +1,6 @@
-# YCamie — Typescript
+# SlidesCraft — Typescript
 
-Hey maker 👋 it's Marc from [YCamie](https://shipfa.st/docs). Let's get your startup off the ground, FAST ⚡️
+Hey maker 👋 it's Marc from [SlidesCraft](https://shipfa.st/docs). Let's get your startup off the ground, FAST ⚡️
 
 <sub>**Watch/Star the repo to be notified when updates are pushed**</sub>
 
@@ -15,7 +15,7 @@ Hey maker 👋 it's Marc from [YCamie](https://shipfa.st/docs). Let's get your s
 ## Links
 
 -   [📚 Documentation](https://shipfa.st/docs)
--   [📣 Updates](https://YCamie.beehiiv.com/)
+-   [📣 Updates](https://SlidesCraft.beehiiv.com/)
 -   [🧑‍💻 Discord](https://shipfa.st/dashboard)
 -   [🥇 Leaderboard](https://shipfa.st/leaderboard)
 
@@ -29,7 +29,7 @@ Let's ship it, FAST ⚡️
 
 P.S.
 
--   Want to showcase your startups? Get your [Indie Page](https://indiepa.ge?ref=YCamie_readme) and share your entrepreneur's journey. Join 3,132 founders ⭐️
--   Don't get banned from Stripe for 1 dispute. Use [ByeDispute](https://byedispute.com/?ref=YCamie_readme) to prevent them from happenening 🛡️
--   Make your launch go viral and get your first customers with [LaunchViral](https://launchvir.al/?ref=YCamie_readme) 🚀
--   Stop paying 0.4% per Stripe invoices [Zenvoice](https://zenvoice.io/?ref=YCamie_readme) 🤕
+-   Want to showcase your startups? Get your [Indie Page](https://indiepa.ge?ref=SlidesCraft_readme) and share your entrepreneur's journey. Join 3,132 founders ⭐️
+-   Don't get banned from Stripe for 1 dispute. Use [ByeDispute](https://byedispute.com/?ref=SlidesCraft_readme) to prevent them from happenening 🛡️
+-   Make your launch go viral and get your first customers with [LaunchViral](https://launchvir.al/?ref=SlidesCraft_readme) 🚀
+-   Stop paying 0.4% per Stripe invoices [Zenvoice](https://zenvoice.io/?ref=SlidesCraft_readme) 🤕

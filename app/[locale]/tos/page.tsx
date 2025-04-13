@@ -13,7 +13,7 @@ import config from "@/config";
 
 // I need your help to write a simple Terms & Services for my website. Here is some context:
 // - Website: https://shipfa.st
-// - Name: YCamie
+// - Name: SlidesCraft
 // - Contact information: marc@shipfa.st
 // - Description: A JavaScript code boilerplate to help entrepreneurs launch their startups faster
 // - Ownership: when buying a package, users can download code to create apps. They own the code but they do not have the right to resell it. They can ask for a full refund within 7 day after the purchase.
@@ -59,9 +59,9 @@ const TOS = () => {
         >
           {`Effective Date: January 16, 2025
 
-Welcome to YCamie! These Terms & Services ("Terms") govern your use of our website, https://ycamie, and the services we provide. By accessing or using our website and services, you agree to these Terms.
+Welcome to SlidesCraft! These Terms & Services ("Terms") govern your use of our website, https://SlidesCraft, and the services we provide. By accessing or using our website and services, you agree to these Terms.
 
-Description of Services YCamie provides high-quality Shimeji desktop pets. Users can create their own table pets without spending excessive time on customization or large sums of money.
+Description of Services SlidesCraft provides high-quality Shimeji desktop pets. Users can create their own table pets without spending excessive time on customization or large sums of money.
 
 Ownership Upon purchasing the service, you own the code of the Shimeji desktop pet you create. You also have the right to enable business transactions related to the pet.
 
@@ -79,7 +79,7 @@ Updates to Terms We may update these Terms from time to time. Any updates will b
 
 Contact Information If you have any questions or concerns regarding these Terms, please contact us at mmmmmyyc@gmail.com.
 
-By using YCamie, you acknowledge that you have read, understood, and agree to these Terms.
+By using SlidesCraft, you acknowledge that you have read, understood, and agree to these Terms.
         `}
         </pre>
       </div>

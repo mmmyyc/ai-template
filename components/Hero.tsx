@@ -31,7 +31,7 @@ const Hero = () => {
                 {t('tryButton')}
               </Link>
               <Link 
-                href="/blog/introducing-YCamie" 
+                href="/blog/introducing-SlidesCraft" 
                 className="btn btn-outline btn-lg px-8 rounded-full"
                 title={`${config.appName} demo`}
               >
@@ -42,13 +42,13 @@ const Hero = () => {
             {/* Product Hunt Badge */}
             <div className="mt-8">
               <a 
-                href="https://www.producthunt.com/posts/ycamie?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ycamie" 
+                href="https://www.producthunt.com/posts/SlidesCraft?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-SlidesCraft" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
                 <img 
                   src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=905992&theme=light&t=1741241257521" 
-                  alt="YCamie - Create Your Own AI Shimeji desktop pets | Product Hunt" 
+                  alt="SlidesCraft - Create Your Own AI Shimeji desktop pets | Product Hunt" 
                   style={{ width: '250px', height: '54px' }} 
                   width="250" 
                   height="54" 

@@ -8,8 +8,8 @@ const config = {
   appDescription:
     "Get high-quality personalized Shimeji desktop pets without spending weeks on customization or hundreds of dollars.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
-  // domainName: "ycamie.com",
-  domainName: "shimeji.ai",
+  // domainName: "SlidesCraft.com",
+  domainName: "slidescraft.com",
   crisp: {
     // Crisp website ID. IF YOU DON'T USE CRISP: just remove this => Then add a support email in this config file (resend.supportEmail) otherwise customer support won't work.
     id: "efb4d315-770c-47b4-a1c3-1cfce1e74ba0",
@@ -93,9 +93,9 @@ const config = {
   },
   resend: {
     // REQUIRED — Email 'From' field to be used when sending magic login links
-    fromNoReply: `YCamie <noreply@resend.ycamie.com>`,
+    fromNoReply: `SlidesCraft <noreply@resend.ycamie.com>`,
     // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
-    fromAdmin: `YCamie at YCamie <mmmmmyyc@resend.ycamie.com>`,
+    fromAdmin: `SlidesCraft at SlidesCraft <mmmmmyyc@resend.ycamie.com>`,
     // Email shown to customer if need support. Leave empty if not needed => if empty, set up Crisp above, otherwise you won't be able to offer customer support."
     supportEmail: "mmmmmyyc@ycamie.com",
   },

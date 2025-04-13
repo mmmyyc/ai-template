@@ -45,7 +45,7 @@ interface TwitterShareProps {
 // Twitter分享弹窗组件
 const TwitterShareModal = ({ isOpen, onClose, generation, pageUrl }: TwitterShareProps) => {
   const [tweetText, setTweetText] = useState('');
-  const [tags, setTags] = useState<string[]>(['Shimeji', 'AI', 'YCamie']);
+  const [tags, setTags] = useState<string[]>(['Shimeji', 'AI', 'SlidesCraft']);
   
   useEffect(() => {
     if (generation) {
@@ -58,7 +58,7 @@ const TwitterShareModal = ({ isOpen, onClose, generation, pageUrl }: TwitterShar
         .slice(0, 2)
         .map(word => word.replace(/[^\w]/g, ''));
       
-      setTags(['Shimeji', 'AI', 'YCamie', ...possibleTags]);
+      setTags(['Shimeji', 'AI', 'SlidesCraft', ...possibleTags]);
     }
   }, [generation]);
   
@@ -161,8 +161,8 @@ const TwitterShareModal = ({ isOpen, onClose, generation, pageUrl }: TwitterShar
                 <div className="flex items-center mb-3">
                   <div className="w-10 h-10 bg-blue-500 rounded-full mr-3"></div>
                   <div>
-                    <div className="font-bold">YCamie</div>
-                    <div className="text-gray-500">@ycamie</div>
+                    <div className="font-bold">SlidesCraft</div>
+                    <div className="text-gray-500">@SlidesCraft</div>
                   </div>
                 </div>
                 <div className="tweet-preview mb-3">

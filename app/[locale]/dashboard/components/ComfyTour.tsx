@@ -22,7 +22,7 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps) => {
       setSteps([
         {
           target: 'body',
-          content: 'Welcome to YCamie Desktop Pet Generator! Let us show you around.',
+          content: 'Welcome to SlidesCraft Desktop Pet Generator! Let us show you around.',
           placement: 'center',
           disableBeacon: true,
         },

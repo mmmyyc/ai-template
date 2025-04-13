@@ -13,7 +13,7 @@ import config from "@/config";
 
 // I need your help to write a simple privacy policy for my website. Here is some context:
 // - Website: https://shipfa.st
-// - Name: YCamie
+// - Name: SlidesCraft
 // - Description: A JavaScript code boilerplate to help entrepreneurs launch their startups faster
 // - User data collected: name, email and payment information
 // - Non-personal data collection: web cookies
@@ -59,7 +59,7 @@ const PrivacyPolicy = () => {
         >
           {`Effective Date: January 16, 2025
 
-At YCamie, your privacy is important to us. This Privacy Policy outlines the types of personal information we collect and how we use and protect it. By using our website, https://ycamie, you agree to the terms of this Privacy Policy.
+At SlidesCraft, your privacy is important to us. This Privacy Policy outlines the types of personal information we collect and how we use and protect it. By using our website, https://SlidesCraft, you agree to the terms of this Privacy Policy.
 
 Information We Collect
 
@@ -77,7 +77,7 @@ Updates to This Privacy Policy We may update this Privacy Policy from time to ti
 
 Contact Information If you have any questions about this Privacy Policy or how we handle your data, please contact us at mmmmmyyc@gmail.com.
 
-By using YCamie, you consent to our Privacy Policy.`}
+By using SlidesCraft, you consent to our Privacy Policy.`}
         </pre>
       </div>
     </main>

@@ -7,6 +7,7 @@ import config from "@/config";
 // It's applied to all subpages of /dashboard in /app/dashboard/*** pages
 // You can also add custom static UI elements like a Navbar, Sidebar, Footer, etc..
 // See https://shipfa.st/docs/tutorials/private-page
+
 export default async function LayoutPrivate({
   children,
   params
