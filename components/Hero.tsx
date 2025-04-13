@@ -30,16 +30,16 @@ const Hero = () => {
                 </svg>
                 {t('tryButton')}
               </Link>
-              <Link 
+              {/* <Link 
                 href="/blog/introducing-SlidesCraft" 
                 className="btn btn-outline btn-lg px-8 rounded-full"
                 title={`${config.appName} demo`}
               >
                 {t('watchButton')}
-              </Link>
+              </Link> */}
             </div>
 
-            {/* Product Hunt Badge */}
+            {/* Product Hunt Badge
             <div className="mt-8">
               <a 
                 href="https://www.producthunt.com/posts/SlidesCraft?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-SlidesCraft" 
@@ -54,7 +54,7 @@ const Hero = () => {
                   height="54" 
                 />
               </a>
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-8 text-sm text-base-content/70 mt-8">
               <div className="flex items-center gap-2">
