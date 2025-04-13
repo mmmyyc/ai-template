@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import ArticleEditor from "@/app/[locale]/dashboard/components/ai/article-editor"
 import MarkdownEditor from "@/app/[locale]/dashboard/components/common/markdown-editor"
 import { generateSlideComponent } from "@/app/[locale]/dashboard/utils/ai-service"
@@ -10,7 +10,6 @@ import {
   PanelResizeHandle
 } from "react-resizable-panels"
 import { useTranslations } from 'next-intl';
-
 // Define the expected structure of the params prop
 interface GenerationPageProps {
   params: {
@@ -23,93 +22,9 @@ export default function Home({ params }: GenerationPageProps) {
   const t = useTranslations('GenerationPage');
   const { folderName } = params; // Destructure folderId from params
 
-  // --- You can now use folderId ---
-  // console.log("Current Folder ID:", folderId);
+  const [leftContent, setLeftContent] = useState(``)
 
-  // Example: Fetch data based on folderId using useEffect
-  // useEffect(() => {
-  //   if (folderId) {
-  //     // Fetch data specific to this folder
-  //     console.log(`Fetching data for folder: ${folderId}`);
-  //     // fetchDataForFolder(folderId);
-  //   }
-  // }, [folderId]);
-  // ---
-
-  const [leftContent, setLeftContent] = useState(`# 中国古代四大发明
-
-中国古代四大发明是指造纸术、指南针、火药和活字印刷术。这些发明对人类文明的进步产生了深远的影响。
-
-## 造纸术
-
-造纸术由蔡伦改进完善于东汉时期。在此之前，人们主要在龟甲、竹简、丝绢等材料上书写，这些材料或是昂贵，或是不便携带。
-
-造纸术的发明和改进具有以下重大意义：
-- 大大降低了书写材料的成本
-- 使知识传播更加便利
-- 推动了教育和文化的发展
-- 为活字印刷术的发明奠定了基础
-
-## 指南针
-
-指南针最早出现在战国时期，当时被称为"司南"。经过历代改进，发展成为航海必备的导航工具。
-
-指南针的应用领域：
-1. 航海导航
-2. 陆地测向
-3. 军事指挥
-4. 风水勘测
-
-## 火药
-
-火药起源于道士炼丹，在唐朝时期逐渐发展成熟。最初用于烟花爆竹，后来被用于军事。
-
-火药的发展历程：
-* 炼丹术的意外产物
-* 娱乐用途（烟花爆竹）
-* 军事应用
-* 工程开发（开山采矿）
-
-## 活字印刷术
-
-活字印刷术由毕昇发明于北宋时期，是一项革命性的发明。
-
-### 主要特点：
-1. 可重复使用的单字模块
-2. 灵活组合，提高效率
-3. 降低印刷成本
-4. 有利于文化传播
-
-## 历史意义
-
-这四大发明展现了中国古代科技的高度发展，对世界文明进步做出了重大贡献。它们分别革新了：
-- 信息记录方式（造纸术）
-- 航海技术（指南针）
-- 军事技术（火药）
-- 知识传播方式（活字印刷术）
-
-选择任意段落，点击AI按钮来生成演示幻灯片！`)
-
-  const [rightContent, setRightContent] = useState(`# 学习笔记模板
-
-## 今日要点
-- 
-- 
-- 
-
-## 重要概念
-1. 
-2. 
-3. 
-
-## 问题与思考
-> 
-
-## 延伸阅读
-* 
-* 
-
-## 总结`)
+  const [rightContent, setRightContent] = useState(``)
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [htmlContent, setHtmlContent] = useState("")
