@@ -7,5 +7,5 @@ export const routing = defineRouting({
   // 默认语言
   defaultLocale,
   // 仅在需要时显示语言前缀
-  localePrefix: 'always'
+  localePrefix: 'as-needed'
 }); 

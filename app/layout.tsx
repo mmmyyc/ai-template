@@ -8,7 +8,7 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/react"
 import ClientLayout from "@/components/LayoutClient";
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, setRequestLocale} from 'next-intl/server';
+import { getMessages, setRequestLocale, getTranslations } from 'next-intl/server';
 import { locales } from "@/i18n/config";
 import { notFound } from "next/navigation";
 const font = Inter({ subsets: ["latin"] });
@@ -57,11 +57,20 @@ const themeScript = `
 	document.documentElement.setAttribute('data-theme', theme);
 `;
 
-export default function RootLayout({
-	children
+export default async function LocaleLayout({
+	children,
+	params: { locale }
 }: {
 	children: ReactNode;
+	params: { locale: string };
 }) {
+	// 启用静态渲染
+	setRequestLocale(locale);
+
+	const messages = await getMessages();
+	
+
+
 	return (
 		<html suppressHydrationWarning>
 			<head>
@@ -69,10 +78,17 @@ export default function RootLayout({
 				<link rel="icon" href="/favicon.ico" sizes="any" />
 			</head>
 			<body className={font.className}>
-				{children}
+			<NextIntlClientProvider messages={messages} locale={locale}>
+				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
+				<ClientLayout>
+					{children}
+				</ClientLayout>
+			</NextIntlClientProvider>
 				<Analytics />
 				<GoogleAnalytics gaId="G-4KMJNL5ZMF" />
 			</body>
 		</html>
+
+
 	);
 }

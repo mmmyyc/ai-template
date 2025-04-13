@@ -40,7 +40,5 @@ export const config = {
      * Feel free to modify this pattern to include more paths.
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-    // 匹配API路由（只应用会话更新）
-    "/api/:path*"
   ],
 };
