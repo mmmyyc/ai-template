@@ -121,6 +121,10 @@
     "uploadpdf": {
       "title": "Upload Document",
       "description": "Upload your documents to generate presentations"
+    },
+    "streamppt": {
+      "title": "Stream PPT",
+      "description": "Stream your PPT presentations"
     }
   },
   "WithWithout": {
@@ -582,6 +586,7 @@
     "listFolderFailLog": "Failed to fetch folders:",
     "listFolderNetworkError": "Network error occurred while fetching folders",
     "noFoldersMessage": "No folders found. Please create a new folder.",
-    "createdOnLabel": "Created on"
+    "createdOnLabel": "Created on",
+    "loading": "Loading..."
   }
 } 

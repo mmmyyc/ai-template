@@ -112,6 +112,10 @@
     "uploadpdf": {
       "title": "上传文档",
       "description": "上传您的文档生成演示文稿"
+    },
+    "streamppt": {
+      "title": "Stream PPT",
+      "description": "在线播放您的PPT演示文稿"
     }
   },
   "DailyLimit": {
@@ -396,6 +400,7 @@
     "listFolderFailLog": "获取文件夹失败:",
     "listFolderNetworkError": "获取文件夹时发生网络错误",
     "noFoldersMessage": "没有文件夹，请创建新文件夹",
-    "createdOnLabel": "创建于"
+    "createdOnLabel": "创建于",
+    "loading": "加载中..."
   }
 } 

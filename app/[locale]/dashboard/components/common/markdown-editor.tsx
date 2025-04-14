@@ -27,7 +27,7 @@ import {
 import { useTranslations } from 'next-intl'; // Import the hook
 
 // --- Define AI Style Options --- 
-const aiStyleOptions = [
+const aiStyleOptionsChinese = [
   { value: "Default", label: "默认", description: "默认: 通用、平衡的默认风格" },
   { value: "Concise", label: "简洁", description: "简洁: 清晰、直接、去除多余元素" },
   { value: "Professional", label: "专业", description: "专业: 正式、商务、注重结构和可信度" },
@@ -64,6 +64,43 @@ const aiStyleOptions = [
   { value: "Organic Design", label: "有机设计", description: "有机设计: 模仿自然形态和曲线" },
 ];
 
+const aiStyleOptionsEnglish = [
+  { value: "Default", label: "Default", description: "Default: General, balanced default style" },
+  { value: "Concise", label: "Concise", description: "Concise: Clear, direct, removes redundant elements" },
+  { value: "Professional", label: "Professional", description: "Professional: Formal, business-oriented, focuses on structure and credibility" },
+  { value: "Creative", label: "Creative", description: "Creative: Unique, novel, emphasizes visual impact" },
+  { value: "Neobrutalism", label: "Neobrutalism", description: "Neobrutalism: Raw and rugged, high contrast, clear borders" },
+  { value: "Bento Grid Design", label: "Bento Grid", description: "Bento Grid: Modular grid layout, clear information blocks" },
+  { value: "Apple Design", label: "Apple Design", description: "Apple Design: Simple, elegant, focuses on detail and user experience" },
+  { value: "Material Design", label: "Material Design", description: "Material Design: Google specification, based on real-world shadows and dynamic effects" },
+  { value: "Flat Design", label: "Flat Design", description: "Flat Design: Removes textures, shadows, and gradients, uses solid color blocks" },
+  { value: "Neumorphism", label: "Neumorphism", description: "Neumorphism: Soft raised and recessed effects, low contrast" },
+  { value: "Glassmorphism", label: "Glassmorphism", description: "Glassmorphism: Blurred background, translucency, and clear borders" },
+  { value: "Skeuomorphism", label: "Skeuomorphism", description: "Skeuomorphism: Imitates the appearance and texture of real objects" },
+  { value: "Minimalism", label: "Minimalism", description: "Minimalism: Minimal elements, ample white space, function-first" },
+  { value: "Retro/Vintage", label: "Retro/Vintage", description: "Retro/Vintage: Imitates the design style of a specific historical period" },
+  { value: "Cyberpunk", label: "Cyberpunk", description: "Cyberpunk: High-tech, neon lights, futuristic urban feel" },
+  { value: "Memphis Design", label: "Memphis", description: "Memphis: 80s style, geometric shapes, bold colors" },
+  { value: "Bauhaus", label: "Bauhaus", description: "Bauhaus: Functionalism, geometric forms, simple lines" },
+  { value: "Brutalism", label: "Brutalism", description: "Brutalism: Raw, unfinished, emphasizes functionality" },
+  { value: "Y2K Aesthetic", label: "Y2K Aesthetic", description: "Y2K Aesthetic: Early 2000s style, tech feel, optimism" },
+  { value: "Vaporwave", label: "Vaporwave", description: "Vaporwave: 80s/90s retro, internet culture, glitch art" },
+  { value: "Corporate Memphis", label: "Corporate Memphis", description: "Corporate Memphis: Common in tech companies, flat illustrations, abstract characters" },
+  { value: "Dark Mode", label: "Dark Mode", description: "Dark Mode: Dark background, reduces eye strain" },
+  { value: "Claymorphism", label: "Claymorphism", description: "Claymorphism: Soft 3D effect, resembling clay models" },
+  { value: "Swiss/International Style", label: "Swiss/International", description: "Swiss/International Style: Grid system, sans-serif fonts, objective clarity" },
+  { value: "Atomic Design", label: "Atomic Design", description: "Atomic Design: Modular design system, from atoms to pages" },
+  { value: "Monochrome", label: "Monochrome", description: "Monochrome: Uses different shades of a single color" },
+  { value: "Isometric", label: "Isometric", description: "Isometric: 2.5D perspective, shows 3D sense of objects" },
+  { value: "Gradient", label: "Gradient", description: "Gradient: Smooth color transition effect" },
+  { value: "Animated UI", label: "Animated UI", description: "Animated UI: Uses animations to enhance user experience" },
+  { value: "3D Design", label: "3D Design", description: "3D Design: Uses 3D models and rendering effects" },
+  { value: "Handcrafted/Doodle", label: "Handcrafted/Doodle", description: "Handcrafted/Doodle: Imitates the style of hand-drawing or doodling" },
+  { value: "Micro-interactions", label: "Micro-interactions", description: "Micro-interactions: Small animated feedback, enhances interaction feel" },
+  { value: "Asymmetrical Layouts", label: "Asymmetrical Layouts", description: "Asymmetrical Layouts: Breaks balance, creates visual dynamism" },
+  { value: "Organic Design", label: "Organic Design", description: "Organic Design: Imitates natural forms and curves" },
+];
+
 export interface MarkdownEditorProps {
   initialContent?: string
   placeholder?: string
@@ -94,8 +131,10 @@ export default function MarkdownEditor({
   const [isTextSelected, setIsTextSelected] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   // Add state for AI settings
-  const [aiLanguage, setAiLanguage] = useState("Chinese")
+  const [aiLanguage, setAiLanguage] = useState("English")
   const [generateType, setGenerateType] = useState("PPT")
+  // Use the correct style options based on language selection
+  const aiStyleOptions = aiLanguage === "English" ? aiStyleOptionsEnglish : aiStyleOptionsChinese
   // Initialize aiStyle with the description of the default option
   const [aiStyle, setAiStyle] = useState(aiStyleOptions[0].description) 
   const t = useTranslations('MarkdownEditor'); // Initialize useTranslations
@@ -325,7 +364,7 @@ export default function MarkdownEditor({
           <ContextMenuSub>
             <ContextMenuSubTrigger>{t('contextMenu.styleLabel')}</ContextMenuSubTrigger>
             <ContextMenuSubContent className="w-64 max-h-80 overflow-y-auto bg-white">
-              {aiStyleOptions.map((option) => (
+              {(aiLanguage === "English" ? aiStyleOptionsEnglish : aiStyleOptionsChinese).map((option) => (
                 <ContextMenuCheckboxItem
                   key={option.value} 
                   checked={aiStyle === option.description} 

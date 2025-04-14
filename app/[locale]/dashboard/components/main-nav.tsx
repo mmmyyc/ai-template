@@ -2,7 +2,7 @@
 
 import { Link } from '@/i18n/navigation';
 import { usePathname } from '@/i18n/navigation'
-import { Image, Upload } from 'lucide-react'
+import { Image, Upload , File } from 'lucide-react'
 import { DailyLimit } from './daily-limit'
 import ButtonAccount from '@/components/ButtonAccount'
 import { useTranslations } from 'next-intl'
@@ -25,6 +25,13 @@ export function MainNav() {
       icon: Upload, 
       href: '/dashboard/uploadpdf',
       description: t('Navigation.uploadpdf.description')
+    },
+    {
+      id: 'streamppt',
+      name: t('Navigation.streamppt.title'),
+      icon: File,
+      href: '/dashboard/streamppt',
+      description: t('Navigation.streamppt.description')
     },
     // { 
     //   id: 'history', 

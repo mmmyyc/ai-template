@@ -43,9 +43,9 @@ export default async function Layout({
       <div className="drawer lg:drawer-open">
         <input id="drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content flex flex-col">
-          <TourProvider>
+          {/* <TourProvider> */}
             {children}
-          </TourProvider>
+          {/* </TourProvider> */}
         </div>
         
         {/* 侧边栏 */}
