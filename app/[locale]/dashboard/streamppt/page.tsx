@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { PresentationLayout } from "./components/presentation-layout"
 import { SlideViewer } from "./components/slide-viewer"
-import { LoadingOverlay } from "./components/loading-overlay"
+import { LoadingOverlay } from "./loading-overlay"
 import { defaultSlides } from "./lib/default-slides"
 import type { Slide } from "./types/slide"
 import { SlideInjector } from "./components/slide-injector"
@@ -17,9 +17,11 @@ import { useTranslations } from 'next-intl'
 export default function Home() {
   const [slides, setSlides] = useState<Slide[]>([])
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [slideHtml, setSlideHtml] = useState<string[]>([])
   const [isPresenting, setIsPresenting] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isFetchingSlides, setIsFetchingSlides] = useState(false)
+  const presentationRef = useRef<HTMLDivElement>(null)
   
   const searchParams = useSearchParams()
   const folderId = searchParams.get('folderId')
@@ -46,13 +48,12 @@ export default function Home() {
       console.log("没有选择文件夹，不加载任何幻灯片");
       setSlides([])
       setSlideHtml([])
-      setLoading(false)
       return
     }
 
     const fetchSlides = async () => {
       console.log(`获取文件夹ID的幻灯片: ${selectedFolderId}`);
-      setLoading(true)
+      setIsFetchingSlides(true);
       try {
         console.log('发送API请求参数:', { folderId: selectedFolderId });
         
@@ -83,7 +84,7 @@ export default function Home() {
         setSlides(defaultSlides)
         setSlideHtml(defaultSlides.map((slide) => slide.content || ''))
       } finally {
-        setLoading(false)
+        setIsFetchingSlides(false);
         setCurrentSlideIndex(0)
       }
     }
@@ -119,7 +120,6 @@ export default function Home() {
 
   const handlePresentFolder = async (folderId: string) => {
     try {
-      setLoading(true);
       setSelectedFolderId(folderId);
       router.push(`/dashboard/streamppt?folderId=${folderId}`, { scroll: false });
       
@@ -131,10 +131,34 @@ export default function Home() {
       }, 1000); // Give time for slides to load
     } catch (error) {
       console.error("启动演示模式失败", error);
-    } finally {
-      setLoading(false);
     }
   }
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      if (presentationRef.current) {
+        presentationRef.current.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      }
+    } else {
+      // Exit fullscreen
+      document.exitFullscreen();
+    }
+  }
+  
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   if (!hasHydrated) {
     return <div className="flex items-center justify-center min-h-screen">加载中...</div>
@@ -143,7 +167,9 @@ export default function Home() {
   if (hasHydrated && !selectedFolderId) {
     return (
       <div className="container mx-auto py-8 px-4">        
-        <FolderManager onPresentFolder={handlePresentFolder} />
+        <Suspense fallback={<LoadingOverlay isLoading={true} />}>
+          <FolderManager onPresentFolder={handlePresentFolder} />
+        </Suspense>
         
         <div className="mt-8 p-4 bg-muted/30 rounded-lg border">
           <h3 className="font-semibold mb-2">提示</h3>
@@ -211,12 +237,12 @@ export default function Home() {
 
   return (
     <main className="min-h-screen h-screen max-h-screen bg-background overflow-hidden">
-      <LoadingOverlay isLoading={loading} />
-      
       {/* 未选择文件夹时显示文件夹管理器 */}
       {!selectedFolderId && (
         <div className="container mx-auto py-8 px-4">        
-          <FolderManager onPresentFolder={handlePresentFolder} />
+          <Suspense fallback={<LoadingOverlay isLoading={true} />}>
+            <FolderManager onPresentFolder={handlePresentFolder} />
+          </Suspense>
           
           <div className="mt-8 p-4 bg-muted/30 rounded-lg border">
             <h3 className="font-semibold mb-2">提示</h3>
@@ -245,7 +271,7 @@ export default function Home() {
             </div>
             {slides.length > 0 && (
               <Button 
-                className="bg-primary text-primary-foreground hover:bg-primary/90" 
+                className="bg-blue-500 text-white hover:bg-blue-600" 
                 onClick={startPresentation}
               >
                 开始演示
@@ -254,41 +280,51 @@ export default function Home() {
           </div>
           
           {/* 集成幻灯片管理和查看 */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <FolderManager 
-              slides={slides}
-              currentSlideIndex={currentSlideIndex}
-              onSlideChange={handleSlideChange}
-              onSlideUpload={handleSlideUpload}
-              onSlidesReorder={handleSlidesReorder}
-              onSlideDelete={handleSlideDelete}
-              onSelectFolder={handleFolderSelected}
-              onPresentFolder={handlePresentFolder}
-            />
-          </div>
+          <Suspense fallback={<LoadingOverlay isLoading={true} />}>
+            <div className="flex-1 overflow-y-auto p-6 relative">
+              {isFetchingSlides ? (
+                <LoadingOverlay isLoading={true} />
+              ) : (
+                <FolderManager 
+                  slides={slides}
+                  currentSlideIndex={currentSlideIndex}
+                  onSlideChange={handleSlideChange}
+                  onSlideUpload={handleSlideUpload}
+                  onSlidesReorder={handleSlidesReorder}
+                  onSlideDelete={handleSlideDelete}
+                  onSelectFolder={handleFolderSelected}
+                  onPresentFolder={handlePresentFolder}
+                />
+              )}
+            </div>
+          </Suspense>
         </div>
       )}
       
       {/* 演示模式 - 全屏显示幻灯片 */}
       {selectedFolderId && isPresenting && (
-        <div className="flex flex-col h-full">
-          {/* 演示模式顶部导航栏 */}
-          <div className="h-14 border-b flex items-center px-4 justify-between bg-primary text-primary-foreground">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleExitPresentation}
-                className="text-primary-foreground mr-4 hover:bg-primary/90"
-              >
-                &larr; 退出演示
-              </Button>
-              <h2 className="text-lg font-medium">演示模式</h2>
+        <div className="flex flex-col h-full" ref={presentationRef}>
+          {/* 演示模式顶部导航栏 (仅在非全屏时显示) */}
+          {!isFullscreen && (
+            <div className="h-14 border-b flex items-center px-4 justify-between bg-white text-gray-800">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleExitPresentation}
+                  className="text-gray-800 mr-4 hover:bg-gray-100"
+                >
+                  &larr; 退出演示
+                </Button>
+                <h2 className="text-lg font-medium">演示模式</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-sm mr-2">
+                  幻灯片 {currentSlideIndex + 1}/{slides.length}
+                </div>
+              </div>
             </div>
-            <div className="text-sm">
-              幻灯片 {currentSlideIndex + 1}/{slides.length}
-            </div>
-          </div>
+          )}
           
           {/* 演示区域 - 全屏幻灯片查看 */}
           <div className="flex-1 relative overflow-hidden">
@@ -297,6 +333,16 @@ export default function Home() {
               currentSlideIndex={currentSlideIndex} 
               onSlideChange={handleSlideChange} 
             />
+            
+            {/* 悬浮全屏按钮 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleFullscreen}
+              className="absolute bottom-6 right-6 z-50 bg-white/80 hover:bg-white text-black shadow-lg rounded-full w-12 h-12 flex items-center justify-center"
+            >
+              {isFullscreen ? '缩小' : '全屏'}
+            </Button>
           </div>
         </div>
       )}

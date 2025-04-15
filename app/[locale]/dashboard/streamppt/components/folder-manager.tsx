@@ -279,21 +279,6 @@ export function FolderManager({
     })
   }
 
-  // Get the icon for a content item based on its type
-  const getContentIcon = (type: ContentItem["type"]) => {
-    switch (type) {
-      case "document":
-        return <FileText className="h-10 w-10 text-blue-500" />
-      case "image":
-        return <ImageIcon className="h-10 w-10 text-green-500" />
-      case "video":
-        return <Video className="h-10 w-10 text-red-500" />
-      case "audio":
-        return <Music className="h-10 w-10 text-purple-500" />
-      default:
-        return <File className="h-10 w-10 text-gray-500" />
-    }
-  }
 
   const selectedFolder = folders.find((folder) => folder.id === selectedFolderId)
 
@@ -447,7 +432,7 @@ export function FolderManager({
                       <div className="mt-3 flex justify-center">
                         <Button 
                           size="sm" 
-                          className="w-full bg-primary hover:bg-primary/90 text-xs"
+                          className="w-full bg-blue-500 hover:bg-blue-600 text-xs"
                           onClick={(e) => {
                             e.stopPropagation();
                             onPresentFolder(folder.id);
