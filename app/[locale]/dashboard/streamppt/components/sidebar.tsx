@@ -22,6 +22,8 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import React from "react"
+import { useTranslations } from "next-intl"
+
 interface SidebarProps {
   open: boolean
   setOpen: (open: boolean) => void
@@ -44,6 +46,7 @@ interface SortableSlideItemProps {
 }
 
 function SortableSlideItem({ slide, index, isActive, onClick, onDelete }: SortableSlideItemProps) {
+  const t = useTranslations('Dashboard')
   const { 
     attributes, 
     listeners, 
@@ -93,7 +96,7 @@ function SortableSlideItem({ slide, index, isActive, onClick, onDelete }: Sortab
         <button
           onClick={(e) => onDelete(e, slide.id)}
           className="ml-2 p-1 rounded-full hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 transition-colors"
-          title="删除幻灯片"
+          title={t('deleteSlide')}
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -114,6 +117,7 @@ export function Sidebar({
   selectedFolderId,
   onSelectFolder
 }: SidebarProps) {
+  const t = useTranslations('Dashboard')
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -208,15 +212,15 @@ export function Sidebar({
       >
         <div className="p-4 bg-primary text-primary-foreground flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold">网站PPT模板</h1>
+            <h1 className="text-xl font-bold">{t('sidebarTitle')}</h1>
             <p className="text-sm opacity-75">
-              {selectedFolderId ? "当前文件夹" : "未选择文件夹"}
+              {selectedFolderId ? t('currentFolder') : t('noFolderSelected')}
               {selectedFolderId && onSelectFolder && (
                 <button 
                   onClick={onSelectFolder} 
                   className="ml-2 text-xs underline hover:opacity-80"
                 >
-                  更改
+                  {t('changeButton')}
                 </button>
               )}
             </p>
@@ -228,21 +232,21 @@ export function Sidebar({
             className="text-primary-foreground hover:bg-primary/90"
           >
             <X className="h-5 w-5" />
-            <span className="sr-only">关闭侧边栏</span>
+            <span className="sr-only">{t('closeSidebar')}</span>
           </Button>
         </div>
 
         {!selectedFolderId && onSelectFolder && (
           <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 border-b border-yellow-200 dark:border-yellow-800">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              您还未选择文件夹，请先选择一个文件夹来保存您的演示文稿。
+              {t('selectFolderPrompt')}
             </p>
             <Button 
               onClick={onSelectFolder}
               variant="outline" 
               className="mt-2 w-full border-yellow-400 bg-white text-yellow-700 hover:bg-yellow-50"
             >
-              选择文件夹
+              {t('selectFolderButton')}
             </Button>
           </div>
         )}
@@ -254,7 +258,7 @@ export function Sidebar({
               disabled={!selectedFolderId}
             >
               <FileUp className="mr-2 h-4 w-4" />
-              添加幻灯片
+              {t('addSlidesButton')}
             </Button>
           </SlideUploader>
         </div>

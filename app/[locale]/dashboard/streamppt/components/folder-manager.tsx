@@ -31,36 +31,6 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import React from "react"
 
-type ContentItem = {
-  id: string
-  name: string
-  type: "image" | "document" | "video" | "audio" | "other"
-  createdAt: Date
-  size: string
-}
-
-// Sample content for each folder
-const folderContents: Record<string, ContentItem[]> = {
-  "1": [
-    { id: "doc-1", name: "工作报告.docx", type: "document", createdAt: new Date("2023-12-15"), size: "2.4 MB" },
-    { id: "doc-2", name: "会议记录.pdf", type: "document", createdAt: new Date("2023-12-10"), size: "1.8 MB" },
-    { id: "doc-3", name: "项目计划.xlsx", type: "document", createdAt: new Date("2023-11-28"), size: "3.2 MB" },
-    { id: "doc-4", name: "合同.pdf", type: "document", createdAt: new Date("2023-11-15"), size: "4.5 MB" },
-  ],
-  "2": [
-    { id: "img-1", name: "家庭照片.jpg", type: "image", createdAt: new Date("2023-12-25"), size: "3.8 MB" },
-    { id: "img-2", name: "旅行照片.png", type: "image", createdAt: new Date("2023-12-20"), size: "2.7 MB" },
-    { id: "img-3", name: "截图.png", type: "image", createdAt: new Date("2023-12-18"), size: "1.2 MB" },
-    { id: "img-4", name: "头像.jpg", type: "image", createdAt: new Date("2023-12-05"), size: "0.8 MB" },
-    { id: "img-5", name: "风景照.jpg", type: "image", createdAt: new Date("2023-11-30"), size: "4.2 MB" },
-  ],
-  "3": [
-    { id: "file-1", name: "软件安装包.exe", type: "other", createdAt: new Date("2023-12-22"), size: "45.6 MB" },
-    { id: "file-2", name: "音乐文件.mp3", type: "audio", createdAt: new Date("2023-12-15"), size: "8.3 MB" },
-    { id: "file-3", name: "视频文件.mp4", type: "video", createdAt: new Date("2023-12-10"), size: "125.7 MB" },
-  ],
-}
-
 // 从sidebar.tsx提取的可排序幻灯片组件
 interface SortableSlideItemProps {
   slide: Slide
@@ -110,11 +80,11 @@ function SortableSlideItem({ slide, index, isActive, onClick, onDelete }: Sortab
             }
           }}
         >
-          <div className="slide-preview mb-2">
+          {/* <div className="slide-preview mb-2">
             <div className="bg-gray-200 dark:bg-gray-700 w-full h-24 flex items-center justify-center">
               <FileUp className="text-gray-400 dark:text-gray-500 h-8 w-8" />
             </div>
-          </div>
+          </div> */}
           <div className="text-sm truncate">{slide.title}</div>
         </div>
         <button
@@ -164,7 +134,7 @@ export function FolderManager({
   const [isCreating, setIsCreating] = useState(false)
   const [newFolderName, setNewFolderName] = useState("")
   const router = useRouter()
-  const t = useTranslations('Dashboard')
+  const t = useTranslations('StreamPpt')
 
   // drag-and-drop功能的传感器
   const sensors = useSensors(
@@ -292,7 +262,7 @@ export function FolderManager({
               <Folder className="h-5 w-5 text-blue-500" />
               <h3 className="text-lg font-medium">{selectedFolder.name}</h3>
               <span className="text-sm text-muted-foreground">
-                ({slides.length} 个幻灯片)
+                ({t('slideCount', { count: slides.length })})
               </span>
             </div>
             
@@ -305,7 +275,7 @@ export function FolderManager({
                   disabled={!selectedFolderId}
                 >
                   <FileUp className="mr-2 h-4 w-4" />
-                  添加幻灯片
+                  {t('addSlidesButton')}
                 </Button>
               </SlideUploader>
             )}
@@ -314,7 +284,7 @@ export function FolderManager({
           {slides.length === 0 ? (
             <div className="text-center py-12 border rounded-lg bg-muted/30">
               <FileUp className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">此文件夹还没有幻灯片</p>
+              <p className="text-muted-foreground">{t('noSlides')}</p>
               {onSlideUpload && (
                 <SlideUploader onUpload={handleFileUpload} disabled={!selectedFolderId}>
                   <Button 
@@ -322,14 +292,14 @@ export function FolderManager({
                     disabled={!selectedFolderId}
                   >
                     <FileUp className="mr-2 h-4 w-4" />
-                    上传HTML幻灯片
+                    {t('addSlidesButton')}
                   </Button>
                 </SlideUploader>
               )}
             </div>
           ) : (
             <div className="border rounded-lg p-4 bg-white">
-              <h4 className="text-sm font-medium mb-4 text-gray-500">幻灯片列表</h4>
+              <h4 className="text-sm font-medium mb-4 text-gray-500">{t('slideListTitle')}</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {onSlideChange && onSlideDelete && (
                   <DndContext
@@ -387,7 +357,7 @@ export function FolderManager({
                   autoFocus
                 />
                 <Button size="sm" onClick={handleCreateFolder} disabled={isLoading}>
-                  {isLoading ? t('loading') : t('createButton')}
+                  {isLoading ? t('loadingInitial') : t('createButton')}
                 </Button>
                 <Button
                   size="sm"
@@ -406,7 +376,7 @@ export function FolderManager({
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">{t('loading')}</div>
+              <div className="text-center py-8 text-muted-foreground">{t('loadingInitial')}</div>
             ) : folders.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">{t('noFoldersMessage')}</div>
             ) : (
@@ -439,7 +409,7 @@ export function FolderManager({
                           }}
                         >
                           <Play className="h-3 w-3 mr-1" />
-                          演示
+                          {t('presentButton')}
                         </Button>
                       </div>
                     )}

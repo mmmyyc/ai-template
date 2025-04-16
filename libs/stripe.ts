@@ -62,7 +62,12 @@ export const createCheckout = async ({
       mode,
       allow_promotion_codes: true,
       client_reference_id: clientReferenceId,
-      payment_method_types: ['card', 'alipay'],
+      payment_method_types: ['card', 'alipay','wechat_pay'],
+      payment_method_options: {
+        wechat_pay: {
+          client: 'web',
+        },
+      },
       line_items: [
         {
           price: priceId,

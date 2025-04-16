@@ -64,7 +64,7 @@ export default function Home({ params }: GenerationPageProps) {
 
       <div className="flex-1 p-4 overflow-hidden min-h-0">
         <PanelGroup direction="horizontal" className="h-full">
-          <Panel defaultSize={50} minSize={30}>
+          <Panel defaultSize={50} minSize={5}>
             <div className="h-full border border-neutral-200 rounded-lg shadow-sm bg-base-100 dark:bg-gray-950 dark:border-neutral-800 overflow-hidden">
               <MarkdownEditor
                 initialContent={leftContent}

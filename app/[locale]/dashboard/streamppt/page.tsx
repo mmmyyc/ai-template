@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef, Suspense } from "react"
-import { PresentationLayout } from "./components/presentation-layout"
 import { SlideViewer } from "./components/slide-viewer"
 import { LoadingOverlay } from "./loading-overlay"
 import { defaultSlides } from "./lib/default-slides"
@@ -161,7 +160,7 @@ export default function Home() {
   }, []);
 
   if (!hasHydrated) {
-    return <div className="flex items-center justify-center min-h-screen">加载中...</div>
+    return <div className="flex items-center justify-center min-h-screen">{t('loadingInitial')}</div>
   }
 
   if (hasHydrated && !selectedFolderId) {
@@ -172,11 +171,11 @@ export default function Home() {
         </Suspense>
         
         <div className="mt-8 p-4 bg-muted/30 rounded-lg border">
-          <h3 className="font-semibold mb-2">提示</h3>
+          <h3 className="font-semibold mb-2">{t('tipTitle')}</h3>
           <p className="text-muted-foreground">
-            选择一个文件夹查看其中的幻灯片。您也可以创建新的文件夹来组织您的演示文稿。
+            {t('tipSelectFolder')}
             <br />
-            <strong className="text-blue-600">注意:</strong> 默认情况下，FolderManager会导航到生成页面，如需返回此页面，请使用上方的"返回仪表盘"按钮。
+            <strong className="text-blue-600">{t('tipNavigation')}</strong> 
           </p>
         </div>
       </div>
@@ -245,9 +244,9 @@ export default function Home() {
           </Suspense>
           
           <div className="mt-8 p-4 bg-muted/30 rounded-lg border">
-            <h3 className="font-semibold mb-2">提示</h3>
+            <h3 className="font-semibold mb-2">{t('tipTitle')}</h3>
             <p className="text-muted-foreground">
-              选择一个文件夹查看其中的幻灯片。您也可以创建新的文件夹来组织您的演示文稿。
+              {t('tipSelectFolder')}
             </p>
           </div>
         </div>
@@ -265,39 +264,39 @@ export default function Home() {
                 onClick={handleSelectFolder}
                 className="text-primary mr-4"
               >
-                &larr; 返回文件夹选择
+                &larr; {t('backToFolders')}
               </Button>
-              <h2 className="text-lg font-medium">PPT演示</h2>
+              <h2 className="text-lg font-medium">{t('title')}</h2>
             </div>
             {slides.length > 0 && (
               <Button 
-                className="bg-blue-500 text-white hover:bg-blue-600" 
-                onClick={startPresentation}
+                 className="bg-blue-500 text-white hover:bg-blue-600" 
+                 onClick={startPresentation}
               >
-                开始演示
+                {t('startPresentation')}
               </Button>
             )}
           </div>
           
           {/* 集成幻灯片管理和查看 */}
           <Suspense fallback={<LoadingOverlay isLoading={true} />}>
-            <div className="flex-1 overflow-y-auto p-6 relative">
-              {isFetchingSlides ? (
-                <LoadingOverlay isLoading={true} />
-              ) : (
-                <FolderManager 
-                  slides={slides}
-                  currentSlideIndex={currentSlideIndex}
-                  onSlideChange={handleSlideChange}
-                  onSlideUpload={handleSlideUpload}
-                  onSlidesReorder={handleSlidesReorder}
-                  onSlideDelete={handleSlideDelete}
-                  onSelectFolder={handleFolderSelected}
-                  onPresentFolder={handlePresentFolder}
-                />
-              )}
-            </div>
-          </Suspense>
+             <div className="flex-1 overflow-y-auto p-6 relative"> 
+               {isFetchingSlides ? (
+                 <LoadingOverlay isLoading={true} />
+               ) : (
+                 <FolderManager 
+                   slides={slides}
+                   currentSlideIndex={currentSlideIndex}
+                   onSlideChange={handleSlideChange}
+                   onSlideUpload={handleSlideUpload}
+                   onSlidesReorder={handleSlidesReorder}
+                   onSlideDelete={handleSlideDelete}
+                   onSelectFolder={handleFolderSelected}
+                   onPresentFolder={handlePresentFolder}
+                 />
+               )}
+             </div>
+           </Suspense>
         </div>
       )}
       
@@ -314,13 +313,13 @@ export default function Home() {
                   onClick={handleExitPresentation}
                   className="text-gray-800 mr-4 hover:bg-gray-100"
                 >
-                  &larr; 退出演示
+                  &larr; {t('exitPresentation')}
                 </Button>
-                <h2 className="text-lg font-medium">演示模式</h2>
+                <h2 className="text-lg font-medium">{t('presentationMode')}</h2>
               </div>
               <div className="flex items-center gap-2">
                 <div className="text-sm mr-2">
-                  幻灯片 {currentSlideIndex + 1}/{slides.length}
+                  {t('slideCounter', { current: currentSlideIndex + 1, total: slides.length })}
                 </div>
               </div>
             </div>
@@ -340,8 +339,9 @@ export default function Home() {
               size="sm"
               onClick={toggleFullscreen}
               className="absolute bottom-6 right-6 z-50 bg-white/80 hover:bg-white text-black shadow-lg rounded-full w-12 h-12 flex items-center justify-center"
+              title={isFullscreen ? t('exitFullscreen') : t('fullscreenMode')}
             >
-              {isFullscreen ? '缩小' : '全屏'}
+              {isFullscreen ? t('exitFullscreen').substring(0,2) : t('fullscreenMode').substring(0,2)} 
             </Button>
           </div>
         </div>

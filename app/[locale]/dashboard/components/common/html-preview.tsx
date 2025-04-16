@@ -11,6 +11,8 @@ import {
   FileDown,
   ImageDown,
   Save,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -109,6 +111,7 @@ const selectionModeStyles = `
 export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, folderName: string }) {
   const t = useTranslations('HtmlPreview');
   const [htmlTitle, setHtmlTitle] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [selectedElementPath, setSelectedElementPath] = useState<string | null>(
     null
@@ -136,6 +139,7 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
   const [originalClasses, setOriginalClasses] = useState<string>("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeDocRef = useRef<Document | null>(null);
+  const iframeContainerRef = useRef<HTMLDivElement>(null);
 
   // --- Path Functions ---
 
@@ -524,13 +528,22 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
 
       // Define handlers within the scope where iframeDoc is current
       const handleIframeClick = (e: MouseEvent) => {
+        console.log("--- handleIframeClick START ---");
         const target = e.target as HTMLElement;
+        const iframeDoc = iframeRef.current?.contentDocument;
+
+        if (!iframeDoc) {
+          console.error("handleIframeClick: iframeDoc is null!");
+          return;
+        }
+
+        console.log("handleIframeClick: iframeDoc found. Current head content:", iframeDoc.head.innerHTML);
 
         if (
           target.hasAttribute("data-no-select") ||
           target.closest("[data-no-select]")
         ) {
-          console.log("Iframe element not selectable");
+          console.log("handleIframeClick: Clicked element is not selectable [data-no-select]. Exiting.");
           return;
         }
 
@@ -576,6 +589,20 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
         setSelectedElement(bestElement); // Store the actual iframe element reference
         setOriginalClasses(currentClassNames);
 
+        // --- Add logic to set temporary editing ID ---
+        const tempId = `edit-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+        try {
+          bestElement.setAttribute('data-editing-id', tempId);
+          setEditingElementId(tempId);
+          console.log(`handleIframeClick: Set data-editing-id='${tempId}' on element and updated state.`);
+        } catch (error) {
+          console.error("handleIframeClick: Failed to set data-editing-id on element:", error);
+          // Optional: Handle error, maybe don't show editor?
+        }
+        // --- End temporary ID logic ---
+
+        console.log("handleIframeClick: States set - selectedElementPath:", elementPath, "originalClasses:", currentClassNames, "editingElementId:", tempId);
+
         // Calculate position relative to main window
         const iframeRect = iframeRef.current!.getBoundingClientRect();
         const elementRect = bestElement.getBoundingClientRect(); // Relative to iframe viewport
@@ -607,8 +634,14 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
         idealY = Math.max(padding, idealY); // Ensure within top boundary
 
         setEditorPosition({ x: idealX, y: idealY });
+        console.log("handleIframeClick: Editor position calculated:", { x: idealX, y: idealY });
+
         setShowEditor(true);
+        console.log("handleIframeClick: setShowEditor(true) called.");
+
         setIsSelecting(false); // Turn off selection mode
+        console.log("handleIframeClick: setIsSelecting(false) called. Styles should be cleaned up by useEffect/cleanupIframeListeners now.");
+        console.log("--- handleIframeClick END ---");
       };
 
       const handleIframeMouseOver = (e: MouseEvent) => {
@@ -660,7 +693,12 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
       iframeDoc.body.removeEventListener("mouseover", listeners.mouseover);
       iframeDoc.body.removeEventListener("mouseout", listeners.mouseout);
       iframeDoc.body.classList.remove("selecting");
+
+      // 添加日志
+      console.log("Before removeInjectedStylesFromIframe, head HTML:", iframeDoc.head.innerHTML);
       removeInjectedStylesFromIframe(iframeDoc);
+      console.log("After removeInjectedStylesFromIframe, head HTML:", iframeDoc.head.innerHTML); // 可能需要稍等DOM更新，或者在try/finally里log
+
       (iframeRef.current as any).__editor_listeners = null; // Clear stored listeners
       iframeDocRef.current = null; // Clear doc ref
     }
@@ -873,15 +911,85 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
       t
     ]
   );
+
+  // 修改全屏切换处理函数，使用浏览器原生API
+  const handleToggleFullscreen = useCallback(() => {
+    console.log("handleToggleFullscreen triggered");
+    console.log("Current fullscreen element:", document.fullscreenElement);
+    console.log("iframeContainerRef.current:", iframeContainerRef.current);
+
+    if (!document.fullscreenElement) {
+      // 进入全屏
+      if (iframeContainerRef.current) {
+        console.log("Attempting to request fullscreen...");
+        iframeContainerRef.current.requestFullscreen().then(() => {
+          console.log("Fullscreen request successful");
+          // setIsFullscreen(true); // State will be updated by the event listener
+        }).catch(err => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+          // 如果原生全屏失败，尝试回退到状态控制的全屏（可能效果不佳）
+          console.log("Fallback: Setting isFullscreen state to true");
+          setIsFullscreen(true);
+        });
+      } else {
+        console.error("Cannot request fullscreen: iframeContainerRef.current is null");
+      }
+    } else {
+      // 退出全屏
+      console.log("Attempting to exit fullscreen...");
+      document.exitFullscreen().then(() => {
+        console.log("Fullscreen exit successful");
+        // setIsFullscreen(false); // State will be updated by the event listener
+      }).catch(err => {
+        console.error(`Error attempting to exit fullscreen: ${err.message}`);
+      });
+    }
+  }, []);
+
+  // 监听全屏状态变化
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!document.fullscreenElement;
+      console.log("fullscreenchange event detected. Is fullscreen:", isCurrentlyFullscreen);
+      setIsFullscreen(isCurrentlyFullscreen);
+      
+      // 如果退出全屏，确保取消选择状态
+      if (!isCurrentlyFullscreen && isSelecting) {
+        console.log("Exited fullscreen while selecting, cancelling selection.");
+        handleCancelSelecting();
+      }
+    };
+
+    console.log("Adding fullscreenchange event listener");
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      console.log("Removing fullscreenchange event listener");
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [isSelecting, handleCancelSelecting]);
+
+  // 全屏模式下的选择按钮点击处理
+  const handleFullscreenSelect = useCallback(() => {
+    handleStartSelecting();
+    // 短暂延迟以确保选择模式完全激活
+    setTimeout(() => {
+      if (iframeRef.current?.contentDocument) {
+        setupIframeListeners();
+      }
+    }, 100);
+  }, [handleStartSelecting, setupIframeListeners]);
+
   return (
     <>
       <div
-        className="bg-base-20 px-4 py-2 border-b flex items-center justify-between sticky top-0 z-10 flex-shrink-0"
+        className={`bg-base-20 px-4 py-2 border-b flex items-center justify-between sticky top-0 z-10 flex-shrink-0 ${isFullscreen ? 'hidden' : ''}`}
         data-no-select
       >
-        <h3 className="text-sm font-medium" data-no-select>
-          {t('title')}
-        </h3>
+        <div className="flex items-center space-x-4 flex-grow">
+          <h3 className="text-sm font-medium mr-4" data-no-select>
+            {t('title')}
+          </h3>
+        </div>
         <div className="flex items-center space-x-2" data-no-select>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -929,105 +1037,165 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
             <Save className="h-3.5 w-3.5 mr-1" />
             <span>{t('buttons.saveHtml')}</span>
           </Button>
-          <Tabs
-            value={activePreviewTab}
-            onValueChange={(value: string) =>
-              setActivePreviewTab(value as "ppt" | "html")
-            }
-            className="h-8"
-            data-no-select
-          >
-            <TabsList className="h-7 dark:bg-gray-800 dark:border-gray-700" data-no-select>
-              <TabsTrigger
-                value="ppt"
-                className="text-xs h-6 px-2 dark:text-gray-400 data-[state=active]:dark:text-white data-[state=active]:dark:bg-gray-700"
-                data-no-select
-              >
-                {t('tabs.ppt')}
-              </TabsTrigger>
-              <TabsTrigger
-                value="html"
-                className="text-xs h-6 px-2 dark:text-gray-400 data-[state=active]:dark:text-white data-[state=active]:dark:bg-gray-700"
-                data-no-select
-              >
-                {t('tabs.html')}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
+        <Tabs value={activePreviewTab} onValueChange={(value: string) => setActivePreviewTab(value as "ppt" | "html")} >
+             <TabsList className="h-7 dark:bg-gray-800 dark:border-gray-700" data-no-select>
+               <TabsTrigger
+                 value="ppt"
+                 className="text-xs h-6 px-2 dark:text-gray-400 data-[state=active]:dark:text-white data-[state=active]:dark:bg-gray-700"
+                 data-no-select
+               >
+                 {t('tabs.ppt')}
+               </TabsTrigger>
+               <TabsTrigger
+                 value="html"
+                 className="text-xs h-6 px-2 dark:text-gray-400 data-[state=active]:dark:text-white data-[state=active]:dark:bg-gray-700"
+                 data-no-select
+               >
+                 {t('tabs.html')}
+               </TabsTrigger>
+             </TabsList>
+          </Tabs>
       </div>
 
-      <div className="flex-grow w-full relative overflow-hidden">
-        <Tabs value={activePreviewTab} className="h-full">
-          <TabsContent value="ppt" className="h-full m-0 p-0">
-            <div className="h-full flex flex-col">
-              <div className="p-2 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700" data-no-select>
-                <div className="flex items-center gap-2 flex-grow mr-4">
-                  <span className="text-sm font-medium whitespace-nowrap">{t('titleInputLabel')}</span>
-                  <Input
-                    type="text"
-                    placeholder={t('titleInputPlaceholder')}
-                    value={htmlTitle}
-                    onChange={(e) => setHtmlTitle(e.target.value)}
-                    className="h-8 text-sm flex-grow min-w-[150px] dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                    data-no-select
-                  />
+      <div
+        ref={iframeContainerRef}
+        className={`flex-grow w-full relative overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50 bg-black p-0 m-0' : 'flex flex-col'}`}
+      >
+        {isFullscreen ? (
+          // Fullscreen mode - mostly unchanged, still shows iframe and floating buttons
+          <>
+            <iframe
+              ref={iframeRef}
+              key={`iframe-${renderKey}-fullscreen`}
+              srcDoc={getFullHtmlWithStyles(localHtmlContent)}
+              title={t('iframeTitle')}
+              className="w-full h-full border-0 absolute inset-0 z-10"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+            />
+            {isSelecting && (
+              <div
+                className="absolute inset-0 bg-blue-500/10 pointer-events-none z-20 border border-blue-500 animate-pulse"
+                data-no-select
+              >
+                <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                  {t('selectionModeActive')}
+                </span>
+              </div>
+            )}
+            
+            {/* 全屏模式下的浮动按钮 (调整 z-index) */}
+            <div className="fixed top-4 right-4 z-[2147483647] flex gap-2"> {/* Use max z-index */} 
+              <Button
+                onClick={handleFullscreenSelect}
+                variant="default"
+                size="sm"
+                className="bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 shadow-md dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
+                data-no-select
+                title={t('buttons.selectElement')}
+              >
+                {t('buttons.selectElement')}
+              </Button>
+              <Button
+                onClick={handleToggleFullscreen}
+                variant="outline"
+                size="sm"
+                className="bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 shadow-md dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
+                data-no-select
+                title={t('buttons.exitFullscreen')}
+              >
+                <Minimize className="h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        ) : (
+          // Non-fullscreen mode - render content based on activePreviewTab
+          <>
+            {activePreviewTab === 'ppt' && (
+              // Content for PPT tab
+              <div className="h-full flex flex-col">
+                {/* Title input and Select/Fullscreen buttons */}
+                <div className="p-2 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700" data-no-select>
+                  <div className="flex items-center gap-2 flex-grow mr-4">
+                    <span className="text-sm font-medium whitespace-nowrap">{t('titleInputLabel')}</span>
+                    <Input
+                      type="text"
+                      placeholder={t('titleInputPlaceholder')}
+                      value={htmlTitle}
+                      onChange={(e) => setHtmlTitle(e.target.value)}
+                      className="h-8 text-sm flex-grow min-w-[150px] dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                      data-no-select
+                    />
+                  </div>
+                  <div className="flex-shrink-0 flex space-x-2">
+                    {isSelecting ? (
+                      <Button
+                        onClick={handleCancelSelecting}
+                        variant="destructive"
+                        size="sm"
+                        data-no-select
+                      >
+                        {t('buttons.cancelSelection')}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={handleStartSelecting}
+                          variant="default"
+                          size="sm"
+                          data-no-select
+                        >
+                          {t('buttons.selectElement')}
+                        </Button>
+                        <Button
+                          onClick={handleToggleFullscreen}
+                          variant="outline"
+                          size="sm"
+                          data-no-select
+                          title={isFullscreen ? t('buttons.exitFullscreen') : t('buttons.enterFullscreen')}
+                        >
+                          <Maximize className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-shrink-0">
-                  {isSelecting ? (
-                    <Button
-                      onClick={handleCancelSelecting}
-                      variant="destructive"
-                      size="sm"
+                {/* Iframe container */}
+                <div className="flex-grow relative bg-gray-100 dark:bg-gray-800">
+                  <iframe
+                    ref={iframeRef}
+                    key={`iframe-${renderKey}`}
+                    srcDoc={getFullHtmlWithStyles(localHtmlContent)}
+                    title={t('iframeTitle')}
+                    className="w-full h-full border-0 relative z-10"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                  />
+                  {isSelecting && (
+                    <div
+                      className="absolute inset-0 bg-blue-500/10 pointer-events-none z-0 border border-blue-500 animate-pulse"
                       data-no-select
                     >
-                      {t('buttons.cancelSelection')}
-                    </Button>
-                  ) : (
-                    
-                    <Button
-                      onClick={handleStartSelecting}
-                      variant="default"
-                      size="sm"
-                      data-no-select
-                    >
-                      {t('buttons.selectElement')}
-                    </Button>
+                      <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                        {t('selectionModeActive')}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
-              <div className="flex-grow relative bg-gray-100 dark:bg-gray-800">
-                <iframe
-                  ref={iframeRef}
-                  key={`iframe-${renderKey}`}
-                  srcDoc={getFullHtmlWithStyles(localHtmlContent)}
-                  title={t('iframeTitle')}
-                  className="w-full h-full border-0 relative z-10"
-                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
-                />
-                {isSelecting && (
-                  <div
-                    className="absolute inset-0 bg-blue-500/10 pointer-events-none z-0 border border-blue-500 animate-pulse"
-                    data-no-select
-                  >
-                    <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                      {t('selectionModeActive')}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="html" className="h-full m-0 p-0">
-            <ScrollArea className="h-full w-full">
-              <div className="p-4">
-                <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
-                  {localHtmlContent}
-                </pre>
-              </div>
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
+            )}
+
+            {activePreviewTab === 'html' && (
+              // Content for HTML tab
+              <ScrollArea className="h-full w-full">
+                <div className="p-4">
+                  <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
+                    {localHtmlContent}
+                  </pre>
+                </div>
+              </ScrollArea>
+            )}
+          </>
+        )}
       </div>
       {showEditor && selectedElementPath && (
         <FriendlyEditor
@@ -1037,7 +1205,7 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
           originalClasses={originalClasses}
           onClose={handleCloseEditor}
           onApplyChanges={handleApplyChanges}
-          className="z-50 fixed"
+          className="z-[50] fixed"
         />
       )}
 
@@ -1062,6 +1230,113 @@ const getFullHtmlWithStyles = (html: string): string => {
   const googleFontsLink = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">';
   const headContent = `\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  ${tailwindScript}\n  ${fontAwesomeLink}\n  ${googleFontsLink}\n`;
 
+  // Dynamic content adaptation script
+  const adaptationScript = `
+<script>
+// 在页面加载完成后运行内容适应脚本
+window.addEventListener('DOMContentLoaded', () => {
+  const slideContent = document.getElementById('slide-content');
+  const contentWrapper = document.getElementById('content-wrapper');
+  
+  if (!slideContent || !contentWrapper) return;
+  
+  // 测量内容高度与容器高度的比例
+  const contentHeight = contentWrapper.scrollHeight;
+  const containerHeight = slideContent.clientHeight;
+  const contentRatio = contentHeight / containerHeight;
+  
+  // 根据内容密度调整样式类
+  if (contentRatio > 1.2) {
+    // 内容较多，使用紧凑布局
+    contentWrapper.classList.remove('p-4');
+    contentWrapper.classList.add('p-2');
+    
+    // 标题使用较小字体
+    document.querySelectorAll('h1').forEach(el => {
+      el.classList.add('text-2xl', 'sm:text-3xl', 'my-1');
+      el.classList.remove('text-3xl', 'sm:text-4xl', 'my-2');
+    });
+    
+    document.querySelectorAll('h2').forEach(el => {
+      el.classList.add('text-xl', 'sm:text-2xl', 'my-1');
+      el.classList.remove('text-2xl', 'sm:text-3xl', 'my-2');
+    });
+    
+    // 段落使用较紧凑间距
+    document.querySelectorAll('p, ul, ol').forEach(el => {
+      el.classList.add('my-1', 'text-sm', 'leading-tight');
+      el.classList.remove('my-2', 'text-base', 'leading-relaxed');
+    });
+    
+    // 列表项使用较紧凑间距
+    document.querySelectorAll('li').forEach(el => {
+      el.classList.add('mb-0.5');
+      el.classList.remove('mb-1');
+    });
+  } 
+  else if (contentRatio < 0.7) {
+    // 内容较少，使用宽松布局
+    contentWrapper.classList.remove('p-4');
+    contentWrapper.classList.add('p-6', 'sm:p-8');
+    
+    // 标题使用较大字体
+    document.querySelectorAll('h1').forEach(el => {
+      el.classList.add('text-4xl', 'sm:text-5xl', 'my-4');
+      el.classList.remove('text-3xl', 'sm:text-4xl', 'my-2');
+    });
+    
+    document.querySelectorAll('h2').forEach(el => {
+      el.classList.add('text-3xl', 'sm:text-4xl', 'my-3');
+      el.classList.remove('text-2xl', 'sm:text-3xl', 'my-2');
+    });
+    
+    // 段落使用较宽松间距
+    document.querySelectorAll('p, ul, ol').forEach(el => {
+      el.classList.add('my-3', 'text-lg', 'leading-relaxed');
+      el.classList.remove('my-2', 'text-base', 'leading-normal');
+    });
+    
+    // 列表项使用较宽松间距
+    document.querySelectorAll('li').forEach(el => {
+      el.classList.add('mb-2');
+      el.classList.remove('mb-1');
+    });
+  } 
+  else {
+    // 中等内容量，使用默认布局（保持p-4，无需特殊调整）
+    // 但我们仍然要确保所有元素都有正确的基础类
+    
+    // 标题使用默认字体大小
+    document.querySelectorAll('h1').forEach(el => {
+      if (!el.classList.contains('text-3xl')) {
+        el.classList.add('text-3xl', 'sm:text-4xl', 'my-2');
+      }
+    });
+    
+    document.querySelectorAll('h2').forEach(el => {
+      if (!el.classList.contains('text-2xl')) {
+        el.classList.add('text-2xl', 'sm:text-3xl', 'my-2');
+      }
+    });
+    
+    // 段落使用默认间距
+    document.querySelectorAll('p, ul, ol').forEach(el => {
+      if (!el.classList.contains('my-2')) {
+        el.classList.add('my-2', 'text-base', 'leading-normal');
+      }
+    });
+    
+    // 列表项使用默认间距
+    document.querySelectorAll('li').forEach(el => {
+      if (!el.classList.contains('mb-1')) {
+        el.classList.add('mb-1');
+      }
+    });
+  }
+});
+</script>
+`;
+
   // Create a temporary div to parse the HTML
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
@@ -1075,12 +1350,20 @@ const getFullHtmlWithStyles = (html: string): string => {
 
   if (isFullDocument) {
       if (hasHead) {
-          // Inject into existing head if links/scripts aren't already there
+          // Inject styles into existing head
           let headHtml = headElement.innerHTML;
           if (!headHtml.includes('cdn.tailwindcss.com')) headHtml += tailwindScript;
           if (!headHtml.includes('font-awesome')) headHtml += fontAwesomeLink;
           if (!headHtml.includes('fonts.googleapis.com')) headHtml += googleFontsLink;
           headElement.innerHTML = headHtml; // Update head content
+          
+          // Inject script before closing body tag if body exists
+          if (bodyElement) {
+            bodyElement.innerHTML += adaptationScript;
+          } else {
+            // If no body tag but full doc, append script after potential head
+            tempDiv.innerHTML += adaptationScript;
+          }
           return tempDiv.innerHTML; // Return modified full HTML
       } else {
           // Add head if <html> exists but no <head>
@@ -1089,11 +1372,20 @@ const getFullHtmlWithStyles = (html: string): string => {
               const newHead = document.createElement('head');
               newHead.innerHTML = headContent;
               htmlTag.insertBefore(newHead, htmlTag.firstChild);
+              
+              // Inject script before closing body tag if body exists
+              const bodyInHtml = htmlTag.querySelector('body');
+              if (bodyInHtml) {
+                bodyInHtml.innerHTML += adaptationScript;
+              } else {
+                // If no body tag, append script to html tag
+                htmlTag.innerHTML += adaptationScript;
+              }
               return tempDiv.innerHTML;
           }
       }
   } 
 
-  // If it's a fragment or body content, wrap it completely
-  return `<!DOCTYPE html>\n<html>\n<head>${headContent}</head>\n<body>\n${html}\n</body>\n</html>`;
+  // If it's a fragment or body content, wrap it completely and add script
+  return `<!DOCTYPE html>\n<html>\n<head>${headContent}</head>\n<body>\n${html}\n${adaptationScript}\n</body>\n</html>`;
 };

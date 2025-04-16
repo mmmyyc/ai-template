@@ -361,16 +361,16 @@
         "description": "正式精确的风格"
       },
       "simplified": {
-          "label": "简化",
-          "description": "将复杂内容转换为易于理解的语言"
+        "label": "简化",
+        "description": "将复杂内容转换为易于理解的语言"
       },
       "summarization": {
-          "label": "总结",
-          "description": "提取关键点创建简明摘要"
+        "label": "总结",
+        "description": "提取关键点创建简明摘要"
       },
       "expansion": {
-          "label": "扩展",
-          "description": "扩展现有内容以提供更多细节"
+        "label": "扩展",
+        "description": "扩展现有内容以提供更多细节"
       }
     },
     "contextMenu": {
@@ -401,6 +401,66 @@
     "listFolderNetworkError": "获取文件夹时发生网络错误",
     "noFoldersMessage": "没有文件夹，请创建新文件夹",
     "createdOnLabel": "创建于",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "streampptCardTitle": "流式PPT",
+    "streampptCardDescription": "动态管理和演示幻灯片内容。",
+    "newFolder": "新建文件夹",
+    "createFolder": "创建文件夹",
+    "creatingFolder": "创建中...",
+    "cancel": "取消",
+    "confirmDeleteTitle": "确认删除",
+    "confirmDeleteMessage": "您确定要删除文件夹\"{folderName}\"吗？此操作无法撤销。",
+    "delete": "删除",
+    "deleting": "删除中...",
+    "rename": "重命名",
+    "save": "保存",
+    "saving": "保存中...",
+    "uploadSlides": "上传幻灯片",
+    "addSlidesButton": "添加幻灯片",
+    "uploading": "上传中...",
+    "noFolders": "未找到文件夹。创建一个开始吧。",
+    "fetchError": "获取文件夹失败。",
+    "createError": "创建文件夹失败。",
+    "deleteError": "删除文件夹失败。",
+    "renameError": "重命名文件夹失败。",
+    "noSlides": "此文件夹中还没有幻灯片。",
+    "slideCount": "{count} 个幻灯片",
+    "slideListTitle": "幻灯片列表",
+    "deleteSlide": "删除幻灯片",
+    "slideTitlePlaceholder": "幻灯片标题（自动生成）",
+    "sidebarTitle": "网站PPT模板",
+    "currentFolder": "当前文件夹",
+    "noFolderSelected": "未选择文件夹",
+    "changeButton": "更改",
+    "closeSidebar": "关闭侧边栏",
+    "selectFolderPrompt": "您还未选择文件夹，请先选择一个文件夹来保存您的演示文稿。",
+    "selectFolderButton": "选择文件夹"
+  },
+  "StreamPpt": {
+    "title": "流式PPT",
+    "description": "创建并管理您的流式PPT演示文稿",
+    "backToFolders": "返回文件夹选择",
+    "startPresentation": "开始演示",
+    "exitPresentation": "退出演示",
+    "presentationMode": "演示模式",
+    "slideCounter": "幻灯片 {current} / {total}",
+    "fullscreenMode": "全屏模式",
+    "exitFullscreen": "退出全屏",
+    "loadingInitial": "加载中...",
+    "tipTitle": "提示",
+    "tipSelectFolder": "选择一个文件夹查看其中的幻灯片。您也可以创建新的文件夹来组织您的演示文稿。",
+    "tipNavigation": "注意：选择一个文件夹或点击\"演示\"按钮开始。",
+    "loadingTitle": "加载中...",
+    "loadingDescription": "正在准备您的演示文稿",
+    "presentButton": "演示",
+    "myFoldersTitle": "我的文件夹",
+    "newFolderButton": "新建文件夹",
+    "newFolderNamePlaceholder": "输入文件夹名称",
+    "createButton": "创建",
+    "noFoldersMessage": "没有文件夹，请创建新文件夹",
+    "slideCount": "{count} 个幻灯片",
+    "addSlidesButton": "添加幻灯片",
+    "noSlides": "此文件夹中还没有幻灯片。",
+    "slideListTitle": "幻灯片列表"
   }
-} 
+}

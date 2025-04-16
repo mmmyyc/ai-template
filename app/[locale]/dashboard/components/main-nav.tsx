@@ -19,13 +19,13 @@ export function MainNav() {
       href: '/dashboard/generation',
       description: t('Navigation.imageGen.description')
     },
-    { 
-      id: 'uploadpdf', 
-      name: t('Navigation.uploadpdf.title'), 
-      icon: Upload, 
-      href: '/dashboard/uploadpdf',
-      description: t('Navigation.uploadpdf.description')
-    },
+    // { 
+    //   id: 'uploadpdf', 
+    //   name: t('Navigation.uploadpdf.title'), 
+    //   icon: Upload, 
+    //   href: '/dashboard/uploadpdf',
+    //   description: t('Navigation.uploadpdf.description')
+    // },
     {
       id: 'streamppt',
       name: t('Navigation.streamppt.title'),
