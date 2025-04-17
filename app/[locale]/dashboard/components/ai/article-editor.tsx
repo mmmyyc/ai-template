@@ -103,6 +103,7 @@ interface ArticleEditorProps {
     };
   };
   folderName?: string;
+  onEditModeChange?: (isEditMode: boolean) => void;
 }
 
 export default function ArticleEditor({
@@ -123,6 +124,7 @@ export default function ArticleEditor({
     },
   },
   folderName = "",
+  onEditModeChange,
 }: ArticleEditorProps) {
   const t = useTranslations('ArticleEditor');
 
@@ -208,7 +210,11 @@ export default function ArticleEditor({
                   </div>
                 </div>
               ) : null}
-              <HtmlPreview htmlContent={htmlContent} folderName={folderName} />
+              <HtmlPreview 
+                htmlContent={htmlContent} 
+                folderName={folderName} 
+                onEditModeChange={onEditModeChange} 
+              />
             </div>
           </TabsContent>
         </Tabs>

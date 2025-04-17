@@ -462,5 +462,10 @@
     "addSlidesButton": "添加幻灯片",
     "noSlides": "此文件夹中还没有幻灯片。",
     "slideListTitle": "幻灯片列表"
+  },
+  "HtmlPreview": {
+    "feedback": {
+      "titleRequired": ""
+    }
   }
 }

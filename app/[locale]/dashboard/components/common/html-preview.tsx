@@ -13,6 +13,8 @@ import {
   Save,
   Maximize,
   Minimize,
+  Edit,
+  Fullscreen
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -108,10 +110,19 @@ const selectionModeStyles = `
     }
   `;
 
-export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, folderName: string }) {
+export function HtmlPreview({ 
+  htmlContent, 
+  folderName,
+  onEditModeChange
+}: { 
+  htmlContent: string, 
+  folderName: string,
+  onEditModeChange?: (isEditMode: boolean) => void
+}) {
   const t = useTranslations('HtmlPreview');
   const [htmlTitle, setHtmlTitle] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
 
   const [selectedElementPath, setSelectedElementPath] = useState<string | null>(
     null
@@ -355,6 +366,12 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
   };
 
   const handleSaveHtml = async () => {
+    // 检查标题是否为空或仅包含空格
+    if ((!htmlTitle || htmlTitle.trim() === "") && htmlContent.length <= 50) {
+      toast.error(t('feedback.titleRequired'));
+      return; // 阻止保存
+    }
+
     const htmlContentToSave = iframeRef.current?.contentDocument?.documentElement.outerHTML;
     const formData = new URLSearchParams();
     formData.append('folderName', folderName);
@@ -636,11 +653,11 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
         setEditorPosition({ x: idealX, y: idealY });
         console.log("handleIframeClick: Editor position calculated:", { x: idealX, y: idealY });
 
-        setShowEditor(true);
+        setShowEditor(true);          // <--- 标记为显示编辑器
         console.log("handleIframeClick: setShowEditor(true) called.");
+        setIsSelecting(false);         // <--- 几乎立刻标记为退出选择模式
 
-        setIsSelecting(false); // Turn off selection mode
-        console.log("handleIframeClick: setIsSelecting(false) called. Styles should be cleaned up by useEffect/cleanupIframeListeners now.");
+        console.log("handleIframeClick: setIsSelecting(false) will be called after delay."); // 可以修改日志信息
         console.log("--- handleIframeClick END ---");
       };
 
@@ -750,20 +767,24 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
 
   // --- Button Handlers (Early Definitions) ---
   const handleStartSelecting = useCallback(() => {
+    console.log("handleStartSelecting: Called");
     setSelectedElement(null);
     setSelectedElementPath(null);
     setShowEditor(false);
-    setIsSelecting(true);
-    console.log("Starting selection mode (iframe)");
-    setTimeout(() => {
-      if (iframeRef.current && iframeRef.current.contentDocument) {
-        console.log("Selection mode: Adding selecting class to iframe body");
-        const iframeDoc = iframeRef.current.contentDocument;
-        iframeDoc.body.classList.add("selecting");
-        injectStylesIntoIframe(iframeDoc, selectionModeStyles);
+    // Ensure any previous temporary ID is cleared if selection restarts
+    if (editingElementId) {
+      const iframeDoc = iframeRef.current?.contentDocument;
+      if (iframeDoc) {
+        const prevElement = iframeDoc.querySelector(`[data-editing-id="${editingElementId}"]`);
+        prevElement?.removeAttribute('data-editing-id');
+        console.log(`handleStartSelecting: Removed previous data-editing-id '${editingElementId}'`);
       }
-    }, 100);
-  }, []);
+      setEditingElementId(null);
+    }
+    setIsSelecting(true); // Trigger the useEffect for setup
+    console.log("handleStartSelecting: Set isSelecting = true");
+    // REMOVED setTimeout for adding class/styles - useEffect handles setup
+  }, [editingElementId]); // Added editingElementId dependency for cleanup logic
 
   const handleCancelSelecting = useCallback(() => {
     setIsSelecting(false);
@@ -780,23 +801,13 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
 
   const handleCloseEditor = useCallback(() => {
     setShowEditor(false);
-    // Restore original classes if editor is closed without applying
-    if (selectedElement && originalClasses !== selectedElement.className) {
-        // This logic might need refinement based on how `handleApplyChanges` works
-        // If handleApplyChanges *doesn't* run on close, we need to revert.
-        // However, the current code applies changes immediately in FriendlyEditor.
-        // Let's assume immediate apply is the desired behavior.
-        // If reverting is needed, uncomment below:
-        // selectedElement.className = originalClasses;
-    }
     setTimeout(() => {
       setSelectedElement(null);
       setSelectedElementPath(null);
-      setEditingElementId(null); // Ensure ID is cleared on close
+      setEditingElementId(null);
     }, 100);
-  }, [/* selectedElement, originalClasses */]); // Dependencies might need adjustment if revert logic is added
+  }, []);
 
-  // --- Apply Changes ---
   const handleApplyChanges = useCallback(
     (newClasses: string) => {
       if (
@@ -848,6 +859,25 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
 
             elementInIframe.removeAttribute('data-editing-id');
             console.log("Removed temporary ID:", editingElementId);
+
+            // --- 清理操作：在保存前移除由 Tailwind CDN 生成的 <style> 标签 ---
+            try {
+              const head = iframeDoc.head;
+              const styleTags = head.querySelectorAll('style');
+              styleTags.forEach(tag => {
+                // 识别 Tailwind CDN 生成的样式 (通常包含大量 CSS 变量)
+                // 如果需要保留其他 <style> 标签（比如动画），需要更精确的识别逻辑
+                // 这里我们假设主要移除包含 '--tw-' 变量的样式块
+                if (tag.textContent && tag.textContent.includes('--tw-')) {
+                   console.log("Removing Tailwind CDN generated style tag before save.");
+                   head.removeChild(tag);
+                }
+              });
+            } catch (cleanupError) {
+              console.error("Error cleaning up style tags before save:", cleanupError);
+              // 即使清理失败，也继续尝试保存
+            }
+            // --- 清理操作结束 ---
 
             const updatedHtml = iframeDoc.documentElement.outerHTML;
             setLocalHtmlContent(updatedHtml);
@@ -912,72 +942,99 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
     ]
   );
 
-  // 修改全屏切换处理函数，使用浏览器原生API
-  const handleToggleFullscreen = useCallback(() => {
-    console.log("handleToggleFullscreen triggered");
-    console.log("Current fullscreen element:", document.fullscreenElement);
-    console.log("iframeContainerRef.current:", iframeContainerRef.current);
-
+  const handleNativeFullscreen = useCallback(() => {
+    console.log("handleNativeFullscreen triggered");
+    const iframeElement = iframeRef.current;
+    
     if (!document.fullscreenElement) {
-      // 进入全屏
-      if (iframeContainerRef.current) {
-        console.log("Attempting to request fullscreen...");
-        iframeContainerRef.current.requestFullscreen().then(() => {
-          console.log("Fullscreen request successful");
-          // setIsFullscreen(true); // State will be updated by the event listener
+      if (iframeElement) {
+        console.log("Attempting to request native fullscreen on iframe...");
+        iframeElement.requestFullscreen().then(() => {
+          console.log("Native fullscreen request successful");
         }).catch(err => {
-          console.error(`Error attempting to enable fullscreen: ${err.message}`);
-          // 如果原生全屏失败，尝试回退到状态控制的全屏（可能效果不佳）
-          console.log("Fallback: Setting isFullscreen state to true");
-          setIsFullscreen(true);
+          console.error(`Error attempting to enable native fullscreen: ${err.message}`);
+          setProcessingFeedback(t('errors.fullscreenFailed'));
+          setTimeout(() => setProcessingFeedback(null), 3000);
         });
       } else {
-        console.error("Cannot request fullscreen: iframeContainerRef.current is null");
+        console.error("Cannot request fullscreen: iframeElement is null");
       }
     } else {
-      // 退出全屏
-      console.log("Attempting to exit fullscreen...");
+      console.log("Attempting to exit native fullscreen...");
       document.exitFullscreen().then(() => {
-        console.log("Fullscreen exit successful");
-        // setIsFullscreen(false); // State will be updated by the event listener
+        console.log("Native fullscreen exit successful");
       }).catch(err => {
-        console.error(`Error attempting to exit fullscreen: ${err.message}`);
+        console.error(`Error attempting to exit native fullscreen: ${err.message}`);
       });
     }
-  }, []);
+  }, [t]);
 
-  // 监听全屏状态变化
+  const handleToggleFullscreen = useCallback(() => {
+    console.log("handleToggleFullscreen (edit mode) triggered");
+    // 直接切换全屏状态，不再调用浏览器API
+    const newState = !isFullscreen;
+    setIsFullscreen(newState);
+    
+    // 调用回调通知父组件编辑模式状态变化
+    if (onEditModeChange) {
+      console.log("通知父组件编辑模式变为:", newState);
+      onEditModeChange(newState);
+    }
+    
+    // 如果当前处于选择模式并且正在退出全屏，取消选择
+    if (isFullscreen && isSelecting) {
+      handleCancelSelecting();
+    }
+  }, [isFullscreen, isSelecting, handleCancelSelecting, onEditModeChange]);
+
+  const handleFullscreenSelect = useCallback(() => {
+    console.log("handleFullscreenSelect: Called");
+    handleStartSelecting();
+  }, [handleStartSelecting]);
+
   useEffect(() => {
     const handleFullscreenChange = () => {
-      const isCurrentlyFullscreen = !!document.fullscreenElement;
-      console.log("fullscreenchange event detected. Is fullscreen:", isCurrentlyFullscreen);
-      setIsFullscreen(isCurrentlyFullscreen);
-      
-      // 如果退出全屏，确保取消选择状态
-      if (!isCurrentlyFullscreen && isSelecting) {
-        console.log("Exited fullscreen while selecting, cancelling selection.");
-        handleCancelSelecting();
+      const fullscreenElement = document.fullscreenElement;
+      console.log("fullscreenchange event detected. Element:", fullscreenElement);
+      if (fullscreenElement === iframeRef.current) {
+        console.log("Entered native fullscreen on iframe.");
+        setIsNativeFullscreen(true);
+      } else {
+        if (isNativeFullscreen) {
+            console.log("Exited native fullscreen.");
+            setIsNativeFullscreen(false);
+        }
       }
     };
 
-    console.log("Adding fullscreenchange event listener");
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => {
-      console.log("Removing fullscreenchange event listener");
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
-  }, [isSelecting, handleCancelSelecting]);
+  }, [isNativeFullscreen]);
 
-  // 全屏模式下的选择按钮点击处理
-  const handleFullscreenSelect = useCallback(() => {
-    handleStartSelecting();
-    // 短暂延迟以确保选择模式完全激活
-    setTimeout(() => {
-      if (iframeRef.current?.contentDocument) {
-        setupIframeListeners();
+  useEffect(() => {
+    const iframeElement = iframeRef.current;
+    if (iframeElement) {
+      if (isNativeFullscreen) {
+        console.log("Applying native fullscreen styles to iframe");
+        iframeElement.style.width = '100vw';
+        iframeElement.style.height = '100vh';
+        iframeElement.style.position = 'fixed';
+        iframeElement.style.top = '0';
+        iframeElement.style.left = '0';
+        iframeElement.style.zIndex = '2147483647';
+      } else {
+        console.log("Removing native fullscreen styles from iframe");
+        iframeElement.style.width = '';
+        iframeElement.style.height = '';
+        iframeElement.style.position = '';
+        iframeElement.style.top = '';
+        iframeElement.style.left = '';
+        iframeElement.style.zIndex = '';
       }
-    }, 100);
-  }, [handleStartSelecting, setupIframeListeners]);
+    }
+  }, [isNativeFullscreen]);
 
   return (
     <>
@@ -1060,15 +1117,14 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
 
       <div
         ref={iframeContainerRef}
-        className={`flex-grow w-full relative overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50 bg-black p-0 m-0' : 'flex flex-col'}`}
+        className={`flex-grow w-full relative overflow-hidden ${isFullscreen ? 'fixed inset-0 z-[2147483646] bg-black p-0 m-0' : 'flex flex-col'}`}
       >
         {isFullscreen ? (
-          // Fullscreen mode - mostly unchanged, still shows iframe and floating buttons
           <>
             <iframe
               ref={iframeRef}
               key={`iframe-${renderKey}-fullscreen`}
-              srcDoc={getFullHtmlWithStyles(localHtmlContent)}
+              srcDoc={localHtmlContent}
               title={t('iframeTitle')}
               className="w-full h-full border-0 absolute inset-0 z-10"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
@@ -1084,8 +1140,7 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
               </div>
             )}
             
-            {/* 全屏模式下的浮动按钮 (调整 z-index) */}
-            <div className="fixed top-4 right-4 z-[2147483647] flex gap-2"> {/* Use max z-index */} 
+            <div className="fixed top-25 right-4 z-[2147483647] flex gap-2">
               <Button
                 onClick={handleFullscreenSelect}
                 variant="default"
@@ -1097,24 +1152,44 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
                 {t('buttons.selectElement')}
               </Button>
               <Button
+                onClick={handleNativeFullscreen}
+                variant="outline"
+                size="sm"
+                className="bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 shadow-md dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
+                data-no-select
+                title={isNativeFullscreen ? t('buttons.exitNativeFullscreen') : t('buttons.nativeFullscreen')}
+              >
+                {isNativeFullscreen ? <Minimize className="h-4 w-4" /> : <Fullscreen className="h-4 w-4" />}
+              </Button>
+              <Button
                 onClick={handleToggleFullscreen}
                 variant="outline"
                 size="sm"
                 className="bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 shadow-md dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
                 data-no-select
-                title={t('buttons.exitFullscreen')}
+                title={t('buttons.exitEditMode')}
               >
-                <Minimize className="h-4 w-4" />
+                <Edit className="h-4 w-4" />
               </Button>
             </div>
+
+            {showEditor && selectedElementPath && (
+              <FriendlyEditor
+                elementPath={selectedElementPath}
+                iframeRef={iframeRef}
+                position={editorPosition}
+                originalClasses={originalClasses}
+                onClose={handleCloseEditor}
+                onApplyChanges={handleApplyChanges}
+                className="z-[50] fixed"
+                containerRef={iframeContainerRef}
+              />
+            )}
           </>
         ) : (
-          // Non-fullscreen mode - render content based on activePreviewTab
           <>
             {activePreviewTab === 'ppt' && (
-              // Content for PPT tab
               <div className="h-full flex flex-col">
-                {/* Title input and Select/Fullscreen buttons */}
                 <div className="p-2 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700" data-no-select>
                   <div className="flex items-center gap-2 flex-grow mr-4">
                     <span className="text-sm font-medium whitespace-nowrap">{t('titleInputLabel')}</span>
@@ -1148,24 +1223,32 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
                           {t('buttons.selectElement')}
                         </Button>
                         <Button
+                          onClick={handleNativeFullscreen}
+                          variant="outline"
+                          size="sm"
+                          data-no-select
+                          title={t('buttons.nativeFullscreen')}
+                        >
+                          <Fullscreen className="h-4 w-4" />
+                        </Button>
+                        <Button
                           onClick={handleToggleFullscreen}
                           variant="outline"
                           size="sm"
                           data-no-select
-                          title={isFullscreen ? t('buttons.exitFullscreen') : t('buttons.enterFullscreen')}
+                          title={t('buttons.editMode')}
                         >
-                          <Maximize className="h-4 w-4" />
+                          <Edit className="h-4 w-4" />
                         </Button>
                       </>
                     )}
                   </div>
                 </div>
-                {/* Iframe container */}
                 <div className="flex-grow relative bg-gray-100 dark:bg-gray-800">
                   <iframe
                     ref={iframeRef}
                     key={`iframe-${renderKey}`}
-                    srcDoc={getFullHtmlWithStyles(localHtmlContent)}
+                    srcDoc={localHtmlContent}
                     title={t('iframeTitle')}
                     className="w-full h-full border-0 relative z-10"
                     sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
@@ -1185,7 +1268,6 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
             )}
 
             {activePreviewTab === 'html' && (
-              // Content for HTML tab
               <ScrollArea className="h-full w-full">
                 <div className="p-4">
                   <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
@@ -1197,7 +1279,8 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
           </>
         )}
       </div>
-      {showEditor && selectedElementPath && (
+
+      {!isFullscreen && showEditor && selectedElementPath && (
         <FriendlyEditor
           elementPath={selectedElementPath}
           iframeRef={iframeRef}
@@ -1205,7 +1288,8 @@ export function HtmlPreview({ htmlContent, folderName }: { htmlContent: string, 
           originalClasses={originalClasses}
           onClose={handleCloseEditor}
           onApplyChanges={handleApplyChanges}
-          className="z-[50] fixed"
+          className="z-[2147483647] fixed"
+          containerRef={iframeContainerRef}
         />
       )}
 

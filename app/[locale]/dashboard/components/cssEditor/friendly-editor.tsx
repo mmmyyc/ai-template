@@ -1,19 +1,42 @@
 "use client"
 
-import type React from "react"
-
+import React from "react"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent as BaseSelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import * as SelectPrimitive from "@radix-ui/react-select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { X, Move } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getColorValue } from "./colorUtils"
 import { useTranslations } from 'next-intl'
+
+// 创建一个扩展的SelectContent组件，支持container属性
+const SelectContent = React.forwardRef<
+  React.ElementRef<typeof BaseSelectContent>,
+  React.ComponentPropsWithoutRef<typeof BaseSelectContent> & { container?: HTMLElement }
+>((props, ref) => {
+  // 解构出container属性，其余属性传递给BaseSelectContent
+  const { container, ...rest } = props;
+  
+  return (
+    <SelectPrimitive.Portal container={container}>
+      <BaseSelectContent ref={ref} {...rest} />
+    </SelectPrimitive.Portal>
+  );
+});
+
+SelectContent.displayName = "SelectContent";
 
 // Helper function copied from article-editor for consistency
 const findElementByPath = (path: string, container: Document | HTMLElement): HTMLElement | null => {
@@ -36,6 +59,7 @@ interface FriendlyEditorProps {
   html?: string
   onHtmlChange?: (html: string) => void
   className?: string
+  containerRef?: React.RefObject<HTMLElement>
 }
 
 // Mapping of friendly names to Tailwind classes
@@ -116,7 +140,8 @@ export function FriendlyEditor({
   onApplyChanges,
   html,
   onHtmlChange,
-  className
+  className,
+  containerRef
 }: FriendlyEditorProps) {
   const t = useTranslations('FriendlyEditor');
 
@@ -823,7 +848,7 @@ export function FriendlyEditor({
                       {fontSize ? `${t('labels.sizePrefix')}: ${fontSize}` : t('placeholders.selectSize')}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent container={containerRef?.current} className="z-[2147483647]">
                     {fontSizeOptions.map((size) => (
                       <SelectItem key={size} value={size}>
                         {size} {/* Display raw value, label handled above */}
@@ -844,7 +869,7 @@ export function FriendlyEditor({
                       {fontWeight ? getFontWeightLabel(fontWeight) : t('placeholders.selectWeight')}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent container={containerRef?.current} className="z-[2147483647]">
                     {fontWeightOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {getFontWeightLabel(option.value)}
@@ -865,7 +890,7 @@ export function FriendlyEditor({
                       {textAlignment ? getTextAlignLabel(textAlignment) : t('placeholders.selectAlign')}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent container={containerRef?.current} className="z-[2147483647]">
                     {textAlignOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {getTextAlignLabel(option.value)}
@@ -889,7 +914,7 @@ export function FriendlyEditor({
                       {display ? getDisplayLabel(display) : t('placeholders.selectDisplay')}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent container={containerRef?.current} className="z-[2147483647]">
                     {displayOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {getDisplayLabel(option.value)}
@@ -913,7 +938,7 @@ export function FriendlyEditor({
                           {flexDirection ? getFlexDirectionLabel(flexDirection) : t('placeholders.selectDirection')}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent container={containerRef?.current} className="z-[2147483647]">
                         {flexDirectionOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                              {getFlexDirectionLabel(option.value)}
@@ -935,7 +960,7 @@ export function FriendlyEditor({
                           {justifyContent ? getJustifyLabel(justifyContent) : t('placeholders.selectJustify')}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent container={containerRef?.current} className="z-[2147483647]">
                         {justifyOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {getJustifyLabel(option.value)}
@@ -957,7 +982,7 @@ export function FriendlyEditor({
                           {alignItems ? getAlignLabel(alignItems) : t('placeholders.selectAlignItems')}
                         </SelectValue>
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent container={containerRef?.current} className="z-[2147483647]">
                         {alignOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {getAlignLabel(option.value)}
@@ -1252,7 +1277,7 @@ export function FriendlyEditor({
                        {borderRadius ? getBorderRadiusLabel(borderRadius) : t('placeholders.selectRadius')}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent container={containerRef?.current} className="z-[2147483647]">
                     {borderRadiusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {getBorderRadiusLabel(option.value)}
@@ -1273,7 +1298,7 @@ export function FriendlyEditor({
                       {shadow ? getShadowLabel(shadow) : t('placeholders.selectShadow')}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent container={containerRef?.current} className="z-[2147483647]">
                     {shadowOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {getShadowLabel(option.value)}

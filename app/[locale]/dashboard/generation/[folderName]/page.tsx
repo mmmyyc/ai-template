@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import ArticleEditor from "@/app/[locale]/dashboard/components/ai/article-editor"
 import MarkdownEditor from "@/app/[locale]/dashboard/components/common/markdown-editor"
 import { generateSlideComponent } from "@/app/[locale]/dashboard/utils/ai-service"
 import {
   Panel,
   PanelGroup,
-  PanelResizeHandle
+  PanelResizeHandle,
+  ImperativePanelHandle
 } from "react-resizable-panels"
 import { useTranslations } from 'next-intl';
 // Define the expected structure of the params prop
@@ -28,6 +29,7 @@ export default function Home({ params }: GenerationPageProps) {
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [htmlContent, setHtmlContent] = useState("")
+  const [isEditMode, setIsEditMode] = useState(false)
   const [slideData, setSlideData] = useState({
     id: "slide-1",
     title: "",
@@ -38,6 +40,25 @@ export default function Home({ params }: GenerationPageProps) {
       color: "#000000",
     },
   })
+
+  // 创建对左侧面板的引用
+  const leftPanelRef = useRef<ImperativePanelHandle>(null);
+  
+  const handleEditModeChange = useCallback((editMode: boolean) => {
+    setIsEditMode(editMode);
+    console.log("编辑模式已切换:", editMode);
+    
+    // 通过命令式API控制面板大小
+    if (leftPanelRef.current) {
+      if (editMode) {
+        // 在编辑模式下，将左侧面板大小设为0（折叠）
+        leftPanelRef.current.resize(0);
+      } else {
+        // 退出编辑模式时，恢复左侧面板到默认大小
+        leftPanelRef.current.resize(50);
+      }
+    }
+  }, []);
 
   const handleAIAction = useCallback(async (selectedText: string, language: string, style: string, generateType: string) => {
     try {
@@ -64,7 +85,7 @@ export default function Home({ params }: GenerationPageProps) {
 
       <div className="flex-1 p-4 overflow-hidden min-h-0">
         <PanelGroup direction="horizontal" className="h-full">
-          <Panel defaultSize={50} minSize={5}>
+          <Panel ref={leftPanelRef} defaultSize={50} minSize={0}>
             <div className="h-full border border-neutral-200 rounded-lg shadow-sm bg-base-100 dark:bg-gray-950 dark:border-neutral-800 overflow-hidden">
               <MarkdownEditor
                 initialContent={leftContent}
@@ -80,7 +101,10 @@ export default function Home({ params }: GenerationPageProps) {
             <div className="absolute top-0 bottom-0 left-1/2 w-1 -translate-x-1/2 bg-neutral-200 dark:bg-neutral-800 group-hover:bg-blue-500 group-active:bg-blue-600 transition-colors" />
           </PanelResizeHandle>
           
-          <Panel defaultSize={50} minSize={30}>
+          <Panel 
+            defaultSize={50} 
+            minSize={0}
+          >
             <ArticleEditor
               initialContent={rightContent}
               onSave={setRightContent}
@@ -89,6 +113,7 @@ export default function Home({ params }: GenerationPageProps) {
               htmlContent={htmlContent}
               slideData={slideData}
               folderName={folderName}
+              onEditModeChange={handleEditModeChange}
             />
           </Panel>
         </PanelGroup>
