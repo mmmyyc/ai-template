@@ -464,8 +464,64 @@
     "slideListTitle": "幻灯片列表"
   },
   "HtmlPreview": {
+    "title": "AI 生成预览",
+    "titleInputLabel": "标题",
+    "titleInputPlaceholder": "为您的生成内容输入标题",
+    "tabs": {
+      "ppt": "PPT",
+      "html": "HTML"
+    },
+    "buttons": {
+      "downloadOptions": "下载选项",
+      "download": "下载",
+      "downloadHtml": "下载为 HTML",
+      "downloadImage": "下载为图片",
+      "clearStorage": "清除存储",
+      "clearStorageTooltip": "清除本地存储的HTML内容",
+      "cancelSelection": "取消选择",
+      "selectElement": "选择元素进行编辑",
+      "saveHtml": "保存 HTML",
+      "saveHtmlTooltip": "将 HTML 内容保存到您的文件夹",
+      "enterFullscreen": "进入编辑模式",
+      "exitFullscreen": "退出编辑模式",
+      "exitNativeFullscreen": "退出原生全屏模式",
+      "nativeFullscreen": "原生全屏模式",
+      "exitEditMode": "退出编辑模式"
+    },
     "feedback": {
-      "titleRequired": ""
-    }
+      "storageCleared": "本地存储已清除",
+      "htmlDownloaded": "HTML 已下载",
+      "imageDownloaded": "图片已下载",
+      "downloadFailed": "下载失败：{error}",
+      "imageDownloadFailed": "图片下载失败：{error}",
+      "preparingScreenshot": "准备截图环境中...",
+      "disablingAnimations": "为截图禁用动画中...",
+      "generatingImage": "生成图片中...",
+      "processingImage": "处理图片中...",
+      "applyingStyles": "应用样式中...",
+      "stylesAppliedSuccess": "样式应用成功",
+      "htmlSavedSuccess": "HTML 保存成功",
+      "htmlSavedFailed": "HTML 保存失败",
+      "titleRequired": "请输入标题"
+    },
+    "errors": {
+      "iframeNotAvailable": "Iframe 内容不可用",
+      "iframeNotFound": "错误：找不到 Iframe 元素",
+      "iframeDocNotAccessible": "错误：无法访问 iframe 内容文档",
+      "iframeBodyNotAccessible": "错误：无法访问 iframe 主体",
+      "blobCreationFailed": "创建图片 Blob 失败",
+      "downloadLinkCreationFailed": "创建下载链接失败：{error}",
+      "findElementFailed": "错误：找不到目标元素",
+      "applyStylesFailed": "错误：应用样式失败",
+      "findElementByIdFailed": "错误：找不到目标元素（ID：{id}）以应用更改。",
+      "cannotApplyChanges": "无法应用更改 - 请检查控制台",
+      "fullscreenFailed": "全屏失败"
+    },
+    "downloadPrefix": {
+      "ppt": "幻灯片",
+      "html": "内容"
+    },
+    "iframeTitle": "HTML 预览",
+    "selectionModeActive": "选择模式激活"
   }
 }

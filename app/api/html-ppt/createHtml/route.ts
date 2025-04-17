@@ -24,10 +24,11 @@ export async function POST(request: NextRequest) {
     .select("id")
     .eq("name", folderName)
     .single();
+    console.log("folderId",folderId?.id)
     if (!folderId) {
       return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
     }
-    const { data: html} = await supabase
+    const { data: html , error: htmlError} = await supabase
     .from("html_contents")
     .insert({
       folder_id: folderId.id,
@@ -36,9 +37,12 @@ export async function POST(request: NextRequest) {
     })
     .select()
     .single();
+    if (htmlError) {
+      return NextResponse.json({ error: 'Failed to create Html: duplicate name or folder not found'}, { status: 500 });
+    }
     return NextResponse.json({ data: { htmlId: html.id } });
   }catch (error) {
-    console.error('Error creating folder:', error);
-    return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
+    console.error('Error creating Html:', error);
+    return NextResponse.json({ error: 'Failed to create Html' }, { status: 500 });
   }
 }

@@ -478,7 +478,10 @@
       "saveHtml": "Save HTML",
       "saveHtmlTooltip": "Save the HTML content to your folder",
       "enterFullscreen": "Enter Fullscreen Mode",
-      "exitFullscreen": "Exit Fullscreen Mode"
+      "exitFullscreen": "Exit Fullscreen Mode",
+      "exitNativeFullscreen": "Exit Native Fullscreen Mode",
+      "nativeFullscreen": "Native Fullscreen Mode",
+      "exitEditMode": "Exit Edit Mode"
     },
     "feedback": {
       "storageCleared": "Local storage cleared",
@@ -505,7 +508,8 @@
       "findElementFailed": "Error finding target element",
       "applyStylesFailed": "Error applying styles",
       "findElementByIdFailed": "Error: Could not find target element (ID: {id}) to apply changes.",
-      "cannotApplyChanges": "Cannot apply changes - check console"
+      "cannotApplyChanges": "Cannot apply changes - check console",
+      "fullscreenFailed": "Fullscreen failed"
     },
     "downloadPrefix": {
       "ppt": "Slide",

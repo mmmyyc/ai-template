@@ -13,7 +13,6 @@ export async function GET() {
     .from("folders")
     .select()
     .eq('profile_id', user.id);
-    console.log(folder);
     return NextResponse.json({ data: { folder } });
   }catch (error) {
     console.error('Error creating folder:', error);
