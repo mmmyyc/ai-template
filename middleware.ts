@@ -2,6 +2,7 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/libs/supabase/middleware";
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
+import { NextResponse } from "next/server";
 
 // 创建国际化中间件
 const intlMiddleware = createMiddleware(routing);
@@ -12,7 +13,11 @@ export async function middleware(request: NextRequest) {
   // 检查是否为API路由
   if (pathname.startsWith('/api')) {
     // 只应用会话更新，不应用国际化
-    return await updateSession(request);
+    // 需要创建一个基础的 response 传递给 updateSession
+    const response = NextResponse.next({
+      request,
+    });
+    return await updateSession(request, response);
   }
   
   // 对于普通页面路由，应用完整的中间件链
@@ -20,12 +25,7 @@ export async function middleware(request: NextRequest) {
   const response = await intlMiddleware(request);
   
   // 然后更新 session
-  const sessionResponse = await updateSession(request);
-  
-  // 合并响应头
-  response.headers.forEach((value, key) => {
-    sessionResponse.headers.set(key, value);
-  });
+  const sessionResponse = await updateSession(request, response);
   
   return sessionResponse;
 }
