@@ -1,10 +1,6 @@
-import React from 'react';
-import { redirect } from "@/i18n/navigation";
-const Home = () => {
-  return redirect({
-    href: '/en',
-    locale: 'en',
-  });
-};
+import {redirect} from 'next/navigation';
 
-export default Home;
+// This page only renders when the app is built statically (output: 'export')
+export default function RootPage() {
+  redirect('/zh');
+}
