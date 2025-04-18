@@ -20,34 +20,6 @@ export const viewport: Viewport = {
 	initialScale: 1,
 };
 
-// // This adds default SEO tags to all pages in our app.
-// // You can override them in each page passing params to getSOTags() function.
-// export const metadata = getSEOTags({
-// 	title: "Shimeji AI Desktop Pet Generator| Free Trial",
-// 	keywords: "SlidesCraft, desktop pets, personalized Shimeji, animated desktop characters, Shimeji customization"
-// });
-
-// 使用动态生成metadata
-export async function generateMetadata({ params }: { params: { locale: string } }) {
-	const locale = params.locale;
-	
-	// 验证locale有效性
-	if (!locales.includes(locale as any)) {
-		return {};
-	}
-	
-	// 可以根据不同语言生成不同标题
-	return getSEOTags({
-		title: locale === 'zh' ? "SlidesCraft AI PPT生成 | 免费试用" : "SlidesCraft AI PPT Generator | Free Trial",
-		keywords: "SlidesCraft, slides, ppt, ai, generator, free trial"
-	});
-}
-
-export async function generateStaticParams() {
-	return locales.map((locale) => ({ locale }));
-}
-
-// 添加主题初始化脚本
 const themeScript = `
 	let theme = localStorage.getItem('theme');
 	if (!theme) {
@@ -59,18 +31,9 @@ const themeScript = `
 
 export default async function LocaleLayout({
 	children,
-	params: { locale }
 }: {
 	children: ReactNode;
-	params: { locale: string };
 }) {
-	// 启用静态渲染
-	setRequestLocale(locale);
-
-	const messages = await getMessages();
-	
-
-
 	return (
 		<html suppressHydrationWarning>
 			<head>
@@ -78,14 +41,9 @@ export default async function LocaleLayout({
 				<link rel="icon" href="/favicon.ico" sizes="any" />
 			</head>
 			<body className={font.className}>
-			<NextIntlClientProvider messages={messages} locale={locale}>
-				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
-				<ClientLayout>
-					{children}
-				</ClientLayout>
-			</NextIntlClientProvider>
-				<Analytics />
-				<GoogleAnalytics gaId="G-4KMJNL5ZMF" />
+			{children}
+			<Analytics />
+			<GoogleAnalytics gaId="G-4KMJNL5ZMF" />
 			</body>
 		</html>
 
