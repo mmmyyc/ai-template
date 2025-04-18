@@ -74,7 +74,7 @@ export const promptPPT = (language: string, style: string) => `
 *   **直接输出HTML**：只返回完整的HTML代码。不要添加任何指令中未要求的解释、说明或Markdown标记。
 *   **完整性**：确保HTML代码包含 \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, \`<body>\` 等基本结构。
 *   **格式规范**：确保输出的代码格式规范、缩进一致。
-注意：生成HTML时，使用Tailwind CSS类来控制样式，确保在初始HTML结构中包含适当的基础类（如标题使用text-3xl、段落使用text-base等）。确保所有内容都完整可见，不会被截断或溢出。
+注意：生成HTML时，**必须**使用Tailwind CSS类来控制所有非动画样式，确保在初始HTML结构中包含适当的基础类（如标题使用text-3xl、段落使用text-base等）。确保所有内容都完整可见，不会被截断或溢出。自定义CSS仅限动画。
 ---
 ## 内容
 请根据以下我提供的内容生成幻灯片：
