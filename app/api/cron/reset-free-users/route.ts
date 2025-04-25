@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const { error } = await supabase
       .from('profiles')
       .update({ 
-        available_uses: 3,
+        available_uses: 10,
         updated_at: new Date().toISOString()
       })
       .eq('plan', 'free');

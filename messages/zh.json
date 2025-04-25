@@ -388,6 +388,154 @@
       "changeToPPT": "切换到PPT模式"
     }
   },
+  "GenerationPage": {
+    "header": "生成预览"
+  },
+  "ArticleEditor": {
+    "title": "文本编辑",
+    "tabs": {
+      "edit": "编辑",
+      "preview": "预览"
+    },
+    "generatingMessage": "Generating content..."
+  },
+  "FriendlyEditor": {
+    "title": "样式编辑器",
+    "tabs": {
+      "text": "文本",
+      "layout": "布局",
+      "colors": "颜色",
+      "effects": "效果"
+    },
+    "labels": {
+      "textSize": "文字大小", 
+      "textWeight": "文字粗细", 
+      "textAlign": "文本对齐",
+      "displayType": "显示类型", 
+      "direction": "方向", 
+      "horizontalAlign": "水平对齐", 
+      "verticalAlign": "垂直对齐",   
+      "margin": "外边距",
+      "padding": "内边距",
+      "textColor": "文字颜色",
+      "backgroundColor": "背景颜色",
+      "colorIntensity": "颜色强度: {value}", 
+      "border": "边框",
+      "cornerRadius": "圆角", 
+      "shadow": "阴影",
+      "cssClasses": "CSS 类", 
+      "original": "原始值",
+      "current": "当前值",
+      "editClasses": "编辑 CSS 类",
+      "sizePrefix": "尺寸", 
+      "topWithColon": "上: {value}",
+      "rightWithColon": "右: {value}",
+      "bottomWithColon": "下: {value}",
+      "leftWithColon": "左: {value}",
+      "default": "默认",
+      "content": "内容" 
+    },
+    "placeholders": {
+      "selectSize": "选择尺寸",
+      "selectWeight": "选择粗细",
+      "selectAlign": "选择对齐方式",
+      "selectDisplay": "选择显示类型",
+      "selectDirection": "选择方向",
+      "selectJustify": "选择主轴对齐", 
+      "selectAlignItems": "选择交叉轴对齐", 
+      "selectRadius": "选择圆角大小",
+      "selectShadow": "选择阴影效果"
+    },
+    "buttons": {
+      "close": "关闭编辑器",
+      "hidePreview": "隐藏预览",
+      "showPreview": "显示预览",
+      "hide": "隐藏",
+      "show": "显示",
+      "cancel": "取消",
+      "reset": "重置",
+      "apply": "应用更改",
+      "removeClassTooltip": "移除此类", 
+      "cancelTooltip": "放弃更改并关闭", 
+      "resetTooltip": "重置为原始样式",   
+      "applyTooltip": "应用更改并关闭"  
+    },
+    "helpers": {
+      "removeClass": "点击标签上的 X 可移除此类",
+      "changedFields": "* 蓝色高亮字段表示已更改的属性"
+    },
+    "fontWeightLabels": {
+      "normal": "常规", 
+      "medium": "中等",
+      "semibold": "半粗",
+      "bold": "加粗"
+    },
+    "textAlignLabels": {
+      "left": "左对齐",
+      "center": "居中对齐",
+      "right": "右对齐",
+      "justify": "两端对齐"
+    },
+    "displayLabels": {
+      "block": "块级 (Block)", 
+      "inlineblock": "行内块级 (Inline Block)",
+      "inline": "行内 (Inline)",
+      "flex": "弹性布局 (Flex)",
+      "grid": "网格布局 (Grid)",
+      "hidden": "隐藏"
+    },
+    "flexDirectionLabels": {
+      "row": "行 (水平)", 
+      "column": "列 (垂直)"
+    },
+    "justifyLabels": { 
+      "start": "起点对齐", 
+      "center": "居中对齐", 
+      "end": "终点对齐", 
+      "spacebetween": "两端分布", 
+      "spacearound": "环绕分布", 
+      "spaceevenly": "均匀分布"  
+    },
+    "alignLabels": { 
+      "top": "顶部对齐",
+      "center": "居中对齐",
+      "bottom": "底部对齐", 
+      "stretch": "拉伸"
+    },
+    "borderRadiusLabels": {
+      "none": "无",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "extralarge": "超大", 
+      "full": "全圆角", 
+      "default": "默认"
+    },
+    "shadowLabels": {
+      "none": "无",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "extralarge": "超大", 
+      "huge": "巨大",
+      "default": "默认"
+    },
+    "colorLabels": {
+      "transparent": "透明",
+      "current": "当前颜色", 
+      "white": "白色",
+      "black": "黑色",
+      "gray": "灰色",
+      "red": "红色",
+      "orange": "橙色",
+      "yellow": "黄色",
+      "green": "绿色",
+      "blue": "蓝色",
+      "purple": "紫色",
+      "pink": "粉色",
+      "autoIndicator": "自动" 
+    }
+  },
   "Dashboard": {
     "folderManagementTitle": "文件夹管理",
     "myFoldersTitle": "我的文件夹",
@@ -402,7 +550,7 @@
     "noFoldersMessage": "没有文件夹，请创建新文件夹",
     "createdOnLabel": "创建于",
     "loading": "加载中...",
-    "streampptCardTitle": "流式PPT",
+    "streampptCardTitle": "streamPPT",
     "streampptCardDescription": "动态管理和演示幻灯片内容。",
     "newFolder": "新建文件夹",
     "createFolder": "创建文件夹",
@@ -437,8 +585,8 @@
     "selectFolderButton": "选择文件夹"
   },
   "StreamPpt": {
-    "title": "流式PPT",
-    "description": "创建并管理您的流式PPT演示文稿",
+    "title": "streamPPT",
+    "description": "创建并管理您的streamPPT演示文稿",
     "backToFolders": "返回文件夹选择",
     "startPresentation": "开始演示",
     "exitPresentation": "退出演示",
