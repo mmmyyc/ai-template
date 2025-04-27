@@ -579,7 +579,8 @@
       "stylePlaceholder": "Select style",
       "changeGenerateType": "Change Generate Type",
       "changeToCard": "Switch to Card Mode",
-      "changeToPPT": "Switch to PPT Mode"
+      "changeToPPT": "Switch to PPT Mode",
+      "save": "Save"
     }
   },
   "Dashboard": {

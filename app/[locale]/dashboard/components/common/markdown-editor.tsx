@@ -7,7 +7,8 @@ import {
   RefreshCw,
   Upload,
   Pencil,
-  Loader2
+  Loader2,
+  Save
 } from "lucide-react"
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
@@ -112,6 +113,8 @@ export interface MarkdownEditorProps {
   height?: string | number
   title?: string
   generating?: boolean
+  storageKey?: string // 新增属性，用于唯一标识编辑器存储数据
+  autoSaveInterval?: number // 自动保存时间间隔（毫秒）
 }
 
 export default function MarkdownEditor({
@@ -124,7 +127,9 @@ export default function MarkdownEditor({
   className = "",
   height = "100%",
   title = "",
-  generating = false
+  generating = false,
+  storageKey = "vditor-content", // 默认存储键
+  autoSaveInterval = 5000 // 默认5秒保存一次
 }: MarkdownEditorProps) {
   // 只用一个状态来存储编辑器实例，更接近官方示例
   const [vd, setVd] = useState<Vditor>()
@@ -138,13 +143,60 @@ export default function MarkdownEditor({
   // Initialize aiStyle with the description of the default option
   const [aiStyle, setAiStyle] = useState(aiStyleOptions[0].description) 
   const t = useTranslations('MarkdownEditor'); // Initialize useTranslations
+  
+  // 保存编辑器内容到本地存储
+  const saveToLocalStorage = useCallback((content: string) => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(storageKey, content);
+        console.log(`Content saved to localStorage with key: ${storageKey}`);
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+      }
+    }
+  }, [storageKey]);
+
+  // 从本地存储加载内容
+  const loadFromLocalStorage = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedContent = localStorage.getItem(storageKey);
+        return savedContent !== null ? savedContent : initialContent;
+      } catch (error) {
+        console.error('Error loading from localStorage:', error);
+        return initialContent;
+      }
+    }
+    return initialContent;
+  }, [storageKey, initialContent]);
 
   // 使用useCallback确保函数不会频繁重建
   const handleContentChange = useCallback((value: string) => {
-        if (onChange) {
+    if (onChange) {
       onChange(value)
     }
-  }, [onChange])
+    // 在内容变化时不立即保存，依靠下面的自动保存定时器
+  }, [onChange]);
+  
+  // 处理手动保存
+  const handleManualSave = useCallback(() => {
+    if (vd) {
+      const content = vd.getValue();
+      saveToLocalStorage(content);
+    }
+  }, [vd, saveToLocalStorage]);
+  
+  // 设置自动保存定时器
+  useEffect(() => {
+    if (!vd) return;
+    
+    const intervalId = setInterval(() => {
+      const content = vd.getValue();
+      saveToLocalStorage(content);
+    }, autoSaveInterval);
+    
+    return () => clearInterval(intervalId);
+  }, [vd, autoSaveInterval, saveToLocalStorage]);
   
   // 处理文件上传
   const handleUploadMd = useCallback(() => {
@@ -189,6 +241,9 @@ export default function MarkdownEditor({
       // 设置ID以便Vditor可以找到容器
       containerRef.current.id = editorId
       
+      // 从本地存储加载内容
+      const contentToUse = loadFromLocalStorage();
+      
       // 初始化编辑器，符合官方示例模式
       const vditor = new Vditor(editorId, {
         mode: 'wysiwyg',
@@ -204,9 +259,9 @@ export default function MarkdownEditor({
         ],
         // 使用after回调而不是直接设置值
         after: () => {
-          // 设置初始内容
-          if (initialContent) {
-            vditor.setValue(initialContent)
+          // 设置初始内容为本地存储中的内容
+          if (contentToUse) {
+            vditor.setValue(contentToUse)
           }
           // 保存实例引用
           setVd(vditor)
@@ -278,6 +333,10 @@ export default function MarkdownEditor({
     return () => {
       if (vd) {
         try {
+          // 在销毁前保存内容
+          const content = vd.getValue();
+          saveToLocalStorage(content);
+          
           vd.destroy()
           setVd(undefined)
         } catch (error) {
@@ -285,8 +344,8 @@ export default function MarkdownEditor({
         }
       }
     }
-  // 空依赖数组确保只初始化一次，完全遵循官方示例
-  }, [])
+  // 依赖数组添加loadFromLocalStorage，这样如果storageKey变了会重新初始化
+  }, []);
   
   // 禁用AI按钮逻辑
   const isAIButtonDisabled = isGenerating || !isTextSelected
@@ -336,6 +395,11 @@ export default function MarkdownEditor({
           <ContextMenuItem onClick={handleUploadMd}>
              <Upload className="mr-2 h-4 w-4" />
             <span>{t('contextMenu.uploadMarkdown')}</span>
+          </ContextMenuItem>
+          {/* Save Item */}
+          <ContextMenuItem onClick={handleManualSave}>
+             <Save className="mr-2 h-4 w-4" />
+            <span>{t('contextMenu.save') || "Save"}</span>
           </ContextMenuItem>
           <ContextMenuItem onClick={handleChangeGenerateType}>
             <Pencil className="mr-2 h-4 w-4" />

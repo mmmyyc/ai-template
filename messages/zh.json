@@ -172,7 +172,7 @@
   "Pricing": {
     "title": "快速经济地获取专业演示文稿",
     "popularBadge": "热门",
-    "currency": "人民币",
+    "currency": "英镑",
     "paidPlanSubtext": "获取高质量个性化演示文稿",
     "freePlanButton": "立即尝试",
     "freePlanSubtext": "开始使用，每月免费10次生成",
@@ -385,7 +385,8 @@
       "stylePlaceholder": "选择风格",
       "changeGenerateType": "更改生成类型",
       "changeToCard": "切换到卡片模式",
-      "changeToPPT": "切换到PPT模式"
+      "changeToPPT": "切换到PPT模式",
+      "save": "保存"
     }
   },
   "GenerationPage": {

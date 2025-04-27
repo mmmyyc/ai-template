@@ -93,6 +93,7 @@ export default function Home({ params }: GenerationPageProps) {
                 onAIAction={handleAIAction}
                 showAIButton={true}
                 isGenerating={isGenerating}
+                storageKey={`article-editor-${folderName}`}
               />
             </div>
           </Panel>

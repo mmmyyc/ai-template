@@ -1059,6 +1059,7 @@ export function HtmlPreview({
                 className="h-7 px-2 text-xs bg-white dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
                 title={t('buttons.downloadOptions')}
                 data-no-select
+                disabled={isSelecting}
               >
                 <Download className="h-3.5 w-3.5 mr-1" />
                 <span>{t('buttons.download')}</span>
@@ -1083,6 +1084,7 @@ export function HtmlPreview({
             className="h-7 px-2 text-xs dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
             title={t('buttons.clearStorageTooltip')}
             data-no-select
+            disabled={isSelecting}
           >
             <Trash2 className="h-3.5 w-3.5 mr-1" />
             <span>{t('buttons.clearStorage')}</span>
@@ -1093,6 +1095,7 @@ export function HtmlPreview({
             size="sm"
             className="h-7 px-2 text-xs dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
             title={t('buttons.saveHtmlTooltip')}
+            disabled={isSelecting}
           >
             <Save className="h-3.5 w-3.5 mr-1" />
             <span>{t('buttons.saveHtml')}</span>

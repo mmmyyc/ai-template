@@ -1,10 +1,11 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
 
 export default function VideoSection() {
   const t = useTranslations('VideoSection');
-  
+  const locale = useLocale();
   return (
     <section className="relative py-20 bg-gradient-to-b from-base-200/50 to-base-100">
       <div className="container mx-auto px-4">
@@ -23,13 +24,23 @@ export default function VideoSection() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-base-300">
             {/* 16:9 宽高比容器 */}
             <div className="relative pt-[56.25%]">
-              <iframe 
+              {locale == 'zh' ?
+                <iframe 
+                  className="absolute inset-0 w-full h-full"
+                  src="//player.bilibili.com/player.html?isOutside=true&aid=114398634968321&bvid=BV1mqLHzhEKd&cid=29607788929&p=1"
+                  title={t('videoTitle')}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                />
+                :
+                <iframe 
                 className="absolute inset-0 w-full h-full"
-                src={t('videoUrl')}
+                src="//player.bilibili.com/player.html?isOutside=true&aid=114398634968321&bvid=BV1mqLHzhEKd&cid=29607788929&p=1"
                 title={t('videoTitle')}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 allowFullScreen
-              />
+                />
+              }
             </div>
           </div>
           

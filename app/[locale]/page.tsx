@@ -41,7 +41,7 @@ const LandingPage = () => {
         {/* <CTA /> */}
 
         {/* Video Section */}
-        {/* <VideoSection /> */}
+        <VideoSection />
         
         {/* Price Section */}
         <Pricing />

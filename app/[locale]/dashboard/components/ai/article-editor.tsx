@@ -1,43 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import ThemeToggle from "@/components/ThemeToggle";
-import { ElementSelector } from "@/components/element-selector";
-import { FriendlyEditor } from "@/app/[locale]/dashboard/components/cssEditor/friendly-editor";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useCallback} from "react";
 import {
-  Sparkles,
   RefreshCw,
   Edit,
   Eye,
-  Code,
-  Trash2,
-  Download,
-  FileDown,
-  ImageDown,
 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MarkdownEditor from "@/app/[locale]/dashboard/components/common/markdown-editor";
-import parse, {
-  HTMLReactParserOptions,
-  Element as HtmlParserElement,
-  domToReact,
-  DOMNode,
-} from "html-react-parser";
-import {
-  saveHtmlToLocalStorage,
-  loadHtmlFromLocalStorage,
-  hasSavedHtml,
-  clearSavedHtml,
-} from "@/app/[locale]/dashboard/utils/localStorage";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import html2canvas from "html2canvas";
 import { HtmlPreview } from "@/app/[locale]/dashboard/components/common/html-preview";
 import { useTranslations } from 'next-intl';
 
@@ -111,25 +81,16 @@ export default function ArticleEditor({
   onSave,
   onAIAction,
   isGenerating = false,
-  generatedComponentCode = "",
   htmlContent = "",
-  slideData = {
-    id: "slide-1",
-    title: "AI Generated Slide",
-    content: "Select text and click the AI button to generate content",
-    style: {
-      fontFamily: "Inter",
-      fontSize: 16,
-      color: "#000000",
-    },
-  },
   folderName = "",
   onEditModeChange,
 }: ArticleEditorProps) {
   const t = useTranslations('ArticleEditor');
 
+  // const tab = isGenerating ? "preview" : "edit";
+
   const [markdownContent, setMarkdownContent] = useState(initialContent);
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
+  const [activeTab, setActiveTab] = useState<"edit" | "preview">("preview");
 
   // ADD useEffect for styles
   useEffect(() => {
@@ -193,6 +154,7 @@ export default function ArticleEditor({
                 onAIAction={onAIAction}
                 showAIButton={true}
                 isGenerating={isGenerating}
+                storageKey={`learn-editor-${folderName}`}
               />
             </div>
           </TabsContent>

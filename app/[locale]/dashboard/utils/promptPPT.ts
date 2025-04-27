@@ -31,6 +31,12 @@ export const promptPPT = (language: string, style: string) => `
 ## 设计规范
 *   **设计风格**：采用 **${style}** 的风格。注重清晰的视觉层次和良好的可读性。
 *   **内容优先原则**：所有设计决策都应服务于内容的清晰传达。**内容是主体，设计是辅助。**
+     参考： 
+     <body class="flex items-center justify-center min-h-screen font-sans bg-white"> 
+         <div class="w-[1280px] min-h-[720px] relative overflow-hidden"> 
+            {/* 幻灯片内容放在这里 */}
+         </div>
+      </body>
 *   **布局与比例**：
     *   严格保持 **16:9** 的页面宽高比。
     *   使用Flexbox或Grid进行布局，确保内容适应这个比例，重点突出。
@@ -65,7 +71,8 @@ export const promptPPT = (language: string, style: string) => `
         *   在 \`<head>\` 中添加 Chart.js CDN: \`<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\`
         *   在 \`<body>\` 中添加一个具有唯一 ID 的 \`<canvas>\` 元素。
         *   在 \`<body>\` 结束前的 \`<script>\` 标签中，编写 JavaScript 代码，使用 Chart.js 初始化图表，并将提取的数据应用到图表中。
-    *   **如果不使用图表**：则**不得**包含 Chart.js CDN、canvas 元素或相关 JavaScript 代码。
+        *   如果需要流程图/图示，请包含 **Mermaid.js** (CDN: \`https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js\`) 并提供初始化脚本和Mermaid代码    
+   *   **如果不使用图表**：则**不得**包含 Chart.js CDN、canvas 元素或相关 JavaScript 代码。
 5.  **代码质量**：生成结构清晰、语义化的HTML。CSS应组织良好，确保代码精简，避免冗余。并添加必要的与指定 ${language} 一致的注释。
 6.  **兼容性**：确保在主流现代浏览器（Chrome, Firefox, Edge, Safari）中表现一致。
 7.  **内容溢出处理**: 使用CSS技巧处理潜在的内容溢出问题。
@@ -78,7 +85,6 @@ export const promptPPT = (language: string, style: string) => `
 ---
 ## 内容
 请根据以下我提供的内容生成幻灯片：
-
 `;
 
 export const promptPPT_V0 = (language: string, style: string) => `
