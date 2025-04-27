@@ -650,7 +650,8 @@
       "stylesAppliedSuccess": "样式应用成功",
       "htmlSavedSuccess": "HTML 保存成功",
       "htmlSavedFailed": "HTML 保存失败",
-      "titleRequired": "请输入标题"
+      "titleRequired": "请输入标题",
+      "titleTooLong": "标题过长，请输入 1 至 50 个字符。"
     },
     "errors": {
       "iframeNotAvailable": "Iframe 内容不可用",

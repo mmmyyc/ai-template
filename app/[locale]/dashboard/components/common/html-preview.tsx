@@ -367,11 +367,14 @@ export function HtmlPreview({
 
   const handleSaveHtml = async () => {
     // 检查标题是否为空或仅包含空格
-    if ((!htmlTitle || htmlTitle.trim() === "") && htmlContent.length <= 50) {
+    if (!htmlTitle || htmlTitle.trim() === "") {
       toast.error(t('feedback.titleRequired'));
       return; // 阻止保存
     }
-
+    if(htmlTitle.length >= 50) {
+      toast.error(t('feedback.titleTooLong'))
+      return;
+    }
     const htmlContentToSave = iframeRef.current?.contentDocument?.documentElement.outerHTML;
     const formData = new URLSearchParams();
     formData.append('folderName', folderName);

@@ -496,7 +496,9 @@
       "applyingStyles": "Applying styles...",
       "stylesAppliedSuccess": "Styles applied successfully",
       "htmlSavedSuccess": "HTML saved successfully",
-      "htmlSavedFailed": "HTML save failed"
+      "htmlSavedFailed": "HTML save failed",
+      "titleRequired": "Please enter the title",
+      "titleTooLong": "The title is too long, please enter characters from 1 to 50."
     },
     "errors": {
       "iframeNotAvailable": "Iframe content not available",
