@@ -445,6 +445,16 @@ export function HtmlPreview({
       return;
     }
 
+    // 检查iframe内容尺寸，如果为0可能导致空白截图
+    if (iframeBody.clientWidth === 0 || iframeBody.clientHeight === 0) {
+      console.warn("警告: iframe内容尺寸为0，可能导致空白截图", {
+        width: iframeBody.clientWidth,
+        height: iframeBody.clientHeight
+      });
+      setProcessingFeedback("警告：内容尺寸异常，可能会导致截图失败");
+      // 继续尝试，但提醒用户可能有问题
+    }
+
     const disableAnimationStyleId = "temp-disable-animations";
     let tempStyleElement: HTMLStyleElement | null = null;
     try {
@@ -460,17 +470,101 @@ export function HtmlPreview({
       `;
       iframeDoc.head.appendChild(tempStyleElement);
 
+      // 等待所有可能的异步内容加载完成
+      setProcessingFeedback("等待内容完全渲染...");
+      
+      // 等待一个动画帧
       await new Promise((resolve) => requestAnimationFrame(resolve));
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      
+      // 增加更长的等待时间，确保异步内容加载完成
+      // 300ms比原来的50ms更可能让异步内容和图表渲染完成
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // 检查Font Awesome是否已加载
+      const ensureFontAwesomeLoaded = async () => {
+        setProcessingFeedback("检查Font Awesome资源是否加载...");
+        
+        // 检查是否存在Font Awesome相关元素
+        const fontAwesomeElements = iframeDoc.querySelectorAll('.fa, .fas, .far, .fab, [class*="fa-"], i[class*="fa-"]');
+        
+        if (fontAwesomeElements.length > 0) {
+          setProcessingFeedback(`等待${fontAwesomeElements.length}个Font Awesome图标渲染...`);
+          
+          // 如果Font Awesome样式表未加载，尝试注入
+          const hasFontAwesomeStylesheet = Array.from(iframeDoc.styleSheets).some(
+            styleSheet => {
+              try {
+                return styleSheet.href && styleSheet.href.includes('font-awesome');
+              } catch (e) {
+                return false; // 对于跨域样式表可能会抛出安全错误
+              }
+            }
+          );
+          
+          if (!hasFontAwesomeStylesheet) {
+            console.log("Font Awesome样式表可能未加载，确保资源加载完成");
+          }
+          
+          // 延长等待时间，确保字体资源下载完成
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      };
+      
+      // 执行Font Awesome加载检查
+      await ensureFontAwesomeLoaded();
+
+      // 检查是否存在任何图片，并且是否全部加载完成
+      const images = Array.from(iframeDoc.querySelectorAll('img'));
+      if (images.length > 0) {
+        setProcessingFeedback(`等待${images.length}张图片加载完成...`);
+        
+        // 等待所有图片加载完成或超时
+        await Promise.race([
+          // 最多等待5秒
+          new Promise(resolve => setTimeout(resolve, 5000)),
+          // 等待所有图片加载
+          Promise.all(images.map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => {
+              img.onload = resolve;
+              img.onerror = resolve; // 即使加载失败也继续
+            });
+          }))
+        ]);
+      }
+
+      // 检查是否有Canvas元素（可能是图表）
+      const canvasElements = iframeDoc.querySelectorAll('canvas');
+      if (canvasElements.length > 0) {
+        setProcessingFeedback(`等待${canvasElements.length}个图表渲染...`);
+        // 额外等待可能的图表渲染
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // 检查SVG和其他图标元素
+      const svgElements = iframeDoc.querySelectorAll('svg, [class*="icon"], [class*="Icon"]');
+      if (svgElements.length > 0) {
+        setProcessingFeedback(`等待${svgElements.length}个SVG图标渲染...`);
+        // 等待SVG图标渲染
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
 
       setProcessingFeedback(t('feedback.generatingImage'));
+      
+      // 改进html2canvas配置
       const canvas = await html2canvas(iframeBody, {
         backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
-        foreignObjectRendering: false,
+        // 启用foreignObjectRendering可以提高某些内容的渲染准确性
+        foreignObjectRendering: true,
+        // 增加图像加载超时时间
+        imageTimeout: 10000,
+        // 捕获前保留滚动位置
+        scrollX: 0,
+        scrollY: 0,
       });
 
       if (tempStyleElement) {
@@ -480,10 +574,23 @@ export function HtmlPreview({
       setProcessingFeedback(t('feedback.processingImage'));
 
       try {
+        // 检查Canvas是否有内容
+        const isCanvasEmpty = isCanvasBlank(canvas);
+        if (isCanvasEmpty) {
+          console.warn("警告：生成的Canvas似乎是空白的");
+          setProcessingFeedback("警告：生成的截图似乎是空白的，尝试继续处理...");
+        }
+        
         canvas.toBlob((blob) => {
           if (!blob) {
             throw new Error(t('errors.blobCreationFailed'));
           }
+          // 检查Blob大小是否合理
+          if (blob.size < 1000) { // 极小的图片很可能是空白或错误的
+            console.warn(`警告：生成的图片大小异常小 (${blob.size} bytes)`);
+            setProcessingFeedback("警告：生成的图片大小异常，可能是空白的");
+          }
+          
           const url = URL.createObjectURL(blob);
           const downloadLink = document.createElement("a");
           const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
@@ -495,11 +602,20 @@ export function HtmlPreview({
           setTimeout(() => URL.revokeObjectURL(url), 100);
           setProcessingFeedback(t('feedback.imageDownloaded'));
           setTimeout(() => setProcessingFeedback(null), 2000);
-        }, "image/png");
+        }, "image/png", 0.95); // 增加质量参数，0.95提供较好的质量
       } catch (blobError: any) {
         console.error("Error creating Blob:", blobError);
+        // 记录更多诊断信息
+        console.log("Canvas dimensions:", canvas.width, "x", canvas.height);
+        console.log("Canvas context available:", !!canvas.getContext("2d"));
+        
         try {
           const imgData = canvas.toDataURL("image/png");
+          // 检查Data URL大小是否合理
+          if (imgData.length < 1000) {
+            console.warn(`警告：生成的Data URL大小异常小 (${imgData.length} chars)`);
+          }
+          
           const downloadLink = document.createElement("a");
           const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
           downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
@@ -510,7 +626,14 @@ export function HtmlPreview({
           setProcessingFeedback(t('feedback.imageDownloaded'));
           setTimeout(() => setProcessingFeedback(null), 2000);
         } catch (dataUrlError: any) {
-           throw new Error(t('errors.downloadLinkCreationFailed', { error: dataUrlError.message }));
+          // 检查是否是由于Canvas被污染(tainted)导致的错误
+          const errorMsg = dataUrlError.message || String(dataUrlError);
+          if (errorMsg.includes("tainted") || errorMsg.includes("security") || errorMsg.includes("cross-origin")) {
+            console.error("Canvas可能因为跨域资源而被污染:", errorMsg);
+            setProcessingFeedback("错误：由于跨域资源限制，截图失败。请检查页面上的外部图片和资源");
+          } else {
+            throw new Error(t('errors.downloadLinkCreationFailed', { error: dataUrlError.message }));
+          }
         }
       }
     } catch (error) {
@@ -525,6 +648,36 @@ export function HtmlPreview({
       }
     }
   };
+
+  // 辅助函数：检查Canvas是否是空白的
+  function isCanvasBlank(canvas: HTMLCanvasElement): boolean {
+    const context = canvas.getContext('2d');
+    if (!context) return true; // 无法获取上下文，视为空白
+    
+    // 获取Canvas的像素数据
+    const pixelData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    
+    // 检查是否所有像素都是透明的或完全相同的颜色
+    // 先获取第一个像素的RGBA值
+    const firstPixel = [pixelData[0], pixelData[1], pixelData[2], pixelData[3]];
+    
+    // 对于大型Canvas，只抽样检查部分像素以提高性能
+    const step = Math.max(1, Math.floor(pixelData.length / 4 / 1000)); // 最多检查1000个像素点
+    
+    for (let i = 0; i < pixelData.length; i += 4 * step) {
+      // 如果找到任何不同的像素，则Canvas不是空白的
+      if (pixelData[i] !== firstPixel[0] || 
+          pixelData[i+1] !== firstPixel[1] || 
+          pixelData[i+2] !== firstPixel[2] || 
+          pixelData[i+3] !== firstPixel[3]) {
+        return false;
+      }
+    }
+    
+    // 如果所有检查的像素都相同，还需要确定这个颜色是否是透明或接近白色
+    // 透明像素 (A = 0) 或完全白色像素 (R=G=B=255)
+    return firstPixel[3] === 0 || (firstPixel[0] === 255 && firstPixel[1] === 255 && firstPixel[2] === 255);
+  }
 
   // --- Iframe Setup and Event Handling ---
 

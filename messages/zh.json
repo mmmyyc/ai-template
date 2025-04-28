@@ -635,7 +635,8 @@
       "exitFullscreen": "退出编辑模式",
       "exitNativeFullscreen": "退出原生全屏模式",
       "nativeFullscreen": "原生全屏模式",
-      "exitEditMode": "退出编辑模式"
+      "exitEditMode": "退出编辑模式",
+      "editMode": "编辑模式"
     },
     "feedback": {
       "storageCleared": "本地存储已清除",
