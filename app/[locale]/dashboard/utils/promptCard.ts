@@ -59,10 +59,15 @@ export const promptCard = (language: string, style: string ) => `
 1. **基础框架**：HTML5 + Tailwind CSS + 最小化JavaScript
 2. **必要CDN引入**：
    * Tailwind CSS: \`<script src="https://cdn.tailwindcss.com"></script>\`
-   * Font Awesome: \`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css">\`
+   * Lucide 图标: \`<script src="https://unpkg.com/lucide@latest"></script><script>lucide.createIcons();</script>\` (使用方法见下文)
    * Google Fonts: \`<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">\`
 
-3. **数据可视化(智能判断)**：
+3. **Lucide 图标使用说明**:
+   * 在HTML中插入图标，使用 \`<i>\` 标签并添加 \`data-lucide="图标名称"\` 属性。例如：\`<i data-lucide="home"></i>\`
+   * 可以使用Tailwind类来控制图标的大小和颜色。例如：\`<i data-lucide="settings" class="w-6 h-6 text-blue-500"></i>\`
+   * 提供的CDN脚本会自动将这些标签替换为SVG图标。
+
+4. **数据可视化(智能判断)**：
    * **自主判断**：分析提供的内容，判断是否适合且有必要使用图表来可视化数据
    * **如果决定使用图表**：
      * 在\`<head>\`中添加Chart.js CDN: \`<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\`
@@ -70,11 +75,11 @@ export const promptCard = (language: string, style: string ) => `
      * 编写JavaScript代码初始化图表并应用提取的数据
    * **如果不使用图表**：则**不得**包含Chart.js CDN、canvas元素或相关JavaScript代码
 
-4. **流程图/图示(根据内容判断)**：
+5. **流程图/图示(根据内容判断)**：
    * 如果需要流程图/图示，请包含**Mermaid.js** (CDN: \`<script src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js"></script>\`)
    * 提供初始化脚本和Mermaid代码
 
-5. **动效设计**：
+6. **动效设计**：
    * 为关键元素添加入场动画(淡入、平移等)
    * 动画时长控制在300-800ms，确保流畅不突兀
    * 遵循"少即是多"原则，避免过度动画干扰内容

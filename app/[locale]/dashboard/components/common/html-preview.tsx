@@ -457,6 +457,11 @@ export function HtmlPreview({
 
     const disableAnimationStyleId = "temp-disable-animations";
     let tempStyleElement: HTMLStyleElement | null = null;
+    
+    // 将ensureVisibilityStyle移到函数作用域顶部，这样finally可以访问
+    const ensureVisibilityStyleId = "temp-ensure-visibility";
+    let ensureVisibilityStyle: HTMLStyleElement | null = null;
+
     try {
       setProcessingFeedback(t('feedback.disablingAnimations'));
       tempStyleElement = iframeDoc.createElement("style");
@@ -477,8 +482,31 @@ export function HtmlPreview({
       await new Promise((resolve) => requestAnimationFrame(resolve));
       
       // 增加更长的等待时间，确保异步内容加载完成
-      // 300ms比原来的50ms更可能让异步内容和图表渲染完成
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      // 500ms提供更充分的时间
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // 添加一个临时样式来确保截图期间所有元素可见
+      ensureVisibilityStyle = iframeDoc.createElement("style");
+      ensureVisibilityStyle.id = ensureVisibilityStyleId;
+      ensureVisibilityStyle.textContent = `
+        * {
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
+        /* 保留一些常见的被隐藏元素，并确保其 visibility 也是 hidden */
+        script, style, link, meta, [hidden],
+        [style*="display: none"],
+        [style*="visibility: hidden"],
+        [style*="opacity: 0"] {
+          display: none !important;
+          visibility: hidden !important; /* 添加这个以确保隐藏 */
+          opacity: 0 !important; /* 添加这个以确保隐藏 */
+        }
+      `;
+      iframeDoc.head.appendChild(ensureVisibilityStyle);
+      
+      // 给DOM一点时间来应用这个样式
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // 检查Font Awesome是否已加载
       const ensureFontAwesomeLoaded = async () => {
@@ -505,8 +533,8 @@ export function HtmlPreview({
             console.log("Font Awesome样式表可能未加载，确保资源加载完成");
           }
           
-          // 延长等待时间，确保字体资源下载完成
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // 延长等待时间，确保字体资源下载完成 (1500ms)
+          await new Promise(resolve => setTimeout(resolve, 1500));
         }
       };
       
@@ -520,8 +548,8 @@ export function HtmlPreview({
         
         // 等待所有图片加载完成或超时
         await Promise.race([
-          // 最多等待5秒
-          new Promise(resolve => setTimeout(resolve, 5000)),
+          // 最多等待8秒
+          new Promise(resolve => setTimeout(resolve, 8000)),
           // 等待所有图片加载
           Promise.all(images.map(img => {
             if (img.complete) return Promise.resolve();
@@ -537,16 +565,16 @@ export function HtmlPreview({
       const canvasElements = iframeDoc.querySelectorAll('canvas');
       if (canvasElements.length > 0) {
         setProcessingFeedback(`等待${canvasElements.length}个图表渲染...`);
-        // 额外等待可能的图表渲染
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // 额外等待可能的图表渲染 (800ms)
+        await new Promise(resolve => setTimeout(resolve, 800));
       }
       
       // 检查SVG和其他图标元素
       const svgElements = iframeDoc.querySelectorAll('svg, [class*="icon"], [class*="Icon"]');
       if (svgElements.length > 0) {
         setProcessingFeedback(`等待${svgElements.length}个SVG图标渲染...`);
-        // 等待SVG图标渲染
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // 等待SVG图标渲染 (800ms)
+        await new Promise(resolve => setTimeout(resolve, 800));
       }
 
       setProcessingFeedback(t('feedback.generatingImage'));
@@ -567,10 +595,9 @@ export function HtmlPreview({
         scrollY: 0,
       });
 
-      if (tempStyleElement) {
-        iframeDoc.head.removeChild(tempStyleElement);
-        tempStyleElement = null;
-      }
+      // 注意：在完成截图后再移除样式，而不是立即移除
+      // 这里不移除tempStyleElement，而是在blob生成后或finally中移除
+
       setProcessingFeedback(t('feedback.processingImage'));
 
       try {
@@ -589,6 +616,18 @@ export function HtmlPreview({
           if (blob.size < 1000) { // 极小的图片很可能是空白或错误的
             console.warn(`警告：生成的图片大小异常小 (${blob.size} bytes)`);
             setProcessingFeedback("警告：生成的图片大小异常，可能是空白的");
+          }
+          
+          // 现在可以安全地移除样式元素，因为图像已经捕获完成
+          if (tempStyleElement && iframeDoc.head.contains(tempStyleElement)) {
+            iframeDoc.head.removeChild(tempStyleElement);
+            tempStyleElement = null;
+          }
+          
+          // 移除确保元素可见的样式
+          if (ensureVisibilityStyle && iframeDoc.head.contains(ensureVisibilityStyle)) {
+            iframeDoc.head.removeChild(ensureVisibilityStyle);
+            ensureVisibilityStyle = null;
           }
           
           const url = URL.createObjectURL(blob);
@@ -645,6 +684,12 @@ export function HtmlPreview({
       if (tempStyleElement && iframeDoc?.head.contains(tempStyleElement)) {
         iframeDoc.head.removeChild(tempStyleElement);
         console.log("Ensured temporary animation style removed");
+      }
+      
+      // 确保移除可见性样式
+      if (ensureVisibilityStyle && iframeDoc?.head.contains(ensureVisibilityStyle)) {
+        iframeDoc.head.removeChild(ensureVisibilityStyle);
+        console.log("Ensured visibility style removed");
       }
     }
   };

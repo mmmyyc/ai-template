@@ -63,9 +63,13 @@ export const promptPPT = (language: string, style: string) => `
 2.  **依赖**：尽量避免外部CSS或JS文件。如需使用字体或图标库（如Font Awesome），可通过CDN链接引入。
 3.  **CDN 引入 (必需)**: 为了确保样式和图标正确显示，**必须**在生成的 HTML 的 \`<head>\` 部分包含以下 CDN 链接：
     *   Tailwind CSS: \`<script src="https://cdn.tailwindcss.com"></script>\`
-    *   Font Awesome: \`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">\`
+    *   Lucide 图标: \`<script src="https://unpkg.com/lucide@latest"></script><script>lucide.createIcons();</script>\` (使用方法见下文)
     *   Google Fonts (Noto Sans SC & Noto Serif SC): \`<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">\`
-4.  **图表生成 (根据内容判断)**: 
+4.  **Lucide 图标使用说明**:
+   * 在HTML中插入图标，使用 \`<i>\` 标签并添加 \`data-lucide="图标名称"\` 属性。例如：\`<i data-lucide="home"></i>\`
+   * 可以使用Tailwind类来控制图标的大小和颜色。例如：\`<i data-lucide="settings" class="w-6 h-6 text-blue-500"></i>\`
+   * 提供的CDN脚本会自动将这些标签替换为SVG图标。
+5.  **图表生成 (根据内容判断)**: 
     *   **自主判断**：分析提供的内容，判断是否适合且有必要使用图表来可视化数据。
     *   **如果决定使用图表**：
         *   在 \`<head>\` 中添加 Chart.js CDN: \`<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\`
@@ -73,9 +77,9 @@ export const promptPPT = (language: string, style: string) => `
         *   在 \`<body>\` 结束前的 \`<script>\` 标签中，编写 JavaScript 代码，使用 Chart.js 初始化图表，并将提取的数据应用到图表中。
         *   如果需要流程图/图示，请包含 **Mermaid.js** (CDN: \`https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js\`) 并提供初始化脚本和Mermaid代码    
    *   **如果不使用图表**：则**不得**包含 Chart.js CDN、canvas 元素或相关 JavaScript 代码。
-5.  **代码质量**：生成结构清晰、语义化的HTML。CSS应组织良好，确保代码精简，避免冗余。并添加必要的与指定 ${language} 一致的注释。
-6.  **兼容性**：确保在主流现代浏览器（Chrome, Firefox, Edge, Safari）中表现一致。
-7.  **内容溢出处理**: 使用CSS技巧处理潜在的内容溢出问题。
+6.  **代码质量**：生成结构清晰、语义化的HTML。CSS应组织良好，确保代码精简，避免冗余。并添加必要的与指定 ${language} 一致的注释。
+7.  **兼容性**：确保在主流现代浏览器（Chrome, Firefox, Edge, Safari）中表现一致。
+8.  **内容溢出处理**: 使用CSS技巧处理潜在的内容溢出问题。
 
 ## 输出要求
 *   **直接输出HTML**：只返回完整的HTML代码。不要添加任何指令中未要求的解释、说明或Markdown标记。
