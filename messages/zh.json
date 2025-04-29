@@ -406,7 +406,8 @@
       "text": "文本",
       "layout": "布局",
       "colors": "颜色",
-      "effects": "效果"
+      "effects": "效果",
+      "special": "特殊"
     },
     "labels": {
       "textSize": "文字大小", 
@@ -434,7 +435,15 @@
       "bottomWithColon": "下: {value}",
       "leftWithColon": "左: {value}",
       "default": "默认",
-      "content": "内容" 
+      "content": "内容",
+      "overflow": "溢出处理",
+      "overflowX": "水平溢出",
+      "overflowY": "垂直溢出",
+      "textWrap": "文本换行",
+      "userSelect": "用户选择",
+      "aspectRatio": "宽高比",
+      "objectFit": "对象适应",
+      "scrollBehavior": "滚动行为"
     },
     "placeholders": {
       "selectSize": "选择尺寸",
@@ -445,7 +454,15 @@
       "selectJustify": "选择主轴对齐", 
       "selectAlignItems": "选择交叉轴对齐", 
       "selectRadius": "选择圆角大小",
-      "selectShadow": "选择阴影效果"
+      "selectShadow": "选择阴影效果",
+      "selectOverflow": "选择溢出处理",
+      "selectOverflowX": "选择水平溢出",
+      "selectOverflowY": "选择垂直溢出",
+      "selectTextWrap": "选择文本换行",
+      "selectUserSelect": "选择用户选择",
+      "selectAspectRatio": "选择宽高比",
+      "selectObjectFit": "选择对象适应",
+      "selectScrollBehavior": "选择滚动行为"
     },
     "buttons": {
       "close": "关闭编辑器",
@@ -517,13 +534,13 @@
       "small": "小",
       "medium": "中",
       "large": "大",
-      "extralarge": "超大", 
+      "extralarge": "超大",
       "huge": "巨大",
       "default": "默认"
     },
     "colorLabels": {
       "transparent": "透明",
-      "current": "当前颜色", 
+      "current": "当前色",
       "white": "白色",
       "black": "黑色",
       "gray": "灰色",
@@ -534,7 +551,44 @@
       "blue": "蓝色",
       "purple": "紫色",
       "pink": "粉色",
-      "autoIndicator": "自动" 
+      "autoIndicator": "自动"
+    },
+    "overflowLabels": {
+      "auto": "自动",
+      "hidden": "隐藏",
+      "visible": "可见",
+      "scroll": "滚动"
+    },
+    "textWrapLabels": {
+      "normal": "正常",
+      "nowrap": "不换行",
+      "pre": "保留格式",
+      "preline": "保留换行",
+      "prewrap": "保留空格",
+      "words": "单词换行",
+      "all": "任意换行"
+    },
+    "userSelectLabels": {
+      "none": "禁止选择",
+      "text": "可选文本",
+      "all": "全部可选",
+      "auto": "自动"
+    },
+    "aspectRatioLabels": {
+      "auto": "自动",
+      "square": "正方形 (1:1)",
+      "video": "视频 (16:9)"
+    },
+    "objectFitLabels": {
+      "contain": "包含",
+      "cover": "覆盖",
+      "fill": "填充",
+      "none": "原始",
+      "scaledown": "缩小适应"
+    },
+    "scrollBehaviorLabels": {
+      "smooth": "平滑",
+      "auto": "默认"
     }
   },
   "Dashboard": {

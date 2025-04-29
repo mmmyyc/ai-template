@@ -581,15 +581,24 @@ export function HtmlPreview({
       setProcessingFeedback(t('feedback.generatingImage'));
       console.log("iframeBody", iframeBody);
       
+      // Find the main content div inside the body
+      const contentDiv = iframeBody.querySelector('div');
+
+      // Use the content div's dimensions if found, otherwise fallback to body dimensions
+      const canvasWidth = contentDiv ? contentDiv.scrollWidth : iframeBody.scrollWidth;
+      const canvasHeight = contentDiv ? contentDiv.scrollHeight : iframeBody.scrollHeight;
+
+      console.log(`Using canvas dimensions: ${canvasWidth}x${canvasHeight}`);
       // 使用html-to-image替代html2canvas
       try {
         // 生成图片
-        const dataUrl = await toPng(iframeBody, {
+        const dataUrl = await toPng(contentDiv, {
           backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
           pixelRatio: 2,
           quality: 0.95,
-          canvasWidth: iframeBody.scrollWidth,
-          canvasHeight: iframeBody.scrollHeight,
+          // Use the calculated dimensions
+          canvasWidth: canvasWidth,
+          canvasHeight: canvasHeight,
           skipFonts: false, // 需要处理字体
           // 可以设置更长的超时
           imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
@@ -645,37 +654,6 @@ export function HtmlPreview({
       }
     }
   };
-
-  // 辅助函数：检查Canvas是否是空白的
-  function isCanvasBlank(canvas: HTMLCanvasElement): boolean {
-    const context = canvas.getContext('2d');
-    if (!context) return true; // 无法获取上下文，视为空白
-    
-    // 获取Canvas的像素数据
-    const pixelData = context.getImageData(0, 0, canvas.width, canvas.height).data;
-    
-    // 检查是否所有像素都是透明的或完全相同的颜色
-    // 先获取第一个像素的RGBA值
-    const firstPixel = [pixelData[0], pixelData[1], pixelData[2], pixelData[3]];
-    
-    // 对于大型Canvas，只抽样检查部分像素以提高性能
-    const step = Math.max(1, Math.floor(pixelData.length / 4 / 1000)); // 最多检查1000个像素点
-    
-    for (let i = 0; i < pixelData.length; i += 4 * step) {
-      // 如果找到任何不同的像素，则Canvas不是空白的
-      if (pixelData[i] !== firstPixel[0] || 
-          pixelData[i+1] !== firstPixel[1] || 
-          pixelData[i+2] !== firstPixel[2] || 
-          pixelData[i+3] !== firstPixel[3]) {
-        return false;
-      }
-    }
-    
-    // 如果所有检查的像素都相同，还需要确定这个颜色是否是透明或接近白色
-    // 透明像素 (A = 0) 或完全白色像素 (R=G=B=255)
-    return firstPixel[3] === 0 || (firstPixel[0] === 255 && firstPixel[1] === 255 && firstPixel[2] === 255);
-  }
-
   // --- Iframe Setup and Event Handling ---
 
   // Function to set up listeners inside the iframe

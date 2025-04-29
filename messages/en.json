@@ -316,7 +316,8 @@
       "text": "Text",
       "layout": "Layout",
       "colors": "Colors",
-      "effects": "Effects"
+      "effects": "Effects",
+      "special": "Special"
     },
     "labels": {
       "textSize": "Text Size",
@@ -344,7 +345,15 @@
       "bottomWithColon": "Bottom: {value}",
       "leftWithColon": "Left: {value}",
       "default": "Default",
-      "content": "Content"
+      "content": "Content",
+      "overflow": "Overflow",
+      "overflowX": "Horizontal Overflow",
+      "overflowY": "Vertical Overflow",
+      "textWrap": "Text Wrap",
+      "userSelect": "User Selection",
+      "aspectRatio": "Aspect Ratio",
+      "objectFit": "Object Fit",
+      "scrollBehavior": "Scroll Behavior"
     },
     "placeholders": {
       "selectSize": "Select size",
@@ -355,7 +364,15 @@
       "selectJustify": "Select justify",
       "selectAlignItems": "Select alignment",
       "selectRadius": "Select radius",
-      "selectShadow": "Select shadow"
+      "selectShadow": "Select shadow",
+      "selectOverflow": "Select overflow",
+      "selectOverflowX": "Select horizontal overflow",
+      "selectOverflowY": "Select vertical overflow",
+      "selectTextWrap": "Select text wrap",
+      "selectUserSelect": "Select user selection",
+      "selectAspectRatio": "Select aspect ratio",
+      "selectObjectFit": "Select object fit",
+      "selectScrollBehavior": "Select scroll behavior"
     },
     "buttons": {
       "close": "Close Editor",
@@ -445,6 +462,43 @@
       "purple": "Purple",
       "pink": "Pink",
       "autoIndicator": "auto"
+    },
+    "overflowLabels": {
+      "auto": "Auto",
+      "hidden": "Hidden",
+      "visible": "Visible",
+      "scroll": "Scroll"
+    },
+    "textWrapLabels": {
+      "normal": "Normal",
+      "nowrap": "No Wrap",
+      "pre": "Pre",
+      "preline": "Pre Line",
+      "prewrap": "Pre Wrap",
+      "words": "Break Words",
+      "all": "Break All"
+    },
+    "userSelectLabels": {
+      "none": "None",
+      "text": "Text",
+      "all": "All",
+      "auto": "Auto"
+    },
+    "aspectRatioLabels": {
+      "auto": "Auto",
+      "square": "Square (1:1)",
+      "video": "Video (16:9)"
+    },
+    "objectFitLabels": {
+      "contain": "Contain",
+      "cover": "Cover",
+      "fill": "Fill",
+      "none": "None",
+      "scaledown": "Scale Down"
+    },
+    "scrollBehaviorLabels": {
+      "smooth": "Smooth",
+      "auto": "Auto"
     }
   },
   "ArticleEditor": {

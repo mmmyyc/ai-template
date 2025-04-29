@@ -40,6 +40,7 @@ export const promptCard = (language: string, style: string ) => `
      * 显示进度或比例，可使用 \`progress\` 或 \`radial-progress\` 组件。
      * 按时间顺序展示事件，可使用 \`timeline\` 组件。
      * **请勿** 使用需要用户点击、悬停或交互才能完全展示内容的组件（如 \`collapse\`, \`dropdown\`, \`modal\`, \`tooltip\`, \`tab\` 等）。
+     * **不要使用Badge组件**
      * （根据内容自行判断其他适用的 **静态** 组件...）
 
 ## 设计规范

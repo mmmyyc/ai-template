@@ -902,7 +902,7 @@ export function FriendlyEditor({
             </TabsContent>
 
             {/* LAYOUT TAB */}
-            <TabsContent value="layout" className="space-y-4 mt-4">
+            <TabsContent value="layout" className="space-y-4 mt-4 overflow-y-auto">
               <div className="space-y-2">
                 <Label htmlFor="display">{t('labels.displayType')}</Label>
                 <Select
