@@ -1,4 +1,4 @@
-import { createAnthropic } from '@ai-sdk/anthropic';
+import { createAnthropic, AnthropicProviderOptions } from '@ai-sdk/anthropic';
 import { streamText, generateText , Message } from 'ai';
 import { promptPPT } from '@/app/[locale]/dashboard/utils/promptPPT';
 import { promptCard } from '@/app/[locale]/dashboard/utils/promptCard';
@@ -63,7 +63,12 @@ export async function POST(req: Request) {
     // 使用修正后的消息数组调用 generateText
     const { text } = await generateText({
       model: anthropic('claude-3-7-sonnet-20250219'),
-      messages: finalMessages 
+      messages: finalMessages,
+      providerOptions: {
+        anthropic: {
+          thinking: { type: 'enabled', budgetTokens: 5000 },
+        } satisfies AnthropicProviderOptions,
+      }, 
     });
     // 更新用户可用次数和最多使用次数
     let available_uses = profile.available_uses - 1;

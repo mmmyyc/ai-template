@@ -27,7 +27,17 @@ export const promptPPT = (language: string, style: string) => `
     *   **标题区域**：清晰、显著地展示主标题和副标题。
     *   **主体内容区**：用于展示提取的核心要点列表、关键段落、数据的可视化概念或生成的图表。
     *   **视觉平衡与布局**：确保文本、可能的图标/图形/图表元素和留白之间达到良好平衡，避免过度拥挤或过于空旷。采用 Flexbox 或 Grid 进行布局，确保布局具有一定的自适应性。
-
+   **智能应用静态DaisyUI组件**：根据提取的信息类型，主动选用合适的 **静态展示型** DaisyUI组件进行呈现，以丰富视觉效果。例如：
+     * 关键数据或统计信息，可使用 \`stats\` 组件 (e.g., \`<div class="stats shadow">...</div>\`)。
+     * 重要的提示或警告信息，可使用 \`alert\` 组件 (e.g., \`<div role="alert" class="alert">...</div>\`)。
+     * 用户头像或代表性图标，可使用 \`avatar\` 组件 (e.g., \`<div class="avatar">...</div>\`)。
+     * 区分不同内容区块，可使用 \`divider\` 组件 (e.g., \`<div class="divider"></div>\`)。
+     * 展示键盘按键或代码片段，可使用 \`kbd\` 组件 (e.g., \`<kbd class="kbd">...</kbd>\`)。
+     * 显示进度或比例，可使用 \`progress\` 或 \`radial-progress\` 组件。
+     * 按时间顺序展示事件，可使用 \`timeline\` 组件。
+     * **请勿** 使用需要用户点击、悬停或交互才能完全展示内容的组件（如 \`collapse\`, \`dropdown\`, \`modal\`, \`tooltip\`, \`tab\` 等）。
+     * （根据内容自行判断其他适用的 **静态** 组件...）
+ 4. **内容换行**：**绝对不允许换行的存在**
 ## 设计规范
 *   **设计风格**：采用 **${style}** 的风格。注重清晰的视觉层次和良好的可读性。
 *   **内容优先原则**：所有设计决策都应服务于内容的清晰传达。**内容是主体，设计是辅助。**
@@ -47,9 +57,13 @@ export const promptPPT = (language: string, style: string) => `
 *   **样式嵌入**：所有CSS样式只能使用tailwindcss, 。
 *   **视觉表达**：确保所有文本清晰可读，视觉元素服务于内容表达。
 *   **背景与边框**: 
-        *   **克制使用**：背景色应与整体风格协调，避免使用过于饱和或刺眼的颜色。优先考虑使用浅色背景或仅对关键区域使用适度背景色。
-        *   边框应细致（例如使用 'border' 或 'border-2' 类），颜色不宜过深（例如使用 'border-gray-300' 或更浅的颜色类），或根据设计风格省略边框。
-*   **样式实现**: **强制要求**所有布局、颜色、字体、间距等样式**必须**通过 **Tailwind CSS 类** 实现。**严禁**使用自定义 CSS ('<style>' 标签或 'style' 属性)来实现这些基础样式。
+        *   使用 **Tailwind 原子类** (e.g., \`bg-white\`, \`bg-gray-50\`, \`border\`, \`border-gray-200\`, \`rounded-lg\`) 定义背景颜色、边框样式和圆角。
+*   **样式实现**: 
+        *   优先使用 **DaisyUI 组件类名** (例如 \`card\`, \`btn\` 等，如果适用幻灯片结构) 构建HTML结构和基础布局。
+        *   **所有颜色相关的样式必须** 使用 **标准的 Tailwind CSS 原子类** (e.g., \`bg-blue-500\`, \`text-gray-900\`, \`border-neutral-300\`)。
+        *   **严格禁止**：**绝对禁止**使用任何 DaisyUI 的语义化颜色类名（如 \`btn-primary\`, \`bg-base-100\`, \`text-accent\`, \`alert-info\`, \`text-primary-content\` 等等）或其主题系统。
+        *   对于非颜色相关的细微调整（如间距、字体大小、圆角等），可以使用 Tailwind CSS 原子类。
+        *   **严禁**使用自定义CSS(\`<style>\`标签或\`style\`属性)来实现基础布局、颜色、字体、间距等样式。
 *   **自定义CSS限制**: 自定义 CSS (包括 '<style>' 标签或 'style' 属性) **只能**用于实现 **动画效果** (例如可选的入场动画)。
 *   **视觉表达**：确保所有文本清晰可读，**视觉元素（如图标、分割线）应简洁且服务于内容**，避免过度装饰。
 * 
@@ -60,9 +74,11 @@ export const promptPPT = (language: string, style: string) => `
 
 ## 技术规范
 1.  **技术栈**：纯HTML、CSS。如果需要复杂动画或交互，可谨慎使用少量内嵌JavaScript。
-2.  **依赖**：尽量避免外部CSS或JS文件。如需使用字体或图标库（如Font Awesome），可通过CDN链接引入。
+2.  **依赖**：仅使用下方指定的CDN资源。
 3.  **CDN 引入 (必需)**: 为了确保样式和图标正确显示，**必须**在生成的 HTML 的 \`<head>\` 部分包含以下 CDN 链接：
-    *   Tailwind CSS: \`<script src="https://cdn.tailwindcss.com"></script>\`
+    *   DaisyUI CSS: \`<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />\` (提供基础组件样式)
+    *   DaisyUI Themes CSS (可选, 但不用于主题切换): \`<link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />\` 
+    *   Tailwind CSS (Browser Build): \`<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>\`
     *   Lucide 图标: \`<script src="https://unpkg.com/lucide@latest"></script><script>lucide.createIcons();</script>\` (使用方法见下文)
     *   Google Fonts (Noto Sans SC & Noto Serif SC): \`<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">\`
 4.  **Lucide 图标使用说明**:
@@ -84,6 +100,7 @@ export const promptPPT = (language: string, style: string) => `
 ## 输出要求
 *   **直接输出HTML**：只返回完整的HTML代码。不要添加任何指令中未要求的解释、说明或Markdown标记。
 *   **完整性**：确保HTML代码包含 \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, \`<body>\` 等基本结构。
+*   **主题禁用**: **不要**在 \`<html>\` 标签上添加 \`data-theme\` 属性。
 *   **格式规范**：确保输出的代码格式规范、缩进一致。
 注意：生成HTML时，**必须**使用Tailwind CSS类来控制所有非动画样式，确保在初始HTML结构中包含适当的基础类（如标题使用text-3xl、段落使用text-base等）。确保所有内容都完整可见，不会被截断或溢出。自定义CSS仅限动画。
 ---
