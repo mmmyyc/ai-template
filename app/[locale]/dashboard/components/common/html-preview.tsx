@@ -32,9 +32,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import html2canvas from "html2canvas";
+import html2canvas from 'html2canvas';
 import { useTranslations } from 'next-intl';
 import { Input } from "@/components/ui/input";
+import { toPng } from 'html-to-image';
 
 // Helper function to inject styles into an iframe
 const injectStylesIntoIframe = (
@@ -423,7 +424,7 @@ export function HtmlPreview({
     }
   };
 
-  // 使用html2canvas下载图片 - 修正并处理动画
+  // 使用html-to-image下载图片 - 修正并处理动画
   const handleDownloadImage = async () => {
     setProcessingFeedback(t('feedback.preparingScreenshot'));
 
@@ -578,101 +579,52 @@ export function HtmlPreview({
       }
 
       setProcessingFeedback(t('feedback.generatingImage'));
+      console.log("iframeBody", iframeBody);
       
-      // 改进html2canvas配置
-      const canvas = await html2canvas(iframeBody, {
-        backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        // 启用foreignObjectRendering可以提高某些内容的渲染准确性
-        foreignObjectRendering: true,
-        // 增加图像加载超时时间
-        imageTimeout: 10000,
-        // 捕获前保留滚动位置
-        scrollX: 0,
-        scrollY: 0,
-      });
-
-      // 注意：在完成截图后再移除样式，而不是立即移除
-      // 这里不移除tempStyleElement，而是在blob生成后或finally中移除
-
-      setProcessingFeedback(t('feedback.processingImage'));
-
+      // 使用html-to-image替代html2canvas
       try {
-        // 检查Canvas是否有内容
-        const isCanvasEmpty = isCanvasBlank(canvas);
-        if (isCanvasEmpty) {
-          console.warn("警告：生成的Canvas似乎是空白的");
-          setProcessingFeedback("警告：生成的截图似乎是空白的，尝试继续处理...");
+        // 生成图片
+        const dataUrl = await toPng(iframeBody, {
+          backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
+          pixelRatio: 2,
+          quality: 0.95,
+          canvasWidth: iframeBody.scrollWidth,
+          canvasHeight: iframeBody.scrollHeight,
+          skipFonts: false, // 需要处理字体
+          // 可以设置更长的超时
+          imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+        });
+        
+        setProcessingFeedback(t('feedback.processingImage'));
+
+        // 检查生成的dataUrl是否有效
+        if (!dataUrl || dataUrl.length < 1000) {
+          console.warn(`警告：生成的Data URL大小异常小 (${dataUrl.length} chars)`);
+          setProcessingFeedback("警告：生成的图片大小异常，可能是空白的");
         }
         
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            throw new Error(t('errors.blobCreationFailed'));
-          }
-          // 检查Blob大小是否合理
-          if (blob.size < 1000) { // 极小的图片很可能是空白或错误的
-            console.warn(`警告：生成的图片大小异常小 (${blob.size} bytes)`);
-            setProcessingFeedback("警告：生成的图片大小异常，可能是空白的");
-          }
-          
-          // 现在可以安全地移除样式元素，因为图像已经捕获完成
-          if (tempStyleElement && iframeDoc.head.contains(tempStyleElement)) {
-            iframeDoc.head.removeChild(tempStyleElement);
-            tempStyleElement = null;
-          }
-          
-          // 移除确保元素可见的样式
-          if (ensureVisibilityStyle && iframeDoc.head.contains(ensureVisibilityStyle)) {
-            iframeDoc.head.removeChild(ensureVisibilityStyle);
-            ensureVisibilityStyle = null;
-          }
-          
-          const url = URL.createObjectURL(blob);
-          const downloadLink = document.createElement("a");
-          const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
-          downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
-          downloadLink.href = url;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-          setTimeout(() => URL.revokeObjectURL(url), 100);
-          setProcessingFeedback(t('feedback.imageDownloaded'));
-          setTimeout(() => setProcessingFeedback(null), 2000);
-        }, "image/png", 0.95); // 增加质量参数，0.95提供较好的质量
-      } catch (blobError: any) {
-        console.error("Error creating Blob:", blobError);
-        // 记录更多诊断信息
-        console.log("Canvas dimensions:", canvas.width, "x", canvas.height);
-        console.log("Canvas context available:", !!canvas.getContext("2d"));
+        // 创建下载链接
+        const downloadLink = document.createElement("a");
+        const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
+        downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
+        downloadLink.href = dataUrl;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
         
-        try {
-          const imgData = canvas.toDataURL("image/png");
-          // 检查Data URL大小是否合理
-          if (imgData.length < 1000) {
-            console.warn(`警告：生成的Data URL大小异常小 (${imgData.length} chars)`);
-          }
-          
-          const downloadLink = document.createElement("a");
-          const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
-          downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
-          downloadLink.href = imgData;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-          setProcessingFeedback(t('feedback.imageDownloaded'));
-          setTimeout(() => setProcessingFeedback(null), 2000);
-        } catch (dataUrlError: any) {
-          // 检查是否是由于Canvas被污染(tainted)导致的错误
-          const errorMsg = dataUrlError.message || String(dataUrlError);
-          if (errorMsg.includes("tainted") || errorMsg.includes("security") || errorMsg.includes("cross-origin")) {
-            console.error("Canvas可能因为跨域资源而被污染:", errorMsg);
-            setProcessingFeedback("错误：由于跨域资源限制，截图失败。请检查页面上的外部图片和资源");
-          } else {
-            throw new Error(t('errors.downloadLinkCreationFailed', { error: dataUrlError.message }));
-          }
+        setProcessingFeedback(t('feedback.imageDownloaded'));
+        setTimeout(() => setProcessingFeedback(null), 2000);
+        
+      } catch (error: any) {
+        console.error("Error generating image:", error);
+        
+        // 检查是否是由于跨域资源导致的错误
+        const errorMsg = error.message || String(error);
+        if (errorMsg.includes("tainted") || errorMsg.includes("security") || errorMsg.includes("cross-origin")) {
+          console.error("可能因为跨域资源而失败:", errorMsg);
+          setProcessingFeedback("错误：由于跨域资源限制，截图失败。请检查页面上的外部图片和资源");
+        } else {
+          throw new Error(t('errors.downloadLinkCreationFailed', { error: errorMsg }));
         }
       }
     } catch (error) {

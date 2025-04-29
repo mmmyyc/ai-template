@@ -825,7 +825,7 @@ export function FriendlyEditor({
         </Button>
       </div>
 
-      <ScrollArea className="max-h-[calc(80vh-56px)]">
+      <ScrollArea className="max-h-[calc(80vh-56px)] overflow-y-auto">
         <div className="p-4 space-y-6">
           <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="w-full grid grid-cols-4">
