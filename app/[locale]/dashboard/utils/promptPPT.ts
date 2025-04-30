@@ -28,13 +28,13 @@ export const promptPPT = (language: string, style: string) => `
     *   **主体内容区**：用于展示提取的核心要点列表、关键段落、数据的可视化概念或生成的图表。
     *   **视觉平衡与布局**：确保文本、可能的图标/图形/图表元素和留白之间达到良好平衡，避免过度拥挤或过于空旷。采用 Flexbox 或 Grid 进行布局，确保布局具有一定的自适应性。
    **智能应用静态DaisyUI组件**：根据提取的信息类型，主动选用合适的 **静态展示型** DaisyUI组件进行呈现，以丰富视觉效果。例如：
-     * 关键数据或统计信息，可使用 \`stats\` 组件 (e.g., \`<div class="stats shadow">...</div>\`)。
+     * 关键数据或统计信息，可使用 \`stats\` 组件 (e.g., \`<div class="stats shadow">...</div>\`), 如果需要展示多个数据，请使用 \`stats-vertical\` 组件，并且保证**父容器足够大**，否则会有内容溢出的问题。
      * 重要的提示或警告信息，可使用 \`alert\` 组件 (e.g., \`<div role="alert" class="alert">...</div>\`)。
      * 用户头像或代表性图标，可使用 \`avatar\` 组件 (e.g., \`<div class="avatar">...</div>\`)。
      * 区分不同内容区块，可使用 \`divider\` 组件 (e.g., \`<div class="divider"></div>\`)。
      * 展示键盘按键或代码片段，可使用 \`kbd\` 组件 (e.g., \`<kbd class="kbd">...</kbd>\`)。
      * 显示进度或比例，可使用 \`progress\` 或 \`radial-progress\` 组件。
-     * 按时间顺序展示事件，可使用 \`timeline\` 组件。
+     * 按时间顺序展示事件，可使用 \`timeline\` 组件, 但请注意，timeline组件的展示方式是水平的，如果需要垂直展示，请使用 \`timeline-vertical\` 组件，可以使用timeline-start和timeline-end达到Timeline with text on both sides的效果。
      * **请勿** 使用需要用户点击、悬停或交互才能完全展示内容的组件（如 \`collapse\`, \`dropdown\`, \`modal\`, \`tooltip\`, \`tab\` 等）。
      * **不要使用Badge组件**
      * （根据内容自行判断其他适用的 **静态** 组件...）
@@ -43,8 +43,8 @@ export const promptPPT = (language: string, style: string) => `
 *   **设计风格**：采用 **${style}** 的风格。注重清晰的视觉层次和良好的可读性。
 *   **内容优先原则**：所有设计决策都应服务于内容的清晰传达。**内容是主体，设计是辅助。**
      参考： 
-     <body class="flex items-center justify-center min-h-screen font-sans bg-white"> 
-         <div class="w-[1280px] min-h-[720px] relative overflow-hidden"> 
+     <body class="flex items-center justify-center min-h-screen font-sans bg-white"> {/* 背景颜色和div的颜色不要冲突 */}
+         <div class="w-[1280px] min-h-[720px] relative overflow-hidden"> {/* 不要使用背景图片 */}
             {/* 幻灯片内容放在这里 */}
          </div>
       </body>
@@ -59,7 +59,8 @@ export const promptPPT = (language: string, style: string) => `
 *   **视觉表达**：确保所有文本清晰可读，视觉元素服务于内容表达。
 *   **背景与边框**: 
         *   使用 **Tailwind 原子类** (e.g., \`bg-white\`, \`bg-gray-50\`, \`border\`, \`border-gray-200\`, \`rounded-lg\`) 定义背景颜色、边框样式和圆角。
-*   **样式实现**: 
+        *   不要使用背景图片，保证背景和ppt的背景色彩不冲突 *。
+      *   **样式实现**: 
         *   优先使用 **DaisyUI 组件类名** (例如 \`card\`, \`btn\` 等，如果适用幻灯片结构) 构建HTML结构和基础布局。
         *   **所有颜色相关的样式必须** 使用 **标准的 Tailwind CSS 原子类** (e.g., \`bg-blue-500\`, \`text-gray-900\`, \`border-neutral-300\`)。
         *   **严格禁止**：**绝对禁止**使用任何 DaisyUI 的语义化颜色类名（如 \`btn-primary\`, \`bg-base-100\`, \`text-accent\`, \`alert-info\`, \`text-primary-content\` 等等）或其主题系统。
