@@ -225,7 +225,7 @@ B --> C["结果"]
             <!-- <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script> -->
           </head>
           <body class="flex items-center justify-center min-h-screen font-sans bg-white">
-            <div class="w-[1280px] h-[720px] relative overflow-hidden">
+            <div class="w-[1280px] min-h-[720px] relative overflow-hidden">
               <!-- 幻灯片内容 -->
             </div>
             <script>lucide.createIcons();</script>
