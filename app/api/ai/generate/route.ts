@@ -106,7 +106,13 @@ export async function POST(req: Request) {
       .eq("id", profile?.id);
     
     // 返回流式响应
-    return result.toDataStreamResponse();
+    return result.toDataStreamResponse(
+      {
+        headers: {
+          'Content-Type': 'text/event-stream',
+        },
+      }
+    );
   } catch (error) {
     console.error("AI Generation Error:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
