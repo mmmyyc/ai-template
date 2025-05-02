@@ -2,35 +2,36 @@ import { createAnthropic, AnthropicProviderOptions } from '@ai-sdk/anthropic';
 import { streamText, Message } from 'ai';
 import { promptPPT } from '@/app/[locale]/dashboard/utils/promptPPT';
 import { promptCard } from '@/app/[locale]/dashboard/utils/promptCard';
-import { NextResponse } from "next/server";
 import { createClient } from "@/libs/supabase/server";
-// 允许流式响应最长30秒
+
+// 允许流式响应最长60秒
 export const maxDuration = 60;
 export const runtime = "edge";
 
-// 处理生成的POST请求
+// 处理来自useChat的POST请求
 export async function POST(req: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 }); 
+    return Response.json({ error: "Not signed in" }, { status: 401 }); 
   }
+  
   // 获取用户 profile 信息
   const { data: profile } = await supabase
-  .from("profiles")
-  .select("*")
-  .eq("email", user?.email)
-  .single();
+    .from("profiles")
+    .select("*")
+    .eq("email", user?.email)
+    .single();
 
   if (!profile) {
-    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    return Response.json({ error: "Profile not found" }, { status: 404 });
   }
 
   if(profile.available_uses <= 0){
-    return NextResponse.json({ error: "No available uses left" }, { status: 403 });
+    return Response.json({ error: "No available uses left" }, { status: 403 });
   }
 
-  // 获取消息
+  // 从请求中获取消息
   const { messages } = await req.json();
   
   // 提取最后一条用户消息
@@ -41,15 +42,14 @@ export async function POST(req: Request) {
     // 尝试解析用户消息中的JSON数据
     userOptions = JSON.parse(lastUserMessage.content);
   } catch (e) {
-    return NextResponse.json({ error: "Invalid message format" }, { status: 400 });
+    return Response.json({ error: "Invalid message format" }, { status: 400 });
   }
   
-  const { text, language, style, generateType, previousHtml } = userOptions as { 
+  const { text, language, style, generateType } = userOptions as { 
     text: string, 
     language: string, 
     style: string, 
-    generateType: string, 
-    previousHtml?: string // 将 previousHtml 设为可选
+    generateType: string 
   };
   
   // 确定系统提示
@@ -60,16 +60,10 @@ export async function POST(req: Request) {
     systemPrompt = promptCard(language, style);
   }
   
-  // 组合用户请求文本和上一次的HTML内容
-  let userContent = text;
-  if (previousHtml && previousHtml.trim().length > 0) {
-    userContent += `\n\n--- Previous HTML Content ---\n${previousHtml}`;
-  }
-  
-  // 创建发送给模型的消息，包含之前的HTML内容作为上下文
+  // 创建发送给模型的消息
   const finalMessages: Omit<Message, 'id'>[] = [
     { role: 'system', content: systemPrompt },
-    { role: 'user', content: userContent } // 使用包含先前HTML的用户内容
+    { role: 'user', content: text }
   ];
 
   try {
@@ -78,43 +72,53 @@ export async function POST(req: Request) {
       baseURL: process.env.OPENAI_BASE_URL,
     });
 
-    // 流式生成文本
+    // 使用streamText流式生成回复
     const result = streamText({
       model: anthropic('claude-3-7-sonnet-20250219'),
       messages: finalMessages,
       providerOptions: {
         anthropic: {
-          thinking: { type: 'enabled', budgetTokens: 4096 },
+          thinking: { type: 'enabled', budgetTokens: 1024 },
         } satisfies AnthropicProviderOptions,
       },
     });
     
-    // 更新用户可用次数
-    let available_uses = profile.available_uses - 1;
-    let max_uses = profile.max_uses;
-    if(available_uses < 10){
-      max_uses = 10;
-    }
+    // 异步更新用户可用次数，不阻塞响应
+    updateUserCredits(supabase, profile).catch(error => {
+      console.error("Failed to update user credits:", error);
+    });
     
-    // 消息队列发送成功后，更新用户可用次数
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        available_uses: profile.available_uses - 1,
-        max_uses: max_uses,
-      })
-      .eq("id", profile?.id);
-    
-    // 返回流式响应
+    // 返回流式响应 - 这是useChat接口所需的格式
     return result.toDataStreamResponse();
   } catch (error) {
     console.error("AI Generation Error:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     
     if (errorMessage.includes('InvalidPromptError')) {
-      return NextResponse.json({ error: `AI prompt error: ${errorMessage}` }, { status: 400 });
+      return Response.json({ error: `AI prompt error: ${errorMessage}` }, { status: 400 });
     } 
     
-    return NextResponse.json({ error: `AI generation failed: ${errorMessage}` }, { status: 500 });
+    return Response.json({ error: `AI generation failed: ${errorMessage}` }, { status: 500 });
   }
 }
+
+// 辅助函数：更新用户积分
+async function updateUserCredits(supabase: any, profile: any) {
+  let available_uses = profile.available_uses - 1;
+  let max_uses = profile.max_uses;
+  if(available_uses < 10){
+    max_uses = 10;
+  }
+  
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      available_uses: available_uses,
+      max_uses: max_uses,
+    })
+    .eq("id", profile?.id);
+    
+  if (error) {
+    throw new Error(`Failed to update user credits: ${error.message}`);
+  }
+} 

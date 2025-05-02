@@ -1,26 +1,26 @@
 import { createAnthropic, AnthropicProviderOptions } from '@ai-sdk/anthropic';
-import { streamText, Message } from 'ai';
+import { streamText , Message} from 'ai';
 import { promptPPT } from '@/app/[locale]/dashboard/utils/promptPPT';
 import { promptCard } from '@/app/[locale]/dashboard/utils/promptCard';
 import { NextResponse } from "next/server";
 import { createClient } from "@/libs/supabase/server";
-// 允许流式响应最长30秒
+
 export const maxDuration = 60;
 export const runtime = "edge";
 
-// 处理生成的POST请求
 export async function POST(req: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 }); 
   }
+  
   // 获取用户 profile 信息
   const { data: profile } = await supabase
-  .from("profiles")
-  .select("*")
-  .eq("email", user?.email)
-  .single();
+    .from("profiles")
+    .select("*")
+    .eq("email", user?.email)
+    .single();
 
   if (!profile) {
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
@@ -32,7 +32,6 @@ export async function POST(req: Request) {
 
   // 获取消息
   const { messages } = await req.json();
-  
   // 提取最后一条用户消息
   const lastUserMessage = messages[messages.length - 1];
   let userOptions = {};
@@ -44,13 +43,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid message format" }, { status: 400 });
   }
   
-  const { text, language, style, generateType, previousHtml } = userOptions as { 
-    text: string, 
-    language: string, 
-    style: string, 
-    generateType: string, 
-    previousHtml?: string // 将 previousHtml 设为可选
-  };
+  const { text, language, style, generateType } = userOptions as { text: string, language: string, style: string, generateType: string };
   
   // 确定系统提示
   let systemPrompt = "";
@@ -60,16 +53,10 @@ export async function POST(req: Request) {
     systemPrompt = promptCard(language, style);
   }
   
-  // 组合用户请求文本和上一次的HTML内容
-  let userContent = text;
-  if (previousHtml && previousHtml.trim().length > 0) {
-    userContent += `\n\n--- Previous HTML Content ---\n${previousHtml}`;
-  }
-  
-  // 创建发送给模型的消息，包含之前的HTML内容作为上下文
+  // 创建发送给模型的消息
   const finalMessages: Omit<Message, 'id'>[] = [
     { role: 'system', content: systemPrompt },
-    { role: 'user', content: userContent } // 使用包含先前HTML的用户内容
+    { role: 'user', content: text }
   ];
 
   try {
@@ -84,7 +71,7 @@ export async function POST(req: Request) {
       messages: finalMessages,
       providerOptions: {
         anthropic: {
-          thinking: { type: 'enabled', budgetTokens: 4096 },
+          thinking: { type: 'enabled', budgetTokens: 1024 },
         } satisfies AnthropicProviderOptions,
       },
     });

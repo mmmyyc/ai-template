@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect, useRef } from "react"
 import ArticleEditor from "@/app/[locale]/dashboard/components/ai/article-editor"
 import MarkdownEditor from "@/app/[locale]/dashboard/components/common/markdown-editor"
-import { generateSlideComponent } from "@/app/[locale]/dashboard/utils/ai-service"
 import {
   Panel,
   PanelGroup,
@@ -11,6 +10,9 @@ import {
   ImperativePanelHandle
 } from "react-resizable-panels"
 import { useTranslations } from 'next-intl';
+import { useChat } from '@ai-sdk/react';
+import { extractHtmlFromMarkdown } from "@/app/[locale]/dashboard/utils/ai-service";
+
 // Define the expected structure of the params prop
 interface GenerationPageProps {
   params: {
@@ -24,12 +26,7 @@ export default function Home({ params }: GenerationPageProps) {
   const folderName = decodeURIComponent(params.folderName); // Destructure folderId from params
 
   const [leftContent, setLeftContent] = useState(``)
-
   const [rightContent, setRightContent] = useState(``)
-
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [htmlContent, setHtmlContent] = useState("")
-  const [isEditMode, setIsEditMode] = useState(false)
   const [slideData, setSlideData] = useState({
     id: "slide-1",
     title: "",
@@ -40,7 +37,28 @@ export default function Home({ params }: GenerationPageProps) {
       color: "#000000",
     },
   })
+  const [htmlContent, setHtmlContent] = useState("")
+  const [isEditMode, setIsEditMode] = useState(false)
 
+  // 使用 useChat hook 替代之前的 fetch 调用
+  const { messages, append, isLoading } = useChat({
+    api: '/api/ai/generate',
+    onFinish: (message) => {
+      // 从AI响应中提取HTML内容
+      const extractedHtml = extractHtmlFromMarkdown(message.content);
+      setHtmlContent(extractedHtml);
+      
+      // 更新幻灯片数据
+      const title = leftContent.split('\n')[0].replace(/^#+\s+/, "").trim();
+      setSlideData({
+        id: `slide-${Date.now()}`,
+        title,
+        content: leftContent,
+        style: slideData.style
+      });
+    }
+  });
+  
   // 创建对左侧面板的引用
   const leftPanelRef = useRef<ImperativePanelHandle>(null);
   
@@ -60,21 +78,24 @@ export default function Home({ params }: GenerationPageProps) {
     }
   }, []);
 
+  // 修改AI操作处理函数，使用useChat的append方法
   const handleAIAction = useCallback(async (selectedText: string, language: string, style: string, generateType: string) => {
     try {
-      setIsGenerating(true)
-      const { htmlContent: newHtmlContent, slideData: newSlideData } = await generateSlideComponent(selectedText, language, style, generateType)
-      setHtmlContent(newHtmlContent)
-      setSlideData({
-        ...newSlideData,
-        style: slideData.style
-      })
+      // 使用 useChat 的 append 方法发送消息，并包含上一次的HTML内容
+      await append({
+        role: 'user',
+        content: JSON.stringify({
+          text: selectedText,
+          language,
+          style,
+          generateType,
+          previousHtml: htmlContent // 添加上一次的HTML内容
+        })
+      });
     } catch (error) {
       console.error("Error generating HTML content:", error)
-    } finally {
-      setIsGenerating(false)
     }
-  }, [slideData.style])
+  }, [append, slideData.style, htmlContent]); // 将 htmlContent 加入依赖项
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -92,7 +113,7 @@ export default function Home({ params }: GenerationPageProps) {
                 onChange={setLeftContent}
                 onAIAction={handleAIAction}
                 showAIButton={true}
-                isGenerating={isGenerating}
+                isGenerating={isLoading}
                 storageKey={`article-editor-${folderName}`}
               />
             </div>
@@ -110,7 +131,7 @@ export default function Home({ params }: GenerationPageProps) {
               initialContent={rightContent}
               onSave={setRightContent}
               onAIAction={handleAIAction}
-              isGenerating={isGenerating}
+              isGenerating={isLoading}
               htmlContent={htmlContent}
               slideData={slideData}
               folderName={folderName}

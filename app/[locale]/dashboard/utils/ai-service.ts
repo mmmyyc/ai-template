@@ -39,29 +39,9 @@ export async function generateSlideComponent(text: string, language: string, sty
       }),
     });
 
-    // if (!response.ok) {
-    //   const errorText = await response.text();
-    //   console.error("API error:", response.status, errorText);
-    //   throw new Error(`生成HTML内容时出错: ${response.status} - ${errorText}`);
-    // }
 
     const req = await response.json();
     const rawResponse = req.data.text;
-    // 处理流式响应
-    // const reader = response.body?.getReader();
-    // let rawResponse = '';
-    
-    // if (reader) {
-    //   let continueReading = true;
-    //   while (continueReading) {
-    //     const { done, value } = await reader.read();
-    //     if (done) {
-    //       continueReading = false;
-    //       break;
-    //     }
-    //     rawResponse += new TextDecoder().decode(value);
-    //   }
-    // }
     
     // 从响应中提取HTML内容
     let htmlContent = extractHtmlFromMarkdown(rawResponse);
@@ -111,7 +91,7 @@ export async function generateSlideComponent(text: string, language: string, sty
  * @param markdown Markdown格式的文本
  * @returns 提取的HTML内容
  */
-function extractHtmlFromMarkdown(markdown: string): string {
+export function extractHtmlFromMarkdown(markdown: string): string {
   const originalMarkdown = markdown.trim();
 
   // 1. 优先提取 ```html ... ``` 代码块
