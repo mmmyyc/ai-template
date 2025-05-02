@@ -5,11 +5,13 @@ import {
   RefreshCw,
   Edit,
   Eye,
+  Square
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MarkdownEditor from "@/app/[locale]/dashboard/components/common/markdown-editor";
 import { HtmlPreview } from "@/app/[locale]/dashboard/components/common/html-preview";
 import { useTranslations } from 'next-intl';
+import { Button } from "@/components/ui/button";
 
 // ADD Style Injection useEffect
 const editorLayoutStyles = `
@@ -74,6 +76,7 @@ interface ArticleEditorProps {
   };
   folderName?: string;
   onEditModeChange?: (isEditMode: boolean) => void;
+  stopGeneration?: () => void;
 }
 
 export default function ArticleEditor({
@@ -84,6 +87,7 @@ export default function ArticleEditor({
   htmlContent = "",
   folderName = "",
   onEditModeChange,
+  stopGeneration,
 }: ArticleEditorProps) {
   const t = useTranslations('ArticleEditor');
 
@@ -166,16 +170,27 @@ export default function ArticleEditor({
                 <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-black/50 z-20">
                   <div className="flex flex-col items-center p-4 bg-base-100 dark:bg-gray-800 rounded shadow-lg">
                     <RefreshCw className="h-8 w-8 text-neutral-900 animate-spin mb-2 dark:text-neutral-50" />
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3">
                       {t('generatingMessage')}
                     </p>
+                    {stopGeneration && (
+                      <Button
+                        onClick={stopGeneration}
+                        variant="destructive"
+                        size="sm"
+                        className="mt-2 bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        <Square className="h-4 w-4 mr-2" />
+                        {t('buttons.stopGeneration') || '终止生成'}
+                      </Button>
+                    )}
                   </div>
                 </div>
               ) : null}
               <HtmlPreview 
                 htmlContent={htmlContent} 
                 folderName={folderName} 
-                onEditModeChange={onEditModeChange} 
+                onEditModeChange={onEditModeChange}
               />
             </div>
           </TabsContent>

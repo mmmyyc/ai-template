@@ -398,7 +398,10 @@
       "edit": "编辑",
       "preview": "预览"
     },
-    "generatingMessage": "Generating content..."
+    "generatingMessage": "正在生成内容...",
+    "buttons": {
+      "stopGeneration": "终止生成"
+    }
   },
   "FriendlyEditor": {
     "title": "样式编辑器",
@@ -707,7 +710,8 @@
       "htmlSavedSuccess": "HTML 保存成功",
       "htmlSavedFailed": "HTML 保存失败",
       "titleRequired": "请输入标题",
-      "titleTooLong": "标题过长，请输入 1 至 50 个字符。"
+      "titleTooLong": "标题过长，请输入 1 至 50 个字符。",
+      "stopGeneration": "停止生成"
     },
     "errors": {
       "iframeNotAvailable": "Iframe 内容不可用",
@@ -725,6 +729,10 @@
     "downloadPrefix": {
       "ppt": "幻灯片",
       "html": "内容"
+    },
+    "status": {
+      "generating": "正在生成...",
+      "stopGeneration": "停止生成"
     },
     "iframeTitle": "HTML 预览",
     "selectionModeActive": "选择模式激活"

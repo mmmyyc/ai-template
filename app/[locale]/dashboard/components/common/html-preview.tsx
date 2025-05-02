@@ -14,7 +14,8 @@ import {
   Maximize,
   Minimize,
   Edit,
-  Fullscreen
+  Fullscreen,
+  Square
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -114,11 +115,11 @@ const selectionModeStyles = `
 export function HtmlPreview({ 
   htmlContent, 
   folderName,
-  onEditModeChange
+  onEditModeChange,
 }: { 
   htmlContent: string, 
   folderName: string,
-  onEditModeChange?: (isEditMode: boolean) => void
+  onEditModeChange?: (isEditMode: boolean) => void,
 }) {
   const t = useTranslations('HtmlPreview');
   const [htmlTitle, setHtmlTitle] = useState("");

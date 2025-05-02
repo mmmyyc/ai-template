@@ -41,7 +41,7 @@ export default function Home({ params }: GenerationPageProps) {
   const [isEditMode, setIsEditMode] = useState(false)
 
   // 使用 useChat hook 替代之前的 fetch 调用
-  const { messages, append, isLoading } = useChat({
+  const { messages, append, isLoading, stop } = useChat({
     api: '/api/ai/generate',
     onFinish: (message) => {
       // 从AI响应中提取HTML内容
@@ -136,6 +136,7 @@ export default function Home({ params }: GenerationPageProps) {
               slideData={slideData}
               folderName={folderName}
               onEditModeChange={handleEditModeChange}
+              stopGeneration={stop}
             />
           </Panel>
         </PanelGroup>
