@@ -210,7 +210,7 @@ export function HtmlPreview({
     []
   );
 
-  // Modified findElementByPath for more logging and fallback mechanisms
+  // Modified findElementByPath for more logging and proper CSS selector escaping
   const findElementByPath = useCallback(
     (path: string, container: Document | HTMLElement): HTMLElement | null => {
       console.log(`findElementByPath: Attempting to find path: "${path}"`);
@@ -224,95 +224,132 @@ export function HtmlPreview({
           return null;
         }
 
-        // Try the exact path first
-        let foundElement = root.querySelector(path) as HTMLElement | null;
+        // Escape CSS special characters in the path, particularly brackets which are common in Tailwind classes
+        const escapePath = (selector: string): string => {
+          // This regex handles the most common scenarios like w-[1280px]
+          return selector.replace(/(\[|\]|\(|\))/g, '\\$1');
+        };
+        
+        const escapedPath = escapePath(path);
+        console.log(`findElementByPath: Using escaped path: "${escapedPath}"`);
+
+        // Try the escaped path first
+        try {
+          let foundElement = root.querySelector(escapedPath) as HTMLElement | null;
+          if (foundElement) {
+            console.log("findElementByPath: Element found with escaped path");
+            return foundElement;
+          }
+        } catch (error) {
+          console.warn(`findElementByPath: Error with escaped path: ${error}`);
+          // Continue to fallbacks
+        }
 
         // If that fails, try with simplified path (fallback mechanism)
-        if (!foundElement) {
-          console.warn(
-            `findElementByPath: Primary query failed for path: "${path}". Trying fallbacks...`
-          );
+        console.warn(
+          `findElementByPath: Primary query failed for path. Trying fallbacks...`
+        );
 
-          // Fallback 1: Try removing nth-of-type selectors which can be brittle
-          const simplifiedPath = path.replace(/:nth-of-type\(\d+\)/g, "");
-          if (simplifiedPath !== path) {
-            console.log(
-              `findElementByPath: Trying simplified path: "${simplifiedPath}"`
-            );
-            foundElement = root.querySelector(
+        // Fallback 1: Try simplifying the path - remove classes with brackets
+        const simplifiedPath = path.replace(/\.[^.>\s]*\[[^\]]*\][^.>\s]*/g, "");
+        if (simplifiedPath !== path) {
+          console.log(
+            `findElementByPath: Trying simplified path without bracketed classes: "${simplifiedPath}"`
+          );
+          try {
+            const foundElement = root.querySelector(
               simplifiedPath
             ) as HTMLElement | null;
+            if (foundElement) return foundElement;
+          } catch (error) {
+            console.warn(`findElementByPath: Error with simplified path: ${error}`);
           }
+        }
 
-          // Fallback 2: Try with tag names only (most basic)
-          if (!foundElement) {
-            const tagOnlyPath = path
-              .split(" > ")
-              .map((part) => part.split(".")[0].split("#")[0].split(":")[0])
-              .join(" > ");
+        // Fallback 2: Try with tag names and IDs only (more reliable)
+        const tagIdPath = path
+          .split(" > ")
+          .map((part) => {
+            // Keep tag name and ID, remove classes
+            const tagMatch = part.match(/^([a-zA-Z0-9-]+)(?:#([a-zA-Z0-9-_]+))?/);
+            return tagMatch ? tagMatch[0] : "";
+          })
+          .filter(Boolean)
+          .join(" > ");
 
-            if (tagOnlyPath !== path && tagOnlyPath !== simplifiedPath) {
-              console.log(
-                `findElementByPath: Trying tag-only path: "${tagOnlyPath}"`
-              );
-              foundElement = root.querySelector(
-                tagOnlyPath
-              ) as HTMLElement | null;
-            }
+        if (tagIdPath !== path && tagIdPath.length > 0) {
+          console.log(
+            `findElementByPath: Trying tag+ID path: "${tagIdPath}"`
+          );
+          try {
+            const foundElement = root.querySelector(
+              tagIdPath
+            ) as HTMLElement | null;
+            if (foundElement) return foundElement;
+          } catch (error) {
+            console.warn(`findElementByPath: Error with tag+ID path: ${error}`);
           }
+        }
 
-          // Fallback 3: Try individual segments to find closest match
-          if (!foundElement) {
-            const segments = path.split(" > ");
-            // Try progressively shorter path segments, starting from the end
-            for (let i = segments.length - 1; i > 0; i--) {
-              const partialPath = segments.slice(0, i).join(" > ");
-              console.log(
-                `findElementByPath: Trying partial path: "${partialPath}"`
+        // Fallback 3: Try just the ID if present
+        const idMatch = path.match(/#([a-zA-Z0-9-_]+)/);
+        if (idMatch) {
+          const idSelector = `#${idMatch[1]}`;
+          console.log(`findElementByPath: Trying ID selector: "${idSelector}"`);
+          try {
+            const foundElement = root.querySelector(idSelector) as HTMLElement | null;
+            if (foundElement) return foundElement;
+          } catch (error) {
+            console.warn(`findElementByPath: Error with ID selector: ${error}`);
+          }
+        }
+
+        // Fallback 4: Try individual segments to find closest match
+        const segments = path.split(" > ");
+        // Try progressively shorter path segments, starting from the end
+        for (let i = segments.length - 1; i > 0; i--) {
+          const partialPath = segments.slice(0, i).join(" > ");
+          try {
+            const escapedPartialPath = escapePath(partialPath);
+            console.log(
+              `findElementByPath: Trying partial path: "${escapedPartialPath}"`
+            );
+            const partialElement = root.querySelector(
+              escapedPartialPath
+            ) as HTMLElement | null;
+
+            if (partialElement) {
+              // Found a partial match, now try to find child that most closely matches
+              const remainingSegments = segments.slice(i);
+              const lastSegment =
+                remainingSegments[remainingSegments.length - 1];
+              const tagMatch = lastSegment.match(/^([a-zA-Z0-9-]+)/);
+              if (!tagMatch) continue;
+              
+              const tagName = tagMatch[1];
+
+              // Find all elements of target type within the partial element
+              const candidates = Array.from(
+                partialElement.querySelectorAll(tagName)
               );
-              const partialElement = root.querySelector(
-                partialPath
-              ) as HTMLElement | null;
-
-              if (partialElement) {
-                // Found a partial match, now try to find child that most closely matches
-                const remainingSegments = segments.slice(i);
-                const lastSegment =
-                  remainingSegments[remainingSegments.length - 1];
-                const tagName = lastSegment
-                  .split(".")[0]
-                  .split("#")[0]
-                  .split(":")[0];
-
-                // Find all elements of target type within the partial element
-                const candidates = Array.from(
-                  partialElement.querySelectorAll(tagName)
+              if (candidates.length > 0) {
+                console.log(
+                  `findElementByPath: Found ${candidates.length} potential elements of type ${tagName}`
                 );
-                if (candidates.length > 0) {
-                  console.log(
-                    `findElementByPath: Found ${candidates.length} potential elements`
-                  );
-                  // Just use the first matching element of this type as a fallback
-                  foundElement = candidates[0] as HTMLElement;
-                  break;
-                }
+                // Just use the first matching element of this type as a fallback
+                return candidates[0] as HTMLElement;
               }
             }
+          } catch (error) {
+            console.warn(`findElementByPath: Error with partial path: ${error}`);
+            continue; // Try next segment
           }
         }
 
-        if (foundElement) {
-          console.log(
-            `findElementByPath: Successfully found element for path: "${path}"`,
-            foundElement
-          );
-        } else {
-          console.error(
-            `findElementByPath: All attempts to find element failed for path: "${path}"`
-          );
-        }
-
-        return foundElement;
+        console.error(
+          `findElementByPath: All attempts to find element failed for path`
+        );
+        return null;
       } catch (error) {
         console.error(
           `findElementByPath: Error querying path: "${path}"`,
@@ -1168,6 +1205,94 @@ export function HtmlPreview({
     }
   }, [isNativeFullscreen]);
 
+  // 处理删除元素
+  const handleDeleteElement = useCallback(() => {
+    console.log("HtmlPreview: 处理删除元素", selectedElementPath);
+    
+    if (selectedElementPath && iframeRef.current && iframeRef.current.contentDocument) {
+      const iframeDoc = iframeRef.current.contentDocument;
+      
+      // 先尝试使用编辑ID查找（如果存在）
+      let elementToDelete = null;
+      if (editingElementId) {
+        try {
+          console.log("尝试通过编辑ID查找元素:", editingElementId);
+          elementToDelete = iframeDoc.querySelector(`[data-editing-id="${editingElementId}"]`);
+          if (elementToDelete) {
+            console.log("通过编辑ID成功找到元素");
+          }
+        } catch (idError) {
+          console.warn("通过编辑ID查找元素失败:", idError);
+        }
+      }
+      
+      // 如果通过ID未找到，尝试通过路径查找
+      if (!elementToDelete) {
+        try {
+          console.log("尝试通过路径查找元素");
+          elementToDelete = findElementByPath(selectedElementPath, iframeDoc);
+        } catch (pathError) {
+          console.error("通过路径查找元素失败:", pathError);
+        }
+      }
+      
+      if (elementToDelete) {
+        try {
+          console.log("找到要删除的元素:", elementToDelete);
+          
+          // 保存元素引用，因为当编辑器关闭后可能会丢失路径
+          const parentNode = elementToDelete.parentNode;
+          
+          // 执行删除
+          if (parentNode) {
+            parentNode.removeChild(elementToDelete);
+          } else {
+            elementToDelete.remove();
+          }
+          console.log("元素已从DOM中移除");
+          
+          // 确保父节点存在且在文档中
+          if (parentNode && parentNode.isConnected) {
+            console.log("更新父节点:", parentNode);
+          }
+          
+          // 更新本地HTML内容
+          if (iframeRef.current.contentDocument && iframeRef.current.contentDocument.documentElement) {
+            const updatedHtmlContent = iframeRef.current.contentDocument.documentElement.outerHTML;
+            console.log("更新HTML内容");
+            setLocalHtmlContent(updatedHtmlContent);
+            saveHtmlToLocalStorage(updatedHtmlContent);
+            
+            // 使用更强的方式触发重新渲染
+            setTimeout(() => {
+              setRenderKey(prev => prev + 1);
+              console.log("增加renderKey触发重渲染:", renderKey + 1);
+            }, 50);
+          }
+          
+          // 显示反馈
+          setProcessingFeedback(t('feedback.elementDeleted') || "元素已删除");
+          setTimeout(() => setProcessingFeedback(null), 2000);
+        } catch (error) {
+          console.error("删除元素时出错:", error);
+          setProcessingFeedback(t('errors.deleteElementFailed') || "删除元素失败");
+          setTimeout(() => setProcessingFeedback(null), 3000);
+        }
+      } else {
+        console.error("无法找到要删除的元素:", selectedElementPath);
+        setProcessingFeedback(t('errors.elementNotFound') || "找不到要删除的元素");
+        setTimeout(() => setProcessingFeedback(null), 3000);
+      }
+    }
+    
+    // 重置选择状态
+    setSelectedElement(null);
+    setSelectedElementPath(null);
+    setEditingElementId(null);
+    
+    // 注意：编辑器会在调用此函数前自行关闭，无需再次设置setShowEditor(false)
+  }, [selectedElementPath, iframeRef, findElementByPath, t, renderKey, editingElementId]);
+
   return (
     <>
       <div
@@ -1316,6 +1441,7 @@ export function HtmlPreview({
                 originalClasses={originalClasses}
                 onClose={handleCloseEditor}
                 onApplyChanges={handleApplyChanges}
+                onDeleteElement={handleDeleteElement}
                 className="z-[50] fixed"
                 containerRef={iframeContainerRef}
               />
@@ -1423,6 +1549,7 @@ export function HtmlPreview({
           originalClasses={originalClasses}
           onClose={handleCloseEditor}
           onApplyChanges={handleApplyChanges}
+          onDeleteElement={handleDeleteElement}
           className="z-[2147483647] fixed"
           containerRef={iframeContainerRef}
         />

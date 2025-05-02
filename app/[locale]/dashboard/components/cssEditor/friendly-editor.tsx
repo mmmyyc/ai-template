@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { X, Move } from "lucide-react"
+import { X, Move, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getColorValue } from "./colorUtils"
 import { useTranslations } from 'next-intl'
@@ -56,6 +56,7 @@ interface FriendlyEditorProps {
   originalClasses: string
   onClose: () => void
   onApplyChanges: (newClasses: string) => void
+  onDeleteElement?: () => void
   html?: string
   onHtmlChange?: (html: string) => void
   className?: string
@@ -138,6 +139,7 @@ export function FriendlyEditor({
   originalClasses, 
   onClose, 
   onApplyChanges,
+  onDeleteElement,
   html,
   onHtmlChange,
   className,
@@ -799,6 +801,37 @@ export function FriendlyEditor({
   };
   // --- Translation Helper Functions --- END ---
 
+  // 处理删除元素
+  const handleDeleteElement = () => {
+    console.log("触发删除元素", targetElement);
+    // 先关闭编辑器，避免DOM引用问题
+    onClose();
+    
+    // 延迟一下执行删除操作，确保编辑器已关闭
+    setTimeout(() => {
+      try {
+        // 如果提供了删除回调，则调用它
+        if (onDeleteElement) {
+          console.log("调用外部删除回调");
+          onDeleteElement();
+        } else if (targetElement) {
+          // 如果没有提供回调但有目标元素，尝试直接删除元素
+          console.log("直接删除DOM元素");
+          if (targetElement.parentNode) {
+            targetElement.parentNode.removeChild(targetElement);
+          } else {
+            targetElement.remove();
+          }
+          console.log("元素删除成功");
+        } else {
+          console.error("无法删除元素: 没有找到目标元素或外部删除回调");
+        }
+      } catch (error) {
+        console.error("删除元素时出错:", error);
+      }
+    }, 100); // 延长延迟时间到100ms
+  };
+
   return (
     <div
       ref={popupRef}
@@ -818,11 +851,23 @@ export function FriendlyEditor({
       >
         <div className="flex items-center gap-2">
           <Move className="h-4 w-4 text-gray-500" />
-          <h3 className="font-medium">{t('title')}</h3>
+          <h3 className="font-medium">{t('title') || "Style Editor"}</h3>
         </div>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onClose} title={t('buttons.close')}>
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {/* 添加删除按钮 */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" 
+            onClick={handleDeleteElement} 
+            title={t('buttons.deleteElement') || "删除元素"}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onClose} title={t('buttons.close')}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="max-h-[calc(80vh-56px)] overflow-y-auto">
@@ -1355,17 +1400,31 @@ export function FriendlyEditor({
 
           {/* Action Buttons */}
           <div className="flex justify-between gap-2 pt-2 mt-2 border-t sticky bottom-0 bg-white pb-2 z-10">
-            <div>
-              <Button size="sm" variant="outline" onClick={handleCancel} title={t('buttons.cancelTooltip')}>
-                {t('buttons.cancel')}
-              </Button>
-            </div>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleCancel} 
+              title={t('buttons.cancelTooltip') || "取消更改"}
+            >
+              {t('buttons.cancel') || "取消"}
+            </Button>
+            
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={handleReset} title={t('buttons.resetTooltip')}>
-                {t('buttons.reset')}
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={handleReset} 
+                title={t('buttons.resetTooltip') || "重置为原始样式"}
+              >
+                {t('buttons.reset') || "重置"}
               </Button>
-              <Button size="sm" onClick={handleApplyChanges} title={t('buttons.applyTooltip')}>
-                {t('buttons.apply')}
+              
+              <Button 
+                size="sm" 
+                onClick={handleApplyChanges} 
+                title={t('buttons.applyTooltip') || "应用更改"}
+              >
+                {t('buttons.apply') || "应用"}
               </Button>
             </div>
           </div>

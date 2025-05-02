@@ -386,7 +386,10 @@
       "removeClassTooltip": "Remove class",
       "cancelTooltip": "Discard changes and close",
       "resetTooltip": "Reset to original styles",
-      "applyTooltip": "Apply changes and close"
+      "applyTooltip": "Apply changes and close",
+      "deleteTooltip": "Delete Element",
+      "delete": "Delete",
+      "deleteElement": "Delete Element"
     },
     "helpers": {
       "removeClass": "Click X on tag to remove class",
@@ -561,7 +564,8 @@
       "htmlSavedSuccess": "HTML saved successfully",
       "htmlSavedFailed": "HTML save failed",
       "titleRequired": "Please enter the title",
-      "titleTooLong": "The title is too long, please enter characters from 1 to 50."
+      "titleTooLong": "The title is too long, please enter characters from 1 to 50.",
+      "elementDeleted": "Element deleted successfully"
     },
     "errors": {
       "iframeNotAvailable": "Iframe content not available",
@@ -574,7 +578,9 @@
       "applyStylesFailed": "Error applying styles",
       "findElementByIdFailed": "Error: Could not find target element (ID: {id}) to apply changes.",
       "cannotApplyChanges": "Cannot apply changes - check console",
-      "fullscreenFailed": "Fullscreen failed"
+      "fullscreenFailed": "Fullscreen failed",
+      "elementNotFound": "Could not find element to delete",
+      "deleteElementFailed": "Failed to delete element"
     },
     "downloadPrefix": {
       "ppt": "Slide",

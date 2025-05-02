@@ -479,7 +479,10 @@
       "removeClassTooltip": "移除此类", 
       "cancelTooltip": "放弃更改并关闭", 
       "resetTooltip": "重置为原始样式",   
-      "applyTooltip": "应用更改并关闭"  
+      "applyTooltip": "应用更改并关闭",
+      "deleteTooltip": "删除元素",
+      "delete": "删除",
+      "deleteElement": "删除元素"
     },
     "helpers": {
       "removeClass": "点击标签上的 X 可移除此类",
@@ -711,7 +714,8 @@
       "htmlSavedFailed": "HTML 保存失败",
       "titleRequired": "请输入标题",
       "titleTooLong": "标题过长，请输入 1 至 50 个字符。",
-      "stopGeneration": "停止生成"
+      "stopGeneration": "停止生成",
+      "elementDeleted": "元素已删除"
     },
     "errors": {
       "iframeNotAvailable": "Iframe 内容不可用",
@@ -724,7 +728,9 @@
       "applyStylesFailed": "错误：应用样式失败",
       "findElementByIdFailed": "错误：找不到目标元素（ID：{id}）以应用更改。",
       "cannotApplyChanges": "无法应用更改 - 请检查控制台",
-      "fullscreenFailed": "全屏失败"
+      "fullscreenFailed": "全屏失败",
+      "elementNotFound": "找不到要删除的元素",
+      "deleteElementFailed": "删除元素失败"
     },
     "downloadPrefix": {
       "ppt": "幻灯片",
