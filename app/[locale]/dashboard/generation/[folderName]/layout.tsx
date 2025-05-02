@@ -30,12 +30,12 @@ export default async function LayoutPrivate({
       locale: params.locale,
     });
   }
-
+  const decodedFolderName = decodeURIComponent(params.folderName);
   // 2. If logged in, check folder ownership
   const { data: folderData, error: folderError } = await supabase
     .from("folders")
     .select("id") // Only need to select something to check existence
-    .eq("name", params.folderName)
+    .eq("name", decodedFolderName)
     .eq("profile_id", user.id) // Use user.id safely here
     .single();
 

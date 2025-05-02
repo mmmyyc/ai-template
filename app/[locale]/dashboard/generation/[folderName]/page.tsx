@@ -21,7 +21,7 @@ interface GenerationPageProps {
 
 export default function Home({ params }: GenerationPageProps) {
   const t = useTranslations('GenerationPage');
-  const { folderName } = params; // Destructure folderId from params
+  const folderName = decodeURIComponent(params.folderName); // Destructure folderId from params
 
   const [leftContent, setLeftContent] = useState(``)
 
