@@ -39,7 +39,7 @@ export default function Home({ params }: GenerationPageProps) {
   })
   const [htmlContent, setHtmlContent] = useState("")
   const [isEditMode, setIsEditMode] = useState(false)
-
+  const currentStyle = useRef("" as string)
   // 使用 useChat hook 替代之前的 fetch 调用
   const { messages, append, isLoading, stop } = useChat({
     api: '/api/ai/generate',
@@ -80,6 +80,10 @@ export default function Home({ params }: GenerationPageProps) {
 
   // 修改AI操作处理函数，使用useChat的append方法
   const handleAIAction = useCallback(async (selectedText: string, language: string, style: string, generateType: string) => {
+    if(style !== currentStyle.current) {
+      currentStyle.current = style;
+      setHtmlContent("");
+    }
     try {
       // 使用 useChat 的 append 方法发送消息，并包含上一次的HTML内容
       await append({
