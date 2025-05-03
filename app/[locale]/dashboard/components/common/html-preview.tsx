@@ -1444,6 +1444,7 @@ export function HtmlPreview({
                 onDeleteElement={handleDeleteElement}
                 className="z-[50] fixed"
                 containerRef={iframeContainerRef}
+                editingElementId={editingElementId}
               />
             )}
           </>
@@ -1552,6 +1553,7 @@ export function HtmlPreview({
           onDeleteElement={handleDeleteElement}
           className="z-[2147483647] fixed"
           containerRef={iframeContainerRef}
+          editingElementId={editingElementId}
         />
       )}
 

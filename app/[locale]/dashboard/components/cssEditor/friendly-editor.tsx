@@ -20,6 +20,7 @@ import { X, Move, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getColorValue } from "./colorUtils"
 import { useTranslations } from 'next-intl'
+import { Textarea } from "@/components/ui/textarea"
 
 // 创建一个扩展的SelectContent组件，支持container属性
 const SelectContent = React.forwardRef<
@@ -61,6 +62,7 @@ interface FriendlyEditorProps {
   onHtmlChange?: (html: string) => void
   className?: string
   containerRef?: React.RefObject<HTMLElement>
+  editingElementId?: string // 添加此属性以支持通过ID查找元素
 }
 
 // Mapping of friendly names to Tailwind classes
@@ -143,7 +145,8 @@ export function FriendlyEditor({
   html,
   onHtmlChange,
   className,
-  containerRef
+  containerRef,
+  editingElementId // 接收新的属性
 }: FriendlyEditorProps) {
   const t = useTranslations('FriendlyEditor');
 
@@ -189,13 +192,37 @@ export function FriendlyEditor({
   const [showPaddingPreview, setShowPaddingPreview] = useState(false);
   const [showRawCss, setShowRawCss] = useState(false);
 
+  // 添加文本内容相关状态
+  const [elementContent, setElementContent] = useState<string>("");
+  const [originalContent, setOriginalContent] = useState<string>("");
+  const [showTextEditor, setShowTextEditor] = useState<boolean>(true);
+  const [canEditContent, setCanEditContent] = useState<boolean>(true);
+
   // Find the target element inside the iframe
   useEffect(() => {
     console.log("FriendlyEditor: Finding element with path:", elementPath, "Original classes:", originalClasses);
+    console.log("FriendlyEditor: Using editing ID:", editingElementId);
     
-    if (iframeRef.current && iframeRef.current.contentDocument && elementPath) {
+    if (iframeRef.current && iframeRef.current.contentDocument) {
       const iframeDoc = iframeRef.current.contentDocument;
-      const foundElement = findElementByPath(elementPath, iframeDoc);
+      let foundElement: HTMLElement | null = null;
+      
+      // 首先尝试通过ID查找元素（更可靠）
+      if (editingElementId) {
+        try {
+          foundElement = iframeDoc.querySelector(`[data-editing-id="${editingElementId}"]`) as HTMLElement;
+          console.log("FriendlyEditor: Found element by editing ID:", foundElement);
+        } catch (idError) {
+          console.warn("FriendlyEditor: Error finding by editing ID:", idError);
+        }
+      }
+      
+      // 如果通过ID找不到，再尝试通过路径查找
+      if (!foundElement && elementPath) {
+        foundElement = findElementByPath(elementPath, iframeDoc);
+        console.log("FriendlyEditor: Found element by path:", foundElement);
+      }
+      
       if (foundElement) {
         setTargetElement(foundElement);
         // 保存元素的初始className用于后续恢复
@@ -203,7 +230,51 @@ export function FriendlyEditor({
         // Re-initialize classes from the found element if they differ from originalClasses
         const actualClasses = foundElement.className.split(' ').filter(Boolean);
         setCurrentClasses(actualClasses);
-        console.log("FriendlyEditor: Target element found in iframe:", foundElement, "Actual classes:", actualClasses);
+        
+        // 改进：获取元素内容的逻辑
+        try {
+          // 1. 尝试多种方法获取元素内容
+          const innerHtmlContent = foundElement.innerHTML || '';
+          const innerTextContent = foundElement.innerText || '';
+          const textContent = foundElement.textContent || '';
+          
+          console.log("内容获取诊断:", {
+            元素类型: foundElement.tagName,
+            innerHTML长度: innerHtmlContent.length,
+            innerText长度: innerTextContent.length,
+            textContent长度: textContent.length,
+            innerHTML前20字符: innerHtmlContent.substring(0, 20) + (innerHtmlContent.length > 20 ? '...' : ''),
+            innerText前20字符: innerTextContent.substring(0, 20) + (innerTextContent.length > 20 ? '...' : ''),
+            textContent前20字符: textContent.substring(0, 20) + (textContent.length > 20 ? '...' : '')
+          });
+          
+          // 2. 优先使用innerHTML作为编辑内容，因为它保留了HTML标记
+          let finalContent = innerHtmlContent;
+          
+          // 3. 如果特定元素类型，使用innerText或textContent
+          const textBasedElements = ['P', 'SPAN', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'TD', 'TH', 'BLOCKQUOTE'];
+          if (textBasedElements.includes(foundElement.tagName) && !finalContent && (innerTextContent || textContent)) {
+            finalContent = innerTextContent || textContent;
+            console.log("使用文本内容作为备选:", finalContent.substring(0, 20) + (finalContent.length > 20 ? '...' : ''));
+          }
+          
+          // 4. 设置到状态变量
+          setElementContent(finalContent);
+          setOriginalContent(finalContent);
+          console.log("成功设置元素内容:", finalContent.substring(0, 50) + (finalContent.length > 50 ? '...' : ''));
+        } catch (error) {
+          console.error("获取元素内容时出错:", error);
+          // 设置一个空字符串作为默认值
+          setElementContent('');
+          setOriginalContent('');
+        }
+        
+        // 检查元素是否可编辑内容（改进判断逻辑）
+        const nonEditableTags = ['IMG', 'INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'IFRAME', 'CANVAS', 'SVG'];
+        const isEditable = !nonEditableTags.includes(foundElement.tagName);
+        setCanEditContent(isEditable);
+        
+        console.log("FriendlyEditor: Target element found in iframe:", foundElement, "Actual classes:", actualClasses, "可编辑:", isEditable);
       } else {
         console.error("FriendlyEditor: Could not find element in iframe with path:", elementPath);
         // Even if element isn't found, we should still initialize with originalClasses
@@ -221,7 +292,7 @@ export function FriendlyEditor({
       setCurrentClasses(originalClasses.split(" ").filter(Boolean));
       setTargetElement(null);
     }
-  }, [elementPath, iframeRef, originalClasses]);
+  }, [elementPath, iframeRef, originalClasses, editingElementId]); // 添加editingElementId作为依赖项
 
   // Initialize state from current classes or originalClasses
   useEffect(() => {
@@ -645,8 +716,102 @@ export function FriendlyEditor({
     shadow
   ])
 
+  // 应用文本内容更改
+  const applyContentChanges = () => {
+    if (!targetElement && elementContent === originalContent) {
+      console.log("内容未变更或目标元素不存在，无需应用");
+      return;
+    }
+    
+    try {
+      console.log("应用文本内容更改开始");
+      
+      // 尝试通过多种方式获取元素引用
+      let elementToUpdate = targetElement;
+      
+      // 如果targetElement为null但有editingElementId，尝试通过ID再次查找
+      if (!elementToUpdate && editingElementId && iframeRef.current && iframeRef.current.contentDocument) {
+        console.log("targetElement为null，尝试通过editingElementId查找:", editingElementId);
+        elementToUpdate = iframeRef.current.contentDocument.querySelector(`[data-editing-id="${editingElementId}"]`) as HTMLElement;
+        if (elementToUpdate) {
+          console.log("通过editingElementId成功找到元素");
+        }
+      }
+      
+      // 如果仍然没有元素引用，尝试通过路径查找
+      if (!elementToUpdate && elementPath && iframeRef.current && iframeRef.current.contentDocument) {
+        console.log("尝试通过elementPath再次查找:", elementPath);
+        elementToUpdate = findElementByPath(elementPath, iframeRef.current.contentDocument);
+        if (elementToUpdate) {
+          console.log("通过elementPath成功找到元素");
+        }
+      }
+      
+      if (!elementToUpdate) {
+        console.error("无法应用内容变更: 无法找到目标元素");
+        return;
+      }
+      
+      console.log("应用文本内容", {
+        原始内容长度: originalContent.length,
+        新内容长度: elementContent.length,
+        元素类型: elementToUpdate.tagName
+      });
+      
+      // 保存原始样式和属性，以防它们在更新过程中丢失
+      const originalStyle = elementToUpdate.getAttribute('style');
+      const originalClass = elementToUpdate.className;
+      
+      // 设置内容
+      elementToUpdate.innerHTML = elementContent;
+      
+      // 验证是否成功应用
+      const newInnerHTML = elementToUpdate.innerHTML;
+      console.log("内容应用结果:", {
+        预期内容长度: elementContent.length,
+        实际应用后长度: newInnerHTML.length,
+        应用结果: newInnerHTML.substring(0, 50) + (newInnerHTML.length > 50 ? '...' : '')
+      });
+      
+      // 如果内容应用后完全为空，但预期不是空，尝试其他方法
+      if (newInnerHTML === '' && elementContent !== '') {
+        console.warn("innerHTML应用失败，尝试使用textContent");
+        elementToUpdate.textContent = elementContent;
+      }
+      
+      // 确保样式和类未丢失
+      if (originalStyle && !elementToUpdate.getAttribute('style')) {
+        elementToUpdate.setAttribute('style', originalStyle);
+      }
+      if (originalClass && elementToUpdate.className !== originalClass) {
+        elementToUpdate.className = originalClass;
+      }
+      
+      // 如果iframe有contentDocument，保存更新后的HTML
+      if (iframeRef.current && iframeRef.current.contentDocument) {
+        const updatedHtml = iframeRef.current.contentDocument.documentElement.outerHTML;
+        console.log("生成更新后的HTML文档");
+        if (onHtmlChange) {
+          onHtmlChange(updatedHtml);
+        }
+      }
+      
+      // 更新原始内容，避免重复应用
+      const updatedContent = elementToUpdate.innerHTML;
+      setOriginalContent(updatedContent);
+      setElementContent(updatedContent);
+      console.log("文本内容更改已应用，更新状态完成");
+    } catch (error) {
+      console.error("应用文本内容更改时出错:", error);
+      // 显示错误给用户
+      alert("应用内容变更失败: " + (error.message || "未知错误"));
+    }
+  };
+
   const handleApplyChanges = () => {
     const newClassString = updateClasses()
+    
+    // 应用CSS类更改
     if (onHtmlChange) {
       onHtmlChange(newClassString)
     }
@@ -654,9 +819,32 @@ export function FriendlyEditor({
       onApplyChanges(newClassString)
     }
 
+    // 应用文本内容更改
+    applyContentChanges();
+
     // Apply changes to the element directly for immediate feedback
-    if (targetElement) {
-      targetElement.className = newClassString
+    let elementToUpdate = targetElement;
+    
+    // 尝试通过ID找到元素，确保即使targetElement为null也能应用样式
+    if (!elementToUpdate && editingElementId && iframeRef.current && iframeRef.current.contentDocument) {
+      try {
+        elementToUpdate = iframeRef.current.contentDocument.querySelector(`[data-editing-id="${editingElementId}"]`) as HTMLElement;
+        console.log("在直接应用样式时通过ID找到元素:", elementToUpdate);
+      } catch (err) {
+        console.error("通过ID查找元素失败:", err);
+      }
+    }
+    
+    // 直接应用样式到元素
+    if (elementToUpdate) {
+      try {
+        console.log("直接应用样式到元素:", newClassString);
+        elementToUpdate.className = newClassString;
+      } catch (err) {
+        console.error("直接应用样式失败:", err);
+      }
+    } else {
+      console.warn("无法直接应用样式，因为找不到目标元素");
     }
     
     // 自动关闭编辑器
@@ -882,6 +1070,83 @@ export function FriendlyEditor({
 
             {/* TEXT TAB */}
             <TabsContent value="text" className="space-y-4 mt-4">
+              {/* 添加文本内容编辑功能 */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="element-content">{t('labels.elementContent')}</Label>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 text-xs" 
+                    onClick={() => setShowTextEditor(!showTextEditor)}
+                  >
+                    {showTextEditor ? t('buttons.hideEditor') : t('buttons.showEditor')}
+                  </Button>
+                </div>
+                
+                {showTextEditor && (
+                  <div className="space-y-2">
+                    <Textarea
+                      id="element-content"
+                      value={elementContent}
+                      onChange={(e) => setElementContent(e.target.value)}
+                      className="min-h-[120px] text-sm font-mono resize-y overflow-auto whitespace-pre-wrap break-words border-blue-200 focus:border-blue-400 focus:ring-blue-300"
+                      placeholder={t('placeholders.enterContent')}
+                      disabled={!canEditContent}
+                      spellCheck="false"
+                      onKeyDown={(e) => {
+                        // 添加Tab键支持，方便编辑HTML
+                        if (e.key === 'Tab') {
+                          e.preventDefault();
+                          const textarea = e.target as HTMLTextAreaElement;
+                          const start = textarea.selectionStart;
+                          const end = textarea.selectionEnd;
+                          
+                          // 插入2个空格作为缩进
+                          const newValue = elementContent.substring(0, start) + '  ' + elementContent.substring(end);
+                          setElementContent(newValue);
+                          
+                          // 保持光标位置
+                          setTimeout(() => {
+                            textarea.selectionStart = start + 2;
+                            textarea.selectionEnd = start + 2;
+                          }, 0);
+                        }
+                      }}
+                    />
+                    
+                    {!canEditContent && (
+                      <p className="text-xs text-yellow-500">{t('helpers.cannotEditContent')}</p>
+                    )}
+                    
+                    {canEditContent && (
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setElementContent(originalContent)}
+                          className="text-xs"
+                        >
+                          {t('buttons.resetContent')}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={applyContentChanges}
+                          className="text-xs"
+                        >
+                          {t('buttons.applyContent')}
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {originalContent !== elementContent && canEditContent && (
+                      <p className="text-xs text-blue-500">{t('helpers.contentChanged')}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="text-size">{t('labels.textSize')}</Label>
                 <Select

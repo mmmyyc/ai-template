@@ -353,7 +353,8 @@
       "userSelect": "User Selection",
       "aspectRatio": "Aspect Ratio",
       "objectFit": "Object Fit",
-      "scrollBehavior": "Scroll Behavior"
+      "scrollBehavior": "Scroll Behavior",
+      "elementContent": "Element Content"
     },
     "placeholders": {
       "selectSize": "Select size",
@@ -372,7 +373,8 @@
       "selectUserSelect": "Select user selection",
       "selectAspectRatio": "Select aspect ratio",
       "selectObjectFit": "Select object fit",
-      "selectScrollBehavior": "Select scroll behavior"
+      "selectScrollBehavior": "Select scroll behavior",
+      "enterContent": "Enter content here..."
     },
     "buttons": {
       "close": "Close Editor",
@@ -389,11 +391,17 @@
       "applyTooltip": "Apply changes and close",
       "deleteTooltip": "Delete Element",
       "delete": "Delete",
-      "deleteElement": "Delete Element"
+      "deleteElement": "Delete Element",
+      "resetContent": "Reset",
+      "applyContent": "Apply",
+      "hideEditor": "Hide Editor",
+      "showEditor": "Edit Content"
     },
     "helpers": {
       "removeClass": "Click X on tag to remove class",
-      "changedFields": "* Blue highlighted fields indicate changed properties"
+      "changedFields": "* Blue highlighted fields indicate changed properties",
+      "contentChanged": "* Content has been modified",
+      "cannotEditContent": "This element type does not support content editing"
     },
     "fontWeightLabels": {
       "normal": "Normal",
