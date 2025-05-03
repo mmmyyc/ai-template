@@ -992,6 +992,14 @@ export function FriendlyEditor({
   // 处理删除元素
   const handleDeleteElement = () => {
     console.log("触发删除元素", targetElement);
+
+    // 添加确认提示
+    const confirmationMessage = t('confirmations.deleteElement') || "确定要删除这个元素吗？此操作无法撤销。";
+    if (!window.confirm(confirmationMessage)) {
+      console.log("用户取消了删除操作");
+      return; // 如果用户取消，则不执行任何操作
+    }
+
     // 先关闭编辑器，避免DOM引用问题
     onClose();
     
