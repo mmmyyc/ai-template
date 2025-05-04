@@ -124,7 +124,8 @@
     },
     "streamppt": {
       "title": "Stream PPT",
-      "description": "Stream your PPT presentations"
+      "description": "Stream your PPT presentations",
+      "backToSlides": "Back to Slides"
     }
   },
   "WithWithout": {
@@ -559,7 +560,8 @@
       "exitEditMode": "Exit Edit Mode",
       "editMode": "Edit Mode",
       "stopGeneration": "Stop Generation",
-      "downloadSvg": "Download SVG"
+      "downloadSvg": "Download SVG",
+      "editModeTooltip": "Save the HTML content of the current element"
     },
     "feedback": {
       "storageCleared": "Local storage cleared",
@@ -743,6 +745,7 @@
     "slideCount": "{count} Slides",
     "addSlidesButton": "Add Slides",
     "noSlides": "No slides in this folder yet.",
-    "slideListTitle": "Slide List"
+    "slideListTitle": "Slide List",
+    "backToSlides": "Back to Slides"
   }
 } 

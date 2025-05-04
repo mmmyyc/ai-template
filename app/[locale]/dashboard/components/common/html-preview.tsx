@@ -117,10 +117,16 @@ export function HtmlPreview({
   htmlContent, 
   folderName,
   onEditModeChange,
+  actionType = 'save', // 新增参数，默认为'save'
+  htmlId=null,
+  defaultHtmlTitle=null,
 }: { 
   htmlContent: string, 
   folderName: string,
   onEditModeChange?: (isEditMode: boolean) => void,
+  actionType?: 'save' | 'edit', // 可以是'save'或'edit'
+  htmlId?: string,
+  defaultHtmlTitle?: string,
 }) {
   const t = useTranslations('HtmlPreview');
   const [htmlTitle, setHtmlTitle] = useState("");
@@ -423,6 +429,34 @@ export function HtmlPreview({
     if (htmlContentToSave) {
       try {
         const response = await apiClient.post('/html-ppt/createHtml', formData)
+        if(response.data.htmlId) {
+          toast.success(t('feedback.htmlSavedSuccess'));
+        } else {
+          toast.error(t('feedback.htmlSavedFailed'));
+        }
+      } catch (error) {
+        toast.error(t('feedback.htmlSavedFailed'));
+      }
+    }
+  };
+
+  const handleEditHtml = async () => {
+    // 检查标题是否为空或仅包含空格
+    if (!htmlTitle || htmlTitle.trim() === "") {
+      setHtmlTitle(defaultHtmlTitle || "");
+    }
+    if(htmlTitle.length >= 50) {
+      toast.error(t('feedback.titleTooLong'))
+      return;
+    }
+    const htmlContentToSave = iframeRef.current?.contentDocument?.documentElement.outerHTML;
+    const formData = new URLSearchParams();
+    formData.append('content', htmlContentToSave);
+    formData.append('title', htmlTitle);
+    formData.append('htmlId', htmlId);
+    if (htmlContentToSave) {
+      try {
+        const response = await apiClient.post('/html-ppt/updateHtml', formData)
         if(response.data.htmlId) {
           toast.success(t('feedback.htmlSavedSuccess'));
         } else {
@@ -1502,15 +1536,24 @@ export function HtmlPreview({
             <span>{t('buttons.clearStorage')}</span>
           </Button>
           <Button
-            onClick={handleSaveHtml}
+            onClick={actionType === 'save' ? handleSaveHtml : handleEditHtml}
             variant="outline"
             size="sm"
             className="h-7 px-2 text-xs dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
-            title={t('buttons.saveHtmlTooltip')}
+            title={actionType === 'save' ? t('buttons.saveHtmlTooltip') : t('buttons.editModeTooltip')}
             disabled={isSelecting}
           >
-            <Save className="h-3.5 w-3.5 mr-1" />
-            <span>{t('buttons.saveHtml')}</span>
+            {actionType === 'save' ? (
+              <>
+                <Save className="h-3.5 w-3.5 mr-1" />
+                <span>{t('buttons.saveHtml')}</span>
+              </>
+            ) : (
+              <>
+                <Edit className="h-3.5 w-3.5 mr-1" />
+                <span>{t('buttons.saveHtml')}</span>
+              </>
+            )}
           </Button>
         </div>
         <Tabs value={activePreviewTab} onValueChange={(value: string) => setActivePreviewTab(value as "ppt" | "html")} >
@@ -1545,6 +1588,7 @@ export function HtmlPreview({
               srcDoc={localHtmlContent}
               title={t('iframeTitle')}
               className="w-full h-full border-0 absolute inset-0 z-10"
+              style={{width: '100vw', height: '100vh', display: 'block', overflow: 'auto'}}
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
             />
             {isSelecting && (
@@ -1615,7 +1659,7 @@ export function HtmlPreview({
                     <span className="text-sm font-medium whitespace-nowrap">{t('titleInputLabel')}</span>
                     <Input
                       type="text"
-                      placeholder={t('titleInputPlaceholder')}
+                      placeholder={defaultHtmlTitle ? defaultHtmlTitle : t('titleInputPlaceholder')}
                       value={htmlTitle}
                       onChange={(e) => setHtmlTitle(e.target.value)}
                       className="h-8 text-sm flex-grow min-w-[150px] dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
@@ -1664,13 +1708,14 @@ export function HtmlPreview({
                     )}
                   </div>
                 </div>
-                <div className="flex-grow relative bg-gray-100 dark:bg-gray-800">
+                <div className="flex-grow relative bg-gray-100 dark:bg-gray-800" style={{height: 'calc(100vh - 150px)'}}>
                   <iframe
                     ref={iframeRef}
                     key={`iframe-${renderKey}`}
                     srcDoc={localHtmlContent}
                     title={t('iframeTitle')}
                     className="w-full h-full border-0 relative z-10"
+                    style={{minHeight: '500px', display: 'block', overflow: 'auto'}}
                     sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
                   />
                   {isSelecting && (

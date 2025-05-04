@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { File, FileText, Folder, ImageIcon, Music, Plus, X, FileUp, Trash2, GripVertical, Video, Play } from "lucide-react"
+import { File, FileText, Folder, ImageIcon, Music, Plus, X, FileUp, Trash2, GripVertical, Video, Play, Edit, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -12,6 +12,7 @@ import { useFolderStore } from "../../store/folderStore"
 import { SlideUploader } from "../components/slide-uploader"
 import { extractTitleFromHTML } from "../lib/utils"
 import type { Slide } from "../types/slide"
+import { HtmlPreview } from "@/app/[locale]/dashboard/components/common/html-preview"
 import { 
   DndContext, 
   closestCenter, 
@@ -38,9 +39,10 @@ interface SortableSlideItemProps {
   isActive: boolean
   onClick: () => void
   onDelete: (e: React.MouseEvent, slideId: string) => void
+  onEdit: (e: React.MouseEvent, slide: Slide) => void
 }
 
-function SortableSlideItem({ slide, index, isActive, onClick, onDelete }: SortableSlideItemProps) {
+function SortableSlideItem({ slide, index, isActive, onClick, onDelete, onEdit }: SortableSlideItemProps) {
   const { 
     attributes, 
     listeners, 
@@ -88,8 +90,15 @@ function SortableSlideItem({ slide, index, isActive, onClick, onDelete }: Sortab
           <div className="text-sm truncate">{slide.title}</div>
         </div>
         <button
+          onClick={(e) => onEdit(e, slide)}
+          className="ml-2 p-1 rounded-full hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/30 transition-colors"
+          title="编辑幻灯片"
+        >
+          <Edit className="h-4 w-4" />
+        </button>
+        <button
           onClick={(e) => onDelete(e, slide.id)}
-          className="ml-2 p-1 rounded-full hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 transition-colors"
+          className="ml-1 p-1 rounded-full hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 transition-colors"
           title="删除幻灯片"
         >
           <Trash2 className="h-4 w-4" />
@@ -107,6 +116,7 @@ export function FolderManager({
   onSlideUpload,
   onSlidesReorder,
   onSlideDelete,
+  onSlideUpdate,
   onSelectFolder,
   onPresentFolder
 }: {
@@ -116,9 +126,14 @@ export function FolderManager({
   onSlideUpload?: (slides: Slide[]) => void;
   onSlidesReorder?: (newSlides: Slide[]) => void;
   onSlideDelete?: (slideId: string) => void;
+  onSlideUpdate?: (slideId: string, content: string) => void;
   onSelectFolder?: (folderId: string) => void;
   onPresentFolder?: (folderId: string) => void;
 }) {
+  // 添加编辑模式状态
+  const [editMode, setEditMode] = useState(false);
+  const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
+  
   // 原有的文件夹store逻辑
   const { 
     folders, 
@@ -252,6 +267,46 @@ export function FolderManager({
 
   const selectedFolder = folders.find((folder) => folder.id === selectedFolderId)
 
+  // 处理编辑幻灯片
+  const handleEditSlide = (e: React.MouseEvent, slide: Slide) => {
+    e.stopPropagation();
+    setEditingSlide(slide);
+    setEditMode(true);
+  };
+
+  // 处理编辑模式变化
+  const handleEditModeChange = (isEditMode: boolean) => {
+    setEditMode(isEditMode);
+    if (!isEditMode) {
+      setEditingSlide(null);
+    }
+  };
+
+  // 如果在编辑模式，显示HtmlPreview
+  if (editMode && editingSlide) {
+    return (
+      <div className="fixed inset-0 z-[1000] w-full h-full bg-white">
+        <div className="absolute top-2 left-4 z-[1001]">
+          <Button
+            onClick={() => handleEditModeChange(false)}
+            className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-300 shadow-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t('backToSlides')}
+          </Button>
+        </div>
+        <HtmlPreview 
+          htmlContent={editingSlide.content} 
+          folderName={selectedFolder?.name || ''} 
+          onEditModeChange={handleEditModeChange}
+          actionType="edit"
+          htmlId={editingSlide.id}
+          defaultHtmlTitle={editingSlide.title}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full space-y-6">
       {/* 如果已选择文件夹且传入了幻灯片相关属性，则只显示幻灯片管理界面 */}
@@ -319,6 +374,7 @@ export function FolderManager({
                           isActive={index === currentSlideIndex}
                           onClick={() => onSlideChange(index)}
                           onDelete={handleSlideDelete}
+                          onEdit={handleEditSlide}
                         />
                       ))}
                     </SortableContext>

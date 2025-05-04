@@ -682,7 +682,8 @@
     "slideCount": "{count} 个幻灯片",
     "addSlidesButton": "添加幻灯片",
     "noSlides": "此文件夹中还没有幻灯片。",
-    "slideListTitle": "幻灯片列表"
+    "slideListTitle": "幻灯片列表",
+    "backToSlides": "返回幻灯片"
   },
   "HtmlPreview": {
     "title": "AI 生成预览",
@@ -709,7 +710,8 @@
       "nativeFullscreen": "原生全屏模式",
       "exitEditMode": "退出编辑模式",
       "editMode": "编辑模式",
-      "downloadSvg": "下载SVG"
+      "downloadSvg": "下载SVG",
+      "editModeTooltip": "保存当前元素的HTML内容"
     },
     "feedback": {
       "storageCleared": "本地存储已清除",
