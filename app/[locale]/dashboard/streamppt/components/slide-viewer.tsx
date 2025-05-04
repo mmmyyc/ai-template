@@ -35,6 +35,146 @@ type FrameState = {
   style?: React.CSSProperties;
 };
 
+// 添加一个处理HTML内容的函数，提取第一个div并全屏显示
+const processHtmlContent = (html: string): string => {
+  if (!html) return '';
+
+  try {
+    // 创建一个临时DOM解析HTML
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // 查找body中的第一个div
+    const firstDiv = doc.body.querySelector('div');
+    
+    if (!firstDiv) {
+      console.warn('处理HTML时未找到body中的第一个div');
+      return html; // 如果没找到，返回原始HTML
+    }
+    
+    // 提取第一个div的内容，保持它的完整HTML结构
+    const divContent = firstDiv.outerHTML;
+    
+    // 保留原始head内容
+    const headContent = doc.head.innerHTML;
+    
+    // 保留所有的scripts，包括内联和外部脚本
+    const scripts = Array.from(doc.querySelectorAll('script'));
+    let scriptContent = '';
+    scripts.forEach(script => {
+      // 复制script标签到新HTML
+      scriptContent += script.outerHTML;
+    });
+    
+    // 创建新的HTML，添加缩放容器但不修改原始div
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        ${headContent}
+        <style>
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: white;
+          }
+          
+          /* 外部缩放容器 - 不影响原始div的任何样式 */
+          .zoom-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center;
+            /* 初始比例为1，将由JS计算精确值 */
+            transform: scale(1);
+          }
+          
+          /* 不再使用媒体查询中的经验值，全部由JS精确计算 */
+        </style>
+        <script>
+          // 页面加载完成后精确计算缩放比例
+          document.addEventListener('DOMContentLoaded', function() {
+            // 等待字体和其他资源加载完成
+            setTimeout(calculateAndApplyScale, 50);
+            
+            // 当窗口大小改变时重新计算
+            window.addEventListener('resize', function() {
+              calculateAndApplyScale();
+            });
+          });
+          
+          // 精确计算缩放比例的函数
+          function calculateAndApplyScale() {
+            const container = document.querySelector('.zoom-container');
+            if (!container || !container.firstElementChild) return;
+            
+            const originalContent = container.firstElementChild;
+            
+            // 首先重置容器缩放，以获取内容的真实尺寸
+            container.style.transform = 'scale(1)';
+            
+            // 获取内容的精确尺寸（等待一帧以确保正确测量）
+            requestAnimationFrame(function() {
+              // 获取原始div的自然尺寸
+              const contentWidth = originalContent.getBoundingClientRect().width;
+              const contentHeight = originalContent.getBoundingClientRect().height;
+              
+              // 如果尺寸无效，则不进行操作
+              if (contentWidth <= 10 || contentHeight <= 10) return;
+              
+              // 获取视口尺寸
+              const viewportWidth = window.innerWidth;
+              const viewportHeight = window.innerHeight;
+              
+              // 不再使用边距，直接使用完整视口尺寸
+              // 计算精确的缩放比例
+              const scaleX = viewportWidth / contentWidth;
+              const scaleY = viewportHeight / contentHeight;
+              
+              // 使用较小的值确保内容完全在视口内
+              let scale = Math.min(scaleX, scaleY);
+              
+              // 限制缩放范围，避免过度缩放或过度放大
+              scale = Math.max(0.1, Math.min(scale, 2.0));
+              
+              // 将精确计算的缩放值应用到容器（保留4位小数）
+              scale = Math.round(scale * 10000) / 10000; // 精确到万分位
+              container.style.transform = 'scale(' + scale + ')';
+              
+              // 输出计算过程，方便调试
+              console.log('Content size:', contentWidth, 'x', contentHeight);
+              console.log('Viewport size:', viewportWidth, 'x', viewportHeight);
+              console.log('Scale factors - X:', scaleX, 'Y:', scaleY);
+              console.log('Applied scale:', scale);
+            });
+          }
+        </script>
+      </head>
+      <body>
+        <!-- 只用一个外部容器包裹原始div，不修改原始div的结构 -->
+        <div class="zoom-container">
+          ${divContent}
+        </div>
+        
+        <!-- 保留页面上的所有脚本 -->
+        ${scriptContent}
+      </body>
+      </html>
+    `;
+  } catch (error) {
+    console.error('处理HTML内容时出错:', error);
+    return html; // 出错时返回原始HTML
+  }
+};
+
 export function SlideViewer({ slides, currentSlideIndex, onSlideChange }: SlideViewerProps) {
   const iframeRefA = useRef<HTMLIFrameElement>(null);
   const iframeRefB = useRef<HTMLIFrameElement>(null);
@@ -411,7 +551,7 @@ export function SlideViewer({ slides, currentSlideIndex, onSlideChange }: SlideV
         className="w-full h-full border-none bg-white"
         title={slides[currentSlideIndex]?.title || 'Slide'}
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-        srcDoc={slides[currentSlideIndex]?.content || ''}
+        srcDoc={processHtmlContent(slides[currentSlideIndex]?.content || '')}
         style={{
           position: 'absolute',
           top: 0,
@@ -504,7 +644,7 @@ export function SlideViewer({ slides, currentSlideIndex, onSlideChange }: SlideV
                     title={frameA.title}
                     sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                     onLoad={() => handleIframeLoad('A')}
-                    srcDoc={frameA.html}
+                    srcDoc={processHtmlContent(frameA.html)}
                 />
             ) : frameA.src ? (
                 <iframe
@@ -542,7 +682,7 @@ export function SlideViewer({ slides, currentSlideIndex, onSlideChange }: SlideV
                     title={frameB.title}
                     sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                     onLoad={() => handleIframeLoad('B')}
-                    srcDoc={frameB.html}
+                    srcDoc={processHtmlContent(frameB.html)}
                 />
             ) : frameB.src ? (
                 <iframe
