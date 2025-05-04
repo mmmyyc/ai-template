@@ -555,7 +555,8 @@
       "nativeFullscreen": "Native Fullscreen Mode",
       "exitEditMode": "Exit Edit Mode",
       "editMode": "Edit Mode",
-      "stopGeneration": "Stop Generation"
+      "stopGeneration": "Stop Generation",
+      "downloadSvg": "Download SVG"
     },
     "feedback": {
       "storageCleared": "Local storage cleared",
@@ -573,7 +574,12 @@
       "htmlSavedFailed": "HTML save failed",
       "titleRequired": "Please enter the title",
       "titleTooLong": "The title is too long, please enter characters from 1 to 50.",
-      "elementDeleted": "Element deleted successfully"
+      "elementDeleted": "Element deleted successfully",
+      "preparingSvg": "Preparing SVG...",
+      "generatingSvg": "Generating SVG...",
+      "processingSvg": "Processing SVG...",
+      "svgDownloaded": "SVG downloaded successfully",
+      "svgDownloadFailed": "SVG download failed"
     },
     "errors": {
       "iframeNotAvailable": "Iframe content not available",

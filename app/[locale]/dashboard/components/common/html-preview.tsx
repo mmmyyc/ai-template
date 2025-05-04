@@ -15,7 +15,8 @@ import {
   Minimize,
   Edit,
   Fullscreen,
-  Square
+  Square,
+  FileCode
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -36,7 +37,7 @@ import {
 import html2canvas from 'html2canvas';
 import { useTranslations } from 'next-intl';
 import { Input } from "@/components/ui/input";
-import { toPng } from 'html-to-image';
+import { toPng, toSvg } from 'html-to-image';
 
 // Helper function to inject styles into an iframe
 const injectStylesIntoIframe = (
@@ -692,6 +693,159 @@ export function HtmlPreview({
       }
     }
   };
+
+  // Use html-to-image download SVG
+  const handleDownloadSvg = async () => {
+    setProcessingFeedback(t('feedback.preparingSvg')); // Update feedback message
+
+    if (!iframeRef.current) {
+      setProcessingFeedback(t('errors.iframeNotFound'));
+      setTimeout(() => setProcessingFeedback(null), 3000);
+      return;
+    }
+    const iframeDoc = iframeRef.current.contentDocument;
+    if (!iframeDoc) {
+      setProcessingFeedback(t('errors.iframeDocNotAccessible'));
+      setTimeout(() => setProcessingFeedback(null), 3000);
+      return;
+    }
+    const iframeBody = iframeDoc.body;
+    if (!iframeBody) {
+      setProcessingFeedback(t('errors.iframeBodyNotAccessible'));
+      setTimeout(() => setProcessingFeedback(null), 3000);
+      return;
+    }
+
+    if (iframeBody.clientWidth === 0 || iframeBody.clientHeight === 0) {
+      console.warn("Warning: iframe content dimensions are zero, SVG might be empty", {
+        width: iframeBody.clientWidth,
+        height: iframeBody.clientHeight
+      });
+      setProcessingFeedback("Warning: Content dimensions are unusual, SVG export might fail.");
+      // Continue trying, but warn the user.
+    }
+
+    const disableAnimationStyleId = "temp-disable-animations";
+    let tempStyleElement: HTMLStyleElement | null = null;
+    const ensureVisibilityStyleId = "temp-ensure-visibility";
+    let ensureVisibilityStyle: HTMLStyleElement | null = null;
+
+    try {
+      setProcessingFeedback(t('feedback.disablingAnimations'));
+      tempStyleElement = iframeDoc.createElement("style");
+      tempStyleElement.id = disableAnimationStyleId;
+      tempStyleElement.textContent = `* { animation: none !important; transition: none !important; scroll-behavior: auto !important; }`;
+      iframeDoc.head.appendChild(tempStyleElement);
+
+      setProcessingFeedback("Waiting for content to fully render...");
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for async content
+
+      ensureVisibilityStyle = iframeDoc.createElement("style");
+      ensureVisibilityStyle.id = ensureVisibilityStyleId;
+      ensureVisibilityStyle.textContent = `* { visibility: visible !important; opacity: 1 !important; } script, style, link, meta, [hidden], [style*="display: none"], [style*="visibility: hidden"], [style*="opacity: 0"] { display: none !important; visibility: hidden !important; opacity: 0 !important; }`;
+      iframeDoc.head.appendChild(ensureVisibilityStyle);
+      await new Promise(resolve => setTimeout(resolve, 100)); // Apply visibility style
+
+      // Font Awesome Check (similar to PNG)
+      const ensureFontAwesomeLoaded = async () => {
+        setProcessingFeedback("Checking Font Awesome resources...");
+        const fontAwesomeElements = iframeDoc.querySelectorAll('.fa, .fas, .far, .fab, [class*="fa-"], i[class*="fa-"]');
+        if (fontAwesomeElements.length > 0) {
+          setProcessingFeedback(`Waiting for ${fontAwesomeElements.length} Font Awesome icons...`);
+          await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for fonts
+        }
+      };
+      await ensureFontAwesomeLoaded();
+
+      // Image Loading Check (similar to PNG)
+      const images = Array.from(iframeDoc.querySelectorAll('img'));
+      if (images.length > 0) {
+        setProcessingFeedback(`Waiting for ${images.length} images to load...`);
+        await Promise.race([
+          new Promise(resolve => setTimeout(resolve, 8000)), // Timeout
+          Promise.all(images.map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+          }))
+        ]);
+      }
+
+      // Canvas/SVG Check (similar to PNG)
+      const canvasElements = iframeDoc.querySelectorAll('canvas');
+      if (canvasElements.length > 0) {
+        setProcessingFeedback(`Waiting for ${canvasElements.length} charts...`);
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+      const svgElements = iframeDoc.querySelectorAll('svg, [class*="icon"], [class*="Icon"]');
+      if (svgElements.length > 0) {
+        setProcessingFeedback(`Waiting for ${svgElements.length} SVG icons...`);
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+
+      setProcessingFeedback(t('feedback.generatingSvg')); // Update feedback
+      console.log("Generating SVG from iframeBody", iframeBody);
+
+      const contentDiv = iframeBody.querySelector('div'); // Prefer content div
+      const targetElement = contentDiv || iframeBody;
+
+      try {
+        // Generate SVG
+        const dataUrl = await toSvg(targetElement, {
+          backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
+          // SVG dimensions can often be inferred, but setting width/height might help consistency
+          width: targetElement.scrollWidth,
+          height: targetElement.scrollHeight,
+          skipFonts: false,
+          imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', // Simple placeholder
+        });
+
+        setProcessingFeedback(t('feedback.processingSvg')); // Update feedback
+
+        if (!dataUrl || dataUrl.length < 200) { // SVG can be smaller than PNG
+          console.warn(`Warning: Generated SVG Data URL might be too small (${dataUrl.length} chars)`);
+          setProcessingFeedback("Warning: Generated SVG might be incomplete.");
+        }
+
+        // Create download link
+        const downloadLink = document.createElement("a");
+        const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.svg', {defaultValue: 'svg'}); // Add SVG prefix translation
+        downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.svg`;
+        downloadLink.href = dataUrl;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        setProcessingFeedback(t('feedback.svgDownloaded')); // Update feedback
+        setTimeout(() => setProcessingFeedback(null), 2000);
+
+      } catch (error: any) {
+        console.error("Error generating SVG:", error);
+        const errorMsg = error.message || String(error);
+         if (errorMsg.includes("tainted") || errorMsg.includes("security") || errorMsg.includes("cross-origin")) {
+          console.error("Likely failed due to cross-origin resources:", errorMsg);
+          setProcessingFeedback("Error: SVG export failed due to cross-origin resource limitations.");
+        } else {
+          throw new Error(t('errors.downloadLinkCreationFailed', { error: errorMsg }));
+        }
+      }
+    } catch (error) {
+      console.error("Error downloading SVG:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setProcessingFeedback(t('feedback.svgDownloadFailed', { error: errorMessage })); // Update feedback
+      setTimeout(() => setProcessingFeedback(null), 3000);
+    } finally {
+      if (tempStyleElement && iframeDoc?.head.contains(tempStyleElement)) {
+        iframeDoc.head.removeChild(tempStyleElement);
+        console.log("Ensured temporary animation style removed (SVG)");
+      }
+      if (ensureVisibilityStyle && iframeDoc?.head.contains(ensureVisibilityStyle)) {
+        iframeDoc.head.removeChild(ensureVisibilityStyle);
+        console.log("Ensured visibility style removed (SVG)");
+      }
+    }
+  };
+
   // --- Iframe Setup and Event Handling ---
 
   // Function to set up listeners inside the iframe
@@ -1327,6 +1481,10 @@ export function HtmlPreview({
               <DropdownMenuItem onClick={handleDownloadImage} className="dark:text-gray-200 dark:hover:bg-gray-700">
                 <ImageDown className="h-3.5 w-3.5 mr-2" />
                 {t('buttons.downloadImage')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownloadSvg} className="dark:text-gray-200 dark:hover:bg-gray-700">
+                <FileCode className="h-3.5 w-3.5 mr-2" />
+                {t('buttons.downloadSvg', { defaultValue: 'Download SVG' })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

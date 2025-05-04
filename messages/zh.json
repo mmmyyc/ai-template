@@ -696,7 +696,8 @@
       "exitNativeFullscreen": "退出原生全屏模式",
       "nativeFullscreen": "原生全屏模式",
       "exitEditMode": "退出编辑模式",
-      "editMode": "编辑模式"
+      "editMode": "编辑模式",
+      "downloadSvg": "下载SVG"
     },
     "feedback": {
       "storageCleared": "本地存储已清除",
@@ -715,7 +716,12 @@
       "titleRequired": "请输入标题",
       "titleTooLong": "标题过长，请输入 1 至 50 个字符。",
       "stopGeneration": "停止生成",
-      "elementDeleted": "元素已删除"
+      "elementDeleted": "元素已删除",
+      "preparingSvg": "准备SVG...",
+      "generatingSvg": "生成SVG...",
+      "processingSvg": "处理SVG...",
+      "svgDownloaded": "SVG下载成功",
+      "svgDownloadFailed": "SVG下载失败"
     },
     "errors": {
       "iframeNotAvailable": "Iframe 内容不可用",
