@@ -446,7 +446,9 @@
       "userSelect": "用户选择",
       "aspectRatio": "宽高比",
       "objectFit": "对象适应",
-      "scrollBehavior": "滚动行为"
+      "scrollBehavior": "滚动行为",
+      "elementContent": "元素内容",
+      "enterContent": "在此输入内容..."
     },
     "placeholders": {
       "selectSize": "选择尺寸",
@@ -465,7 +467,11 @@
       "selectUserSelect": "选择用户选择",
       "selectAspectRatio": "选择宽高比",
       "selectObjectFit": "选择对象适应",
-      "selectScrollBehavior": "选择滚动行为"
+      "selectScrollBehavior": "选择滚动行为",
+      "enterContent": "在此输入内容..."
+    },
+    "confirmations": {
+      "deleteElement": "您确定要删除此元素吗？此操作无法撤销。"
     },
     "buttons": {
       "close": "关闭编辑器",
@@ -482,11 +488,17 @@
       "applyTooltip": "应用更改并关闭",
       "deleteTooltip": "删除元素",
       "delete": "删除",
-      "deleteElement": "删除元素"
+      "deleteElement": "删除元素",
+      "hideEditor": "隐藏编辑器",
+      "showEditor": "编辑内容",
+      "resetContent": "重置",
+      "applyContent": "应用"
     },
     "helpers": {
       "removeClass": "点击标签上的 X 可移除此类",
-      "changedFields": "* 蓝色高亮字段表示已更改的属性"
+      "changedFields": "* 蓝色高亮字段表示已更改的属性",
+      "contentChanged": "* 内容已被修改",
+      "cannotEditContent": "此元素类型不支持内容编辑"
     },
     "fontWeightLabels": {
       "normal": "常规", 
