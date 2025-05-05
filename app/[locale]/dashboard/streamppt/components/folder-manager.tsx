@@ -285,7 +285,7 @@ export function FolderManager({
   // 如果在编辑模式，显示HtmlPreview
   if (editMode && editingSlide) {
     return (
-      <div className="fixed inset-0 z-[1000] w-full h-full bg-white">
+      <div className="fixed inset-0 z-[40] w-full h-full bg-white">
         <div className="absolute top-2 left-4 z-[1001]">
           <Button
             onClick={() => handleEditModeChange(false)}
