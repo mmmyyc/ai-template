@@ -6,7 +6,7 @@ const config = {
   appName: "SlidesCraft",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "Get high-quality personalized Shimeji desktop pets without spending weeks on customization or hundreds of dollars.",
+    "SlidesCraft is a professional AI presentation tool offering fine-grained content control, deep customization, data visualization, and online presentation features to help you quickly create high-quality professional PPTs.",
   // REQUIRED (no https://, not trialing slash at the end, just the naked domain)
   // domainName: "SlidesCraft.com",
   domainName: "slidescraft.com",

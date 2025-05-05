@@ -9,11 +9,11 @@ import { getSEOTags } from "@/libs/seo";
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata =  getSEOTags({
-  title: "SlidesCraft - Create AI Desktop Pets & Virtual Companions",
-  description: "Generate high-quality AI-powered desktop pets with SlidesCraft. Customize virtual companions featuring intelligent interactions and adorable animations for your workspace.",
+  title: "SlidesCraft - AI PPT Generator | Professional Presentation Tool",
+  description: "SlidesCraft is a professional AI presentation tool offering fine-grained content control, deep customization, data visualization, and online presentation features to help you quickly create high-quality professional PPTs.",
   openGraph: {
-    title: "SlidesCraft - Create AI Desktop Pets & Virtual Companions",
-    description: "Generate high-quality AI-powered desktop pets with SlidesCraft. Customize virtual companions featuring intelligent interactions and adorable animations for your workspace.",
+    title: "SlidesCraft - AI PPT Generator | Professional Presentation Tool",
+    description: "SlidesCraft is a professional AI presentation tool offering fine-grained content control, deep customization, data visualization, and online presentation features to help you quickly create high-quality professional PPTs.",
     url: `https://${config.domainName}/dashboard`,
   },
   canonicalUrlRelative: "/dashboard",
