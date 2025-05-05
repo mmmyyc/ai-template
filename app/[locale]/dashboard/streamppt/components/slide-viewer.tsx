@@ -66,7 +66,12 @@ const processHtmlContent = (html: string): string => {
       scriptContent += script.outerHTML;
     });
     
-    // 创建新的HTML，添加缩放容器但不修改原始div
+    // 提取body的所有属性
+    const bodyAttributes = Array.from(doc.body.attributes)
+      .map(attr => `${attr.name}="${attr.value}"`)
+      .join(' ');
+    
+    // 创建新的HTML，添加缩放容器，并将body的属性应用到缩放容器
     return `
       <!DOCTYPE html>
       <html>
@@ -79,7 +84,6 @@ const processHtmlContent = (html: string): string => {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: white;
           }
           
           /* 外部缩放容器 - 不影响原始div的任何样式 */
@@ -158,12 +162,11 @@ const processHtmlContent = (html: string): string => {
           }
         </script>
       </head>
-      <body>
-        <!-- 只用一个外部容器包裹原始div，不修改原始div的结构 -->
-        <div class="zoom-container">
+      <body ${bodyAttributes}>
+        <!-- 只用一个外部容器包裹原始div，不修改原始div的结构，同时应用body的属性 -->
+        <div class="zoom-container" >
           ${divContent}
         </div>
-        
         <!-- 保留页面上的所有脚本 -->
         ${scriptContent}
       </body>

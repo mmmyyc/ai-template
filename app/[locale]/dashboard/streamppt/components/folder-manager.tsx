@@ -235,7 +235,7 @@ export function FolderManager({
     selectFolder(newSelectedId)
     
     if (newSelectedId) {
-      const folder = folders.find(folder => folder.id === id)
+      const folder = folders.find((folder: any) => folder.id === id)
       if (folder) {
         router.push(`/dashboard/streamppt?folderId=${folder.id}`)
       }
@@ -265,7 +265,7 @@ export function FolderManager({
   }
 
 
-  const selectedFolder = folders.find((folder) => folder.id === selectedFolderId)
+  const selectedFolder = folders.find((folder: any) => folder.id === selectedFolderId)
 
   // 处理编辑幻灯片
   const handleEditSlide = (e: React.MouseEvent, slide: Slide) => {
@@ -437,7 +437,7 @@ export function FolderManager({
               <div className="text-center py-8 text-muted-foreground">{t('noFoldersMessage')}</div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {folders.map((folder) => (
+                {folders.map((folder: any) => (
                   <div
                     key={folder.id}
                     className={cn(

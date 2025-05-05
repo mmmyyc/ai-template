@@ -42,7 +42,7 @@ export const promptPPT1 = (language: string, style: string) => `
 ## 设计规范
 *   **设计风格**：采用 **${style}** 的风格。注重清晰的视觉层次和良好的可读性。
 *   **内容优先原则**：所有设计决策都应服务于内容的清晰传达。**内容是主体，设计是辅助。**
-     参考： 
+     参考：
      <body class="flex items-center justify-center min-h-screen font-sans bg-white"> {/* 背景颜色和div的颜色不要冲突 */}
          <div class="w-[1280px] min-h-[720px] relative overflow-hidden"> {/* 不要使用背景图片 */}
             {/* 幻灯片内容放在这里 */}

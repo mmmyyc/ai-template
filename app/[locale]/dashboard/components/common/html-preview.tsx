@@ -37,7 +37,7 @@ import {
 import html2canvas from 'html2canvas';
 import { useTranslations } from 'next-intl';
 import { Input } from "@/components/ui/input";
-import { toPng, toSvg } from 'html-to-image';
+import { domToSvg, domToPng } from 'modern-screenshot';
 
 // Helper function to inject styles into an iframe
 const injectStylesIntoIframe = (
@@ -441,23 +441,30 @@ export function HtmlPreview({
   };
 
   const handleEditHtml = async () => {
-    // 检查标题是否为空或仅包含空格
-    if (!htmlTitle || htmlTitle.trim() === "") {
-      setHtmlTitle(defaultHtmlTitle || "");
+    // 1. 确定要使用的最终标题
+    let titleToUse = htmlTitle.trim(); // 先获取当前输入的标题并去除前后空格
+    if (!titleToUse) { // 如果处理后为空
+      titleToUse = defaultHtmlTitle || ""; // 使用默认标题
+      setHtmlTitle(titleToUse); // 同时更新状态，以便UI显示正确（这次更新不影响本次提交）
     }
-    if(htmlTitle.length >= 50) {
-      toast.error(t('feedback.titleTooLong'))
+
+    // 2. 使用确定的 titleToUse 进行后续操作
+    if (titleToUse.length >= 50) {
+      toast.error(t('feedback.titleTooLong'));
       return;
     }
+
     const htmlContentToSave = iframeRef.current?.contentDocument?.documentElement.outerHTML;
     const formData = new URLSearchParams();
     formData.append('content', htmlContentToSave);
-    formData.append('title', htmlTitle);
+    // 3. 使用确定的 titleToUse 添加到 formData
+    formData.append('title', titleToUse); 
     formData.append('htmlId', htmlId);
+
     if (htmlContentToSave) {
       try {
-        const response = await apiClient.post('/html-ppt/updateHtml', formData)
-        if(response.data.htmlId) {
+        const response = await apiClient.post('/html-ppt/updateHtml', formData);
+        if (response.data.htmlId) {
           toast.success(t('feedback.htmlSavedSuccess'));
         } else {
           toast.error(t('feedback.htmlSavedFailed'));
@@ -467,6 +474,24 @@ export function HtmlPreview({
       }
     }
   };
+
+  // 应用样式
+  const applyIframeStyles = useCallback((iframeElement: HTMLIFrameElement | null) => {
+    if (!iframeElement?.contentDocument) return;
+    const doc = iframeElement.contentDocument;
+    if (doc.getElementById('ppt-viewer-styles')) return;
+
+    const style = doc.createElement('style');
+    style.id = 'ppt-viewer-styles';
+    style.textContent = `
+      body { margin: 0; padding: 0; height: 100vh; width: 100vw; }
+      /* Remove overflow hidden to allow scrolling */
+      /* 保留滚动条样式，不覆盖原始滚动行为 */
+    `;
+    requestAnimationFrame(() => {
+      doc.head?.appendChild(style);
+    });
+  }, []);
 
   // 改进下载HTML功能，添加PPT模式下的样式
   const handleDownloadHtml = () => {
@@ -506,377 +531,101 @@ export function HtmlPreview({
       setTimeout(() => setProcessingFeedback(null), 3000);
       return;
     }
-    const iframeDoc = iframeRef.current.contentDocument;
-    if (!iframeDoc) {
-      setProcessingFeedback(t('errors.iframeDocNotAccessible'));
-      setTimeout(() => setProcessingFeedback(null), 3000);
-      return;
-    }
-    const iframeBody = iframeDoc.body;
-    if (!iframeBody) {
-      setProcessingFeedback(t('errors.iframeBodyNotAccessible'));
-      setTimeout(() => setProcessingFeedback(null), 3000);
-      return;
-    }
-
-    // 检查iframe内容尺寸，如果为0可能导致空白截图
-    if (iframeBody.clientWidth === 0 || iframeBody.clientHeight === 0) {
-      console.warn("警告: iframe内容尺寸为0，可能导致空白截图", {
-        width: iframeBody.clientWidth,
-        height: iframeBody.clientHeight
-      });
-      setProcessingFeedback("警告：内容尺寸异常，可能会导致截图失败");
-      // 继续尝试，但提醒用户可能有问题
-    }
-
-    const disableAnimationStyleId = "temp-disable-animations";
-    let tempStyleElement: HTMLStyleElement | null = null;
     
-    // 将ensureVisibilityStyle移到函数作用域顶部，这样finally可以访问
-    const ensureVisibilityStyleId = "temp-ensure-visibility";
-    let ensureVisibilityStyle: HTMLStyleElement | null = null;
-
     try {
-      setProcessingFeedback(t('feedback.disablingAnimations'));
-      tempStyleElement = iframeDoc.createElement("style");
-      tempStyleElement.id = disableAnimationStyleId;
-      tempStyleElement.textContent = `
-        * {
-          animation: none !important;
-          transition: none !important;
-          scroll-behavior: auto !important;
-        }
-      `;
-      iframeDoc.head.appendChild(tempStyleElement);
-
-      // 等待所有可能的异步内容加载完成
-      setProcessingFeedback("等待内容完全渲染...");
-      
-      // 等待一个动画帧
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-      
-      // 增加更长的等待时间，确保异步内容加载完成
-      // 500ms提供更充分的时间
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 添加一个临时样式来确保截图期间所有元素可见
-      ensureVisibilityStyle = iframeDoc.createElement("style");
-      ensureVisibilityStyle.id = ensureVisibilityStyleId;
-      ensureVisibilityStyle.textContent = `
-        * {
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-        /* 保留一些常见的被隐藏元素，并确保其 visibility 也是 hidden */
-        script, style, link, meta, [hidden],
-        [style*="display: none"],
-        [style*="visibility: hidden"],
-        [style*="opacity: 0"] {
-          display: none !important;
-          visibility: hidden !important; /* 添加这个以确保隐藏 */
-          opacity: 0 !important; /* 添加这个以确保隐藏 */
-        }
-      `;
-      iframeDoc.head.appendChild(ensureVisibilityStyle);
-      
-      // 给DOM一点时间来应用这个样式
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // 检查Font Awesome是否已加载
-      const ensureFontAwesomeLoaded = async () => {
-        setProcessingFeedback("检查Font Awesome资源是否加载...");
-        
-        // 检查是否存在Font Awesome相关元素
-        const fontAwesomeElements = iframeDoc.querySelectorAll('.fa, .fas, .far, .fab, [class*="fa-"], i[class*="fa-"]');
-        
-        if (fontAwesomeElements.length > 0) {
-          setProcessingFeedback(`等待${fontAwesomeElements.length}个Font Awesome图标渲染...`);
-          
-          // 如果Font Awesome样式表未加载，尝试注入
-          const hasFontAwesomeStylesheet = Array.from(iframeDoc.styleSheets).some(
-            styleSheet => {
-              try {
-                return styleSheet.href && styleSheet.href.includes('font-awesome');
-              } catch (e) {
-                return false; // 对于跨域样式表可能会抛出安全错误
-              }
-            }
-          );
-          
-          if (!hasFontAwesomeStylesheet) {
-            console.log("Font Awesome样式表可能未加载，确保资源加载完成");
-          }
-          
-          // 延长等待时间，确保字体资源下载完成 (1500ms)
-          await new Promise(resolve => setTimeout(resolve, 1500));
-        }
-      };
-      
-      // 执行Font Awesome加载检查
-      await ensureFontAwesomeLoaded();
-
-      // 检查是否存在任何图片，并且是否全部加载完成
-      const images = Array.from(iframeDoc.querySelectorAll('img'));
-      if (images.length > 0) {
-        setProcessingFeedback(`等待${images.length}张图片加载完成...`);
-        
-        // 等待所有图片加载完成或超时
-        await Promise.race([
-          // 最多等待8秒
-          new Promise(resolve => setTimeout(resolve, 8000)),
-          // 等待所有图片加载
-          Promise.all(images.map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => {
-              img.onload = resolve;
-              img.onerror = resolve; // 即使加载失败也继续
-            });
-          }))
-        ]);
-      }
-
-      // 检查是否有Canvas元素（可能是图表）
-      const canvasElements = iframeDoc.querySelectorAll('canvas');
-      if (canvasElements.length > 0) {
-        setProcessingFeedback(`等待${canvasElements.length}个图表渲染...`);
-        // 额外等待可能的图表渲染 (800ms)
-        await new Promise(resolve => setTimeout(resolve, 800));
+      // Get the iframe document
+      const iframeDoc = iframeRef.current.contentDocument;
+      if (!iframeDoc) {
+        throw new Error(t('errors.iframeDocNotAccessible'));
       }
       
-      // 检查SVG和其他图标元素
-      const svgElements = iframeDoc.querySelectorAll('svg, [class*="icon"], [class*="Icon"]');
-      if (svgElements.length > 0) {
-        setProcessingFeedback(`等待${svgElements.length}个SVG图标渲染...`);
-        // 等待SVG图标渲染 (800ms)
-        await new Promise(resolve => setTimeout(resolve, 800));
-      }
-
+      // Get the content element
+      const contentElement = iframeDoc.body.querySelector('div') || iframeDoc.body;
+      
       setProcessingFeedback(t('feedback.generatingImage'));
-      console.log("iframeBody", iframeBody);
       
-      // Find the main content div inside the body
-      const contentDiv = iframeBody.querySelector('div');
-
-      // Use the content div's dimensions if found, otherwise fallback to body dimensions
-      const canvasWidth = contentDiv ? contentDiv.scrollWidth : iframeBody.scrollWidth;
-      const canvasHeight = contentDiv ? contentDiv.scrollHeight : iframeBody.scrollHeight;
-
-      console.log(`Using canvas dimensions: ${canvasWidth}x${canvasHeight}`);
-      // 使用html-to-image替代html2canvas
-      try {
-        // 生成图片
-        const dataUrl = await toPng(contentDiv, {
-          backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
-          pixelRatio: 2,
-          quality: 0.95,
-          // Use the calculated dimensions
-          canvasWidth: canvasWidth,
-          canvasHeight: canvasHeight,
-          skipFonts: false, // 需要处理字体
-          // 可以设置更长的超时
-          imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
-        });
-        
-        setProcessingFeedback(t('feedback.processingImage'));
-
-        // 检查生成的dataUrl是否有效
-        if (!dataUrl || dataUrl.length < 1000) {
-          console.warn(`警告：生成的Data URL大小异常小 (${dataUrl.length} chars)`);
-          setProcessingFeedback("警告：生成的图片大小异常，可能是空白的");
-        }
-        
-        // 创建下载链接
-        const downloadLink = document.createElement("a");
-        const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
-        downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
-        downloadLink.href = dataUrl;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        
-        setProcessingFeedback(t('feedback.imageDownloaded'));
-        setTimeout(() => setProcessingFeedback(null), 2000);
-        
-      } catch (error: any) {
-        console.error("Error generating image:", error);
-        
-        // 检查是否是由于跨域资源导致的错误
-        const errorMsg = error.message || String(error);
-        if (errorMsg.includes("tainted") || errorMsg.includes("security") || errorMsg.includes("cross-origin")) {
-          console.error("可能因为跨域资源而失败:", errorMsg);
-          setProcessingFeedback("错误：由于跨域资源限制，截图失败。请检查页面上的外部图片和资源");
-        } else {
-          throw new Error(t('errors.downloadLinkCreationFailed', { error: errorMsg }));
-        }
-      }
+      // Use domToPng from modern-screenshot
+      const dataUrl = await domToPng(contentElement, {
+        backgroundColor: getComputedStyle(iframeDoc.body).backgroundColor || "#ffffff",
+        width: contentElement.scrollWidth,
+        height: contentElement.scrollHeight,
+        quality: 0.95,
+        scale: 2,
+        debug: false,
+      });
+      
+      setProcessingFeedback(t('feedback.processingImage'));
+      
+      // Create download link
+      const downloadLink = document.createElement("a");
+      const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.html');
+      downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.png`;
+      downloadLink.href = dataUrl;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      setProcessingFeedback(t('feedback.imageDownloaded'));
+      setTimeout(() => setProcessingFeedback(null), 2000);
+      
     } catch (error) {
-      console.error("Error downloading image:", error);
+      console.error("Error generating image:", error);
       const errorMessage = error instanceof Error ? error.message : String(error);
       setProcessingFeedback(t('feedback.imageDownloadFailed', { error: errorMessage }));
       setTimeout(() => setProcessingFeedback(null), 3000);
-    } finally {
-      if (tempStyleElement && iframeDoc?.head.contains(tempStyleElement)) {
-        iframeDoc.head.removeChild(tempStyleElement);
-        console.log("Ensured temporary animation style removed");
-      }
-      
-      // 确保移除可见性样式
-      if (ensureVisibilityStyle && iframeDoc?.head.contains(ensureVisibilityStyle)) {
-        iframeDoc.head.removeChild(ensureVisibilityStyle);
-        console.log("Ensured visibility style removed");
-      }
     }
   };
 
-  // Use html-to-image download SVG
+  // Use modern-screenshot for SVG download
   const handleDownloadSvg = async () => {
-    setProcessingFeedback(t('feedback.preparingSvg')); // Update feedback message
+    setProcessingFeedback(t('feedback.preparingSvg'));
 
     if (!iframeRef.current) {
       setProcessingFeedback(t('errors.iframeNotFound'));
       setTimeout(() => setProcessingFeedback(null), 3000);
       return;
     }
-    const iframeDoc = iframeRef.current.contentDocument;
-    if (!iframeDoc) {
-      setProcessingFeedback(t('errors.iframeDocNotAccessible'));
-      setTimeout(() => setProcessingFeedback(null), 3000);
-      return;
-    }
-    const iframeBody = iframeDoc.body;
-    if (!iframeBody) {
-      setProcessingFeedback(t('errors.iframeBodyNotAccessible'));
-      setTimeout(() => setProcessingFeedback(null), 3000);
-      return;
-    }
-
-    if (iframeBody.clientWidth === 0 || iframeBody.clientHeight === 0) {
-      console.warn("Warning: iframe content dimensions are zero, SVG might be empty", {
-        width: iframeBody.clientWidth,
-        height: iframeBody.clientHeight
-      });
-      setProcessingFeedback("Warning: Content dimensions are unusual, SVG export might fail.");
-      // Continue trying, but warn the user.
-    }
-
-    const disableAnimationStyleId = "temp-disable-animations";
-    let tempStyleElement: HTMLStyleElement | null = null;
-    const ensureVisibilityStyleId = "temp-ensure-visibility";
-    let ensureVisibilityStyle: HTMLStyleElement | null = null;
-
+    
     try {
-      setProcessingFeedback(t('feedback.disablingAnimations'));
-      tempStyleElement = iframeDoc.createElement("style");
-      tempStyleElement.id = disableAnimationStyleId;
-      tempStyleElement.textContent = `* { animation: none !important; transition: none !important; scroll-behavior: auto !important; }`;
-      iframeDoc.head.appendChild(tempStyleElement);
-
-      setProcessingFeedback("Waiting for content to fully render...");
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for async content
-
-      ensureVisibilityStyle = iframeDoc.createElement("style");
-      ensureVisibilityStyle.id = ensureVisibilityStyleId;
-      ensureVisibilityStyle.textContent = `* { visibility: visible !important; opacity: 1 !important; } script, style, link, meta, [hidden], [style*="display: none"], [style*="visibility: hidden"], [style*="opacity: 0"] { display: none !important; visibility: hidden !important; opacity: 0 !important; }`;
-      iframeDoc.head.appendChild(ensureVisibilityStyle);
-      await new Promise(resolve => setTimeout(resolve, 100)); // Apply visibility style
-
-      // Font Awesome Check (similar to PNG)
-      const ensureFontAwesomeLoaded = async () => {
-        setProcessingFeedback("Checking Font Awesome resources...");
-        const fontAwesomeElements = iframeDoc.querySelectorAll('.fa, .fas, .far, .fab, [class*="fa-"], i[class*="fa-"]');
-        if (fontAwesomeElements.length > 0) {
-          setProcessingFeedback(`Waiting for ${fontAwesomeElements.length} Font Awesome icons...`);
-          await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for fonts
-        }
-      };
-      await ensureFontAwesomeLoaded();
-
-      // Image Loading Check (similar to PNG)
-      const images = Array.from(iframeDoc.querySelectorAll('img'));
-      if (images.length > 0) {
-        setProcessingFeedback(`Waiting for ${images.length} images to load...`);
-        await Promise.race([
-          new Promise(resolve => setTimeout(resolve, 8000)), // Timeout
-          Promise.all(images.map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-          }))
-        ]);
+      // Get the iframe document
+      const iframeDoc = iframeRef.current.contentDocument;
+      if (!iframeDoc) {
+        throw new Error(t('errors.iframeDocNotAccessible'));
       }
-
-      // Canvas/SVG Check (similar to PNG)
-      const canvasElements = iframeDoc.querySelectorAll('canvas');
-      if (canvasElements.length > 0) {
-        setProcessingFeedback(`Waiting for ${canvasElements.length} charts...`);
-        await new Promise(resolve => setTimeout(resolve, 800));
-      }
-      const svgElements = iframeDoc.querySelectorAll('svg, [class*="icon"], [class*="Icon"]');
-      if (svgElements.length > 0) {
-        setProcessingFeedback(`Waiting for ${svgElements.length} SVG icons...`);
-        await new Promise(resolve => setTimeout(resolve, 800));
-      }
-
-      setProcessingFeedback(t('feedback.generatingSvg')); // Update feedback
-      console.log("Generating SVG from iframeBody", iframeBody);
-
-      const contentDiv = iframeBody.querySelector('div'); // Prefer content div
-      const targetElement = contentDiv || iframeBody;
-
-      try {
-        // Generate SVG
-        const dataUrl = await toSvg(targetElement, {
-          backgroundColor: getComputedStyle(iframeBody).backgroundColor || "#ffffff",
-          // SVG dimensions can often be inferred, but setting width/height might help consistency
-          width: targetElement.scrollWidth,
-          height: targetElement.scrollHeight,
-          skipFonts: false,
-          imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', // Simple placeholder
-        });
-
-        setProcessingFeedback(t('feedback.processingSvg')); // Update feedback
-
-        if (!dataUrl || dataUrl.length < 200) { // SVG can be smaller than PNG
-          console.warn(`Warning: Generated SVG Data URL might be too small (${dataUrl.length} chars)`);
-          setProcessingFeedback("Warning: Generated SVG might be incomplete.");
-        }
-
-        // Create download link
-        const downloadLink = document.createElement("a");
-        const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.svg', {defaultValue: 'svg'}); // Add SVG prefix translation
-        downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.svg`;
-        downloadLink.href = dataUrl;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-
-        setProcessingFeedback(t('feedback.svgDownloaded')); // Update feedback
-        setTimeout(() => setProcessingFeedback(null), 2000);
-
-      } catch (error: any) {
-        console.error("Error generating SVG:", error);
-        const errorMsg = error.message || String(error);
-         if (errorMsg.includes("tainted") || errorMsg.includes("security") || errorMsg.includes("cross-origin")) {
-          console.error("Likely failed due to cross-origin resources:", errorMsg);
-          setProcessingFeedback("Error: SVG export failed due to cross-origin resource limitations.");
-        } else {
-          throw new Error(t('errors.downloadLinkCreationFailed', { error: errorMsg }));
-        }
-      }
+      
+      // Get the content element
+      const contentElement = iframeDoc.body.querySelector('div') || iframeDoc.body;
+      
+      setProcessingFeedback(t('feedback.generatingSvg'));
+      
+      // Use domToSvg from modern-screenshot
+      const dataUrl = await domToSvg(contentElement, {
+        backgroundColor: getComputedStyle(iframeDoc.body).backgroundColor || "#ffffff",
+        width: contentElement.scrollWidth,
+        height: contentElement.scrollHeight,
+        scale: 2,
+        debug: false,
+      });
+      
+      setProcessingFeedback(t('feedback.processingSvg'));
+      
+      // Create download link
+      const downloadLink = document.createElement("a");
+      const filePrefix = activePreviewTab === "ppt" ? t('downloadPrefix.ppt') : t('downloadPrefix.svg', {defaultValue: 'svg'});
+      downloadLink.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.svg`;
+      downloadLink.href = dataUrl;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      setProcessingFeedback(t('feedback.svgDownloaded'));
+      setTimeout(() => setProcessingFeedback(null), 2000);
+      
     } catch (error) {
-      console.error("Error downloading SVG:", error);
+      console.error("Error generating SVG:", error);
       const errorMessage = error instanceof Error ? error.message : String(error);
-      setProcessingFeedback(t('feedback.svgDownloadFailed', { error: errorMessage })); // Update feedback
+      setProcessingFeedback(t('feedback.svgDownloadFailed', { error: errorMessage }));
       setTimeout(() => setProcessingFeedback(null), 3000);
-    } finally {
-      if (tempStyleElement && iframeDoc?.head.contains(tempStyleElement)) {
-        iframeDoc.head.removeChild(tempStyleElement);
-        console.log("Ensured temporary animation style removed (SVG)");
-      }
-      if (ensureVisibilityStyle && iframeDoc?.head.contains(ensureVisibilityStyle)) {
-        iframeDoc.head.removeChild(ensureVisibilityStyle);
-        console.log("Ensured visibility style removed (SVG)");
-      }
     }
   };
 
@@ -1085,6 +834,43 @@ export function HtmlPreview({
 
     const handleLoad = () => {
       console.log("Iframe loaded, setting up listeners if needed.");
+      
+      // 确保iframe中的滚动可用
+      try {
+        if (iframe.contentDocument && iframe.contentDocument.body) {
+          // 移除任何禁用滚动的样式
+          iframe.contentDocument.body.style.overflow = "auto";
+          iframe.contentDocument.body.classList.add("enable-scroll");
+          
+          // 添加滚动条样式（可选）
+          const style = iframe.contentDocument.createElement('style');
+          style.textContent = `
+            body.enable-scroll {
+              overflow: auto !important;
+              height: auto !important;
+              min-height: 100vh;
+            }
+            ::-webkit-scrollbar {
+              width: 8px;
+              height: 8px;
+            }
+            ::-webkit-scrollbar-track {
+              background: #f1f1f1;
+            }
+            ::-webkit-scrollbar-thumb {
+              background: #888;
+              border-radius: 4px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+              background: #555;
+            }
+          `;
+          iframe.contentDocument.head.appendChild(style);
+        }
+      } catch (e) {
+        console.error("Error enabling scroll in iframe:", e);
+      }
+      
       // Small delay to ensure contentDocument is fully accessible after load event
       setTimeout(() => {
         if (isSelecting) {
@@ -1578,7 +1364,7 @@ export function HtmlPreview({
 
       <div
         ref={iframeContainerRef}
-        className={`flex-grow w-full relative overflow-hidden ${isFullscreen ? 'fixed inset-0 z-[2147483646] bg-black p-0 m-0' : 'flex flex-col'}`}
+        className={`flex-grow w-full relative ${isFullscreen ? 'fixed inset-0 z-[2147483646] bg-black p-0 m-0' : 'flex flex-col'}`}
       >
         {isFullscreen ? (
           <>
@@ -1708,7 +1494,7 @@ export function HtmlPreview({
                     )}
                   </div>
                 </div>
-                <div className="flex-grow relative bg-gray-100 dark:bg-gray-800" style={{height: 'calc(100vh - 150px)'}}>
+                <div className="flex-grow relative bg-gray-100 dark:bg-gray-800" style={{height: 'calc(100vh - 150px)', overflow: 'auto'}}>
                   <iframe
                     ref={iframeRef}
                     key={`iframe-${renderKey}`}
@@ -1733,13 +1519,15 @@ export function HtmlPreview({
             )}
 
             {activePreviewTab === 'html' && (
-              <ScrollArea className="h-full w-full">
-                <div className="p-4">
-                  <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
-                    {localHtmlContent}
-                  </pre>
-                </div>
-              </ScrollArea>
+              <div className="flex-grow relative" style={{height: 'calc(100vh - 150px)'}}>
+                <ScrollArea className="h-full w-full">
+                  <div className="p-4">
+                    <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
+                      {localHtmlContent}
+                    </pre>
+                  </div>
+                </ScrollArea>
+              </div>
             )}
           </>
         )}
@@ -1781,11 +1569,34 @@ const getFullHtmlWithStyles = (html: string): string => {
   const googleFontsLink = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">';
   const headContent = `\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  ${tailwindScript}\n  ${fontAwesomeLink}\n  ${googleFontsLink}\n`;
 
-  // Dynamic content adaptation script
+  // Basic styles that allow scrolling
+  const scrollableStylesScript = `
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    /* Allow content to be scrollable */
+    .enable-scroll {
+      overflow: auto !important;
+    }
+  </style>
+  <script>
+    // Add scrollable class to body when loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.classList.add('enable-scroll');
+    });
+  </script>
+  `;
+
+  // Dynamic content adaptation script with scrolling support
   const adaptationScript = `
 <script>
 // 在页面加载完成后运行内容适应脚本
 window.addEventListener('DOMContentLoaded', () => {
+  // 确保滚动条可用
+  document.body.classList.add('enable-scroll');
+  
   const slideContent = document.getElementById('slide-content');
   const contentWrapper = document.getElementById('content-wrapper');
   
@@ -1906,6 +1717,7 @@ window.addEventListener('DOMContentLoaded', () => {
           if (!headHtml.includes('cdn.tailwindcss.com')) headHtml += tailwindScript;
           if (!headHtml.includes('font-awesome')) headHtml += fontAwesomeLink;
           if (!headHtml.includes('fonts.googleapis.com')) headHtml += googleFontsLink;
+          headHtml += scrollableStylesScript; // Add scrollable styles
           headElement.innerHTML = headHtml; // Update head content
           
           // Inject script before closing body tag if body exists
@@ -1921,7 +1733,7 @@ window.addEventListener('DOMContentLoaded', () => {
           const htmlTag = tempDiv.querySelector('html');
           if (htmlTag) {
               const newHead = document.createElement('head');
-              newHead.innerHTML = headContent;
+              newHead.innerHTML = headContent + scrollableStylesScript; // Include scrollable styles
               htmlTag.insertBefore(newHead, htmlTag.firstChild);
               
               // Inject script before closing body tag if body exists
@@ -1938,5 +1750,5 @@ window.addEventListener('DOMContentLoaded', () => {
   } 
 
   // If it's a fragment or body content, wrap it completely and add script
-  return `<!DOCTYPE html>\n<html>\n<head>${headContent}</head>\n<body>\n${html}\n${adaptationScript}\n</body>\n</html>`;
+  return `<!DOCTYPE html>\n<html>\n<head>${headContent}${scrollableStylesScript}</head>\n<body>\n${html}\n${adaptationScript}\n</body>\n</html>`;
 };
