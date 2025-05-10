@@ -80,9 +80,10 @@ export default function Home({ params }: GenerationPageProps) {
 
   // 修改AI操作处理函数，使用useChat的append方法
   const handleAIAction = useCallback(async (selectedText: string, language: string, style: string, generateType: string) => {
+    let ok = false;
     if(style !== currentStyle.current) {
       currentStyle.current = style;
-      setHtmlContent("");
+      ok = true;
     }
     try {
       // 使用 useChat 的 append 方法发送消息，并包含上一次的HTML内容
@@ -93,7 +94,7 @@ export default function Home({ params }: GenerationPageProps) {
           language,
           style,
           generateType,
-          previousHtml: htmlContent // 添加上一次的HTML内容
+          previousHtml: ok ? "" : htmlContent // 添加上一次的HTML内容
         })
       });
     } catch (error) {
