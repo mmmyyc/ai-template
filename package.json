@@ -57,6 +57,7 @@
     "clsx": "^2.1.1",
     "context-menu": "^2.0.0",
     "crisp-sdk-web": "^1.0.22",
+    "dom-to-svg": "^0.12.2",
     "eslint-config-next": "13.4.19",
     "html-react-parser": "^5.2.3",
     "html-to-image": "^1.11.13",
@@ -93,6 +94,7 @@
   },
   "devDependencies": {
     "@types/katex": "^0.16.7",
+    "@types/next": "^9.0.0",
     "@types/node": "^20.12.2",
     "@types/react": "^18.2.73",
     "@types/react-dom": "^19.1.2",

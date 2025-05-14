@@ -38,6 +38,7 @@ import html2canvas from 'html2canvas';
 import { useTranslations } from 'next-intl';
 import { Input } from "@/components/ui/input";
 import { domToSvg, domToPng } from 'modern-screenshot';
+import { documentToSVG, elementToSVG, inlineResources } from 'dom-to-svg';
 
 // Helper function to inject styles into an iframe
 const injectStylesIntoIframe = (
@@ -576,7 +577,7 @@ export function HtmlPreview({
     }
   };
 
-  // Use modern-screenshot for SVG download
+  // Use dom-to-svg for SVG download
   const handleDownloadSvg = async () => {
     setProcessingFeedback(t('feedback.preparingSvg'));
 
@@ -598,16 +599,17 @@ export function HtmlPreview({
       
       setProcessingFeedback(t('feedback.generatingSvg'));
       
-      // Use domToSvg from modern-screenshot
-      const dataUrl = await domToSvg(contentElement, {
-        backgroundColor: getComputedStyle(iframeDoc.body).backgroundColor || "#ffffff",
-        width: contentElement.scrollWidth,
-        height: contentElement.scrollHeight,
-        scale: 2,
-        debug: false,
-      });
+      // Use dom-to-svg library
+      const svgDocument = elementToSVG(contentElement);
+      
+      // Inline external resources (fonts, images, etc)
+      await inlineResources(svgDocument.documentElement);
       
       setProcessingFeedback(t('feedback.processingSvg'));
+      
+      // Convert SVG to data URL
+      const svgString = new XMLSerializer().serializeToString(svgDocument);
+      const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
       
       // Create download link
       const downloadLink = document.createElement("a");
