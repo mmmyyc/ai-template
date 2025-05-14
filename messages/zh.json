@@ -683,7 +683,18 @@
     "addSlidesButton": "添加幻灯片",
     "noSlides": "此文件夹中还没有幻灯片。",
     "slideListTitle": "幻灯片列表",
-    "backToSlides": "返回幻灯片"
+    "backToSlides": "返回幻灯片",
+    "processingSlides": "处理幻灯片中...",
+    "pptGenerationError": "生成PPT失败",
+    "pptGenerationSuccess": "PPT生成成功",
+    "pptGenerationFailed": "生成PPT失败",
+    "pptGenerationFailedLog": "PPT生成失败:",
+    "pptGenerationNetworkError": "生成PPT时发生网络错误",
+    "pptGenerationTimeout": "PPT生成超时",
+    "downloadingPpt": "下载PPT中...",
+    "downloadPpt": "下载PPT",
+    "pptDownloaded": "PPT下载成功",
+    "processingSlide": "处理幻灯片中..."
   },
   "HtmlPreview": {
     "title": "AI 生成预览",

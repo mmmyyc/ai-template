@@ -746,6 +746,17 @@
     "addSlidesButton": "Add Slides",
     "noSlides": "No slides in this folder yet.",
     "slideListTitle": "Slide List",
-    "backToSlides": "Back to Slides"
+    "backToSlides": "Back to Slides",
+    "processingSlides": "Processing slides...",
+    "pptGenerationError": "Failed to generate PPT",
+    "pptGenerationSuccess": "PPT generated successfully",
+    "pptGenerationFailed": "Failed to generate PPT",
+    "pptGenerationFailedLog": "PPT generation failed:",
+    "pptGenerationNetworkError": "Network error occurred while generating PPT",
+    "pptGenerationTimeout": "PPT generation timed out",
+    "downloadingPpt": "Downloading PPT...",
+    "downloadPpt": "Download PPT",
+    "pptDownloaded": "PPT downloaded successfully",
+    "processingSlide": "Processing slide..."
   }
 } 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { File, FileText, Folder, ImageIcon, Music, Plus, X, FileUp, Trash2, GripVertical, Video, Play, Edit, ArrowLeft } from "lucide-react"
+import { File, FileText, Folder, ImageIcon, Music, Plus, X, FileUp, Trash2, GripVertical, Video, Play, Edit, ArrowLeft, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -31,6 +31,8 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import React from "react"
+import { toast } from "react-hot-toast"
+import { domToPng } from "modern-screenshot"
 
 // 从sidebar.tsx提取的可排序幻灯片组件
 interface SortableSlideItemProps {
@@ -307,6 +309,140 @@ export function FolderManager({
     );
   }
 
+  // 添加下载状态
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // 下载PPT函数
+  const handleDownloadPpt = async () => {
+    if (slides.length === 0) {
+      toast.error(t('noSlidesToDownload', { defaultValue: 'No slides to download' }));
+      return;
+    }
+
+    setIsDownloading(true);
+    const processingMessage = toast.loading(t('preparingPpt', { defaultValue: 'Preparing your PPT...' }));
+
+    try {
+      // 准备发送到服务器的数据
+      const folderName = selectedFolder?.name || 'presentation';
+      
+      // 预处理slides，在前端将HTML转换为PNG
+      const processedSlides = [];
+      
+      for (let i = 0; i < slides.length; i++) {
+        try {
+          const slide = slides[i];
+          
+          // 更新处理状态
+          toast.loading(`${t('processingSlide', { defaultValue: 'Processing slide' })} ${i+1}/${slides.length}...`, { id: processingMessage });
+          
+          // 创建临时iframe来渲染HTML
+          const tempIframe = document.createElement('iframe');
+          tempIframe.style.cssText = 'position:absolute;left:-9999px;width:1280px;height:720px;';
+          document.body.appendChild(tempIframe);
+          
+          // 设置iframe内容
+          if (tempIframe.contentDocument) {
+            tempIframe.contentDocument.open();
+            tempIframe.contentDocument.write(slide.content);
+            tempIframe.contentDocument.close();
+            
+            // 等待iframe加载完成
+            await new Promise<void>((resolve) => {
+              const handleLoad = () => {
+                resolve();
+                tempIframe.removeEventListener('load', handleLoad);
+              };
+              tempIframe.addEventListener('load', handleLoad);
+              setTimeout(resolve, 1000); // 超时保护
+            });
+            
+            // 确保样式应用完成
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // 获取内容元素
+            const contentElement = tempIframe.contentDocument.body.querySelector('div') || tempIframe.contentDocument.body;
+            
+            // 使用domToPng转换为PNG而不是SVG
+            const pngDataUrl = await domToPng(contentElement, {
+              backgroundColor: getComputedStyle(contentElement).backgroundColor || "#ffffff",
+              width: contentElement.scrollWidth,
+              height: contentElement.scrollHeight,
+              quality: 0.95,
+              scale: 2, // 增加缩放因子，提高图像清晰度
+              debug: false,
+            });
+            
+            // 提取base64数据（去掉前缀）
+            const base64Data = pngDataUrl.split(',')[1];
+            
+            // 添加处理后的slide
+            processedSlides.push({
+              ...slide,
+              pngBase64: base64Data, // 保存PNG的base64数据
+              width: contentElement.scrollWidth, // 保存宽度（无缩放）
+              height: contentElement.scrollHeight // 保存高度（无缩放）
+            });
+            
+            // 清理临时iframe
+            document.body.removeChild(tempIframe);
+          }
+        } catch (error) {
+          console.error('处理幻灯片时出错:', error);
+          // 如果PNG处理失败，使用原始HTML
+          processedSlides.push(slides[i]);
+        }
+      }
+      
+      // 调用修改后的API端点
+      const response = await fetch('/api/ppt/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          slides: processedSlides,
+          folderName,
+          preprocessed: true, // 标记为已预处理
+          format: 'png' // 指定使用PNG格式
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '下载PPT时出错');
+      }
+      
+      // 获取blob数据
+      const blob = await response.blob();
+      
+      // 创建下载链接
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${folderName}-${new Date().toISOString().slice(0, 10)}.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // 清理
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success(t('pptDownloaded', { defaultValue: 'PPT downloaded successfully!' }), { id: processingMessage });
+    } catch (error) {
+      console.error('Error generating PPT:', error);
+      toast.error(
+        t('pptGenerationError', { 
+          defaultValue: 'Error generating PPT',
+          error: error instanceof Error ? error.message : String(error)
+        }), 
+        { id: processingMessage }
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="w-full space-y-6">
       {/* 如果已选择文件夹且传入了幻灯片相关属性，则只显示幻灯片管理界面 */}
@@ -321,6 +457,22 @@ export function FolderManager({
               </span>
             </div>
             
+            <div className="flex items-center gap-2">
+              {/* 添加下载PPT按钮 */}
+              {slides.length > 0 && (
+                <Button 
+                  onClick={handleDownloadPpt}
+                  className="bg-green-600 hover:bg-green-700" 
+                  size="sm"
+                  disabled={isDownloading || slides.length === 0}
+                >
+                  <FileDown className="mr-2 h-4 w-4" />
+                  {isDownloading ? 
+                    t('downloadingPpt', { defaultValue: 'Downloading...' }) : 
+                    t('downloadPpt', { defaultValue: 'Download PPT' })}
+                </Button>
+              )}
+            
             {/* 幻灯片上传按钮 */}
             {onSlideUpload && (
               <SlideUploader onUpload={handleFileUpload} disabled={!selectedFolderId}>
@@ -334,6 +486,7 @@ export function FolderManager({
                 </Button>
               </SlideUploader>
             )}
+            </div>
           </div>
 
           {slides.length === 0 ? (
