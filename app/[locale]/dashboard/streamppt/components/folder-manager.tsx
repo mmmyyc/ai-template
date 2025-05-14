@@ -136,6 +136,9 @@ export function FolderManager({
   const [editMode, setEditMode] = useState(false);
   const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
   
+  // 添加下载状态
+  const [isDownloading, setIsDownloading] = useState(false);
+  
   // 原有的文件夹store逻辑
   const { 
     folders, 
@@ -308,9 +311,6 @@ export function FolderManager({
       </div>
     );
   }
-
-  // 添加下载状态
-  const [isDownloading, setIsDownloading] = useState(false);
 
   // 下载PPT函数
   const handleDownloadPpt = async () => {

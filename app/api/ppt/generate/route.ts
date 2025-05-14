@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       const pptxData = await pptx.write('nodebuffer');
       
       // 确保文件名只包含ASCII字符
-      const safeFileName = folderName.replace(/[^\x00-\x7F]/g, '_') + '-' + 
+      const safeFileName = folderName.replace(/[^\x20-\x7E]/g, '_') + '-' + 
         new Date().toISOString().slice(0, 10) + '.pptx';
       
       return new NextResponse(pptxData, {
