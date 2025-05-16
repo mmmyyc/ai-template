@@ -121,6 +121,7 @@ export function HtmlPreview({
   actionType = 'save', // 新增参数，默认为'save'
   htmlId=null,
   defaultHtmlTitle=null,
+  onContentChange,
 }: { 
   htmlContent: string, 
   folderName: string,
@@ -128,6 +129,7 @@ export function HtmlPreview({
   actionType?: 'save' | 'edit', // 可以是'save'或'edit'
   htmlId?: string,
   defaultHtmlTitle?: string,
+  onContentChange?: (htmlId: string, content: string, title: string) => void,
 }) {
   const t = useTranslations('HtmlPreview');
   const [htmlTitle, setHtmlTitle] = useState("");
@@ -467,6 +469,11 @@ export function HtmlPreview({
         const response = await apiClient.post('/html-ppt/updateHtml', formData);
         if (response.data.htmlId) {
           toast.success(t('feedback.htmlSavedSuccess'));
+          
+          // Notify parent component about the updated content
+          if (onContentChange && htmlId) {
+            onContentChange(htmlId, htmlContentToSave, titleToUse);
+          }
         } else {
           toast.error(t('feedback.htmlSavedFailed'));
         }

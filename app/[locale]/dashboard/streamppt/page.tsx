@@ -225,6 +225,18 @@ export default function Home() {
     }
   }
 
+  const handleSlideUpdate = (slideId: string, newContent: string) => {
+    // 更新slides数组中对应的slide内容
+    const updatedSlides = slides.map(slide => 
+      slide.id === slideId ? { ...slide, content: newContent } : slide
+    );
+    
+    setSlides(updatedSlides);
+    
+    // 同时更新slideHtml数组
+    setSlideHtml(updatedSlides.map(slide => slide.content || ''));
+  }
+
   const handleFolderSelected = (folderId: string) => {
     setSelectedFolderId(folderId)
     router.push(`/dashboard/streamppt?folderId=${folderId}`, { scroll: false })
@@ -291,6 +303,7 @@ export default function Home() {
                    onSlideUpload={handleSlideUpload}
                    onSlidesReorder={handleSlidesReorder}
                    onSlideDelete={handleSlideDelete}
+                   onSlideUpdate={handleSlideUpdate}
                    onSelectFolder={handleFolderSelected}
                    onPresentFolder={handlePresentFolder}
                  />

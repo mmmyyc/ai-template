@@ -287,6 +287,23 @@ export function FolderManager({
     }
   };
 
+  // 处理HTML内容变更
+  const handleContentChange = (slideId: string, newContent: string, title: string) => {
+    // 更新本地状态
+    if (editingSlide && editingSlide.id === slideId) {
+      setEditingSlide({
+        ...editingSlide,
+        content: newContent,
+        title: title,
+      }); 
+    }
+    
+    // 更新全局slide列表
+    if (onSlideUpdate) {
+      onSlideUpdate(slideId, newContent);
+    }
+  };
+
   // 如果在编辑模式，显示HtmlPreview
   if (editMode && editingSlide) {
     return (
@@ -307,6 +324,7 @@ export function FolderManager({
           actionType="edit"
           htmlId={editingSlide.id}
           defaultHtmlTitle={editingSlide.title}
+          onContentChange={handleContentChange}
         />
       </div>
     );
