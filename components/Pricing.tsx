@@ -18,16 +18,36 @@ const Pricing = () => {
       try {
         description = t(`plans.${planKey}.description`);
       } catch (e) {
-        description = plan.description;
+        description = plan.description; 
+      }
+      
+      // 直接从翻译文件中获取特性，而不依赖 config 中的定义
+      const translatedFeatures = [];
+      let index = 0;
+      let hasMoreFeatures = true;
+      
+      while (hasMoreFeatures) {
+        try {
+          const featureName = t(`plans.${planKey}.features.${index}`);
+          // 如果翻译键不存在，next-intl 通常会返回键名本身
+          // 检查返回值是否看起来像一个翻译键，如果是，认为已经没有更多翻译了
+          if (featureName.includes(`plans.${planKey}.features.`)) {
+            hasMoreFeatures = false;
+          } else {
+            translatedFeatures.push({ name: featureName });
+            index++;
+          }
+        } catch (e) {
+          // 如果获取翻译时出错，说明没有更多特性了
+          hasMoreFeatures = false;
+        }
       }
       
       return {
         ...plan,
         name: t(`plans.${planKey}.name`),
         description: description,
-        translatedFeatures: plan.features.map((_, index) => ({
-          name: t(`plans.${planKey}.features.${index}`)
-        }))
+        translatedFeatures: translatedFeatures
       };
     });
   };
