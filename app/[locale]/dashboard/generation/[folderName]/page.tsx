@@ -45,6 +45,7 @@ export default function Home({ params }: GenerationPageProps) {
     api: '/api/ai/generate',
     onFinish: (message) => {
       // 从AI响应中提取HTML内容
+      console.log("message.content", message.content)
       const extractedHtml = extractHtmlFromMarkdown(message.content);
       setHtmlContent(extractedHtml);
       

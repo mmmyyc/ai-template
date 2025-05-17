@@ -73,10 +73,10 @@ export async function POST(req: Request) {
           language: z.string().describe('生成大纲使用的语言')
         }),
         execute: async ({ topic, language }) => {
-          // 使用promptOutline生成大纲
+          console.log(`[outlineTool] Called with topic: "${topic}", language: "${language}"`);
           const systemPrompt = promptOutline(language);
-          
-          // 在工具内部使用模型生成大纲
+          console.log(`[outlineTool] Generated system prompt: "${systemPrompt.substring(0, 100)}..."`);
+          try {
           const outlineModel = anthropic('claude-3-7-sonnet-20250219');
           const outlineResponse = await streamText({
             model: outlineModel,
@@ -85,8 +85,17 @@ export async function POST(req: Request) {
               { role: 'user', content: topic }
             ]
           });
-          
-          return { outline: outlineResponse.text };
+            const outlineText = await outlineResponse.text; // 确保消费文本流
+            console.log(`[outlineTool] Successfully generated outline (first 100 chars): "${outlineText.substring(0, 100)}..."`);
+            if (!outlineText || outlineText.trim() === "") {
+              console.warn("[outlineTool] Generated outline is empty!");
+              throw new Error("Generated outline was empty.");
+            }
+            return { outline: outlineText };
+          } catch (error) {
+            console.error('[outlineTool] Error during execution:', error);
+            throw error; // 重新抛出错误，让外部捕获
+          }
         }
       });
       
