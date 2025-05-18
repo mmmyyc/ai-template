@@ -767,8 +767,8 @@
       "finishButton": "Finish"
     },
     "dashboard": {
-      "welcome": "Welcome to SlideCraft AI Quick Start Guide! Let's learn how to turn text content into presentations.",
-      "createFolder": "Step 1: Create a new folder for your presentations, such as \"make\".",
+      "welcome": "Welcome to SlidesCraft AI Quick Start Guide! Let's learn how to turn text content into presentations.",
+      "createFolder": "Step 1: Create a new folder for your presentations",
       "folderName": "Step 2: Enter a folder name.",
       "createButton": "Step 3: Click the create button.",
       "navigateFolder": "Step 4: Enter the newly created folder."
@@ -777,7 +777,7 @@
       "editor": "The editor already has text we've prepared. You can edit directly in the editor on the left.",
       "selectText": "Select the text you want to put on the first slide, then right-click it",
       "generatePPT": "Select \"Generate AI PPT\".",
-      "complete": "You've completed the preparation for SlideCraft AI to turn text content into a presentation! Please wait, we're generating your presentation..."
+      "complete": "You've completed the preparation for SlidesCraft AI to turn text content into a presentation! Please wait, we're generating your presentation..."
     }
   }
 } 
