@@ -122,6 +122,8 @@ export function HtmlPreview({
   htmlId=null,
   defaultHtmlTitle=null,
   onContentChange,
+  activePreviewTabProp = "ppt",
+  onActivePreviewTabChange,
 }: { 
   htmlContent: string, 
   folderName: string,
@@ -130,6 +132,8 @@ export function HtmlPreview({
   htmlId?: string,
   defaultHtmlTitle?: string,
   onContentChange?: (htmlId: string, content: string, title: string) => void,
+  activePreviewTabProp: "ppt" | "html",
+  onActivePreviewTabChange?: (tab: "ppt" | "html") => void,
 }) {
   const t = useTranslations('HtmlPreview');
   const [htmlTitle, setHtmlTitle] = useState("");
@@ -142,9 +146,8 @@ export function HtmlPreview({
   const [editingElementId, setEditingElementId] = useState<string | null>(null);
   const elementIdCounter = useRef(0);
   const [renderKey, setRenderKey] = useState(0);
-  const [activePreviewTab, setActivePreviewTab] = useState<"ppt" | "html">(
-    "ppt"
-  );
+  // 不再使用内部状态管理activePreviewTab，直接使用prop值
+  const activePreviewTab = activePreviewTabProp;
   const [localHtmlContent, setLocalHtmlContent] = useState(htmlContent || "");
   const [showEditor, setShowEditor] = useState(false);
   const [editorPosition, setEditorPosition] = useState({ x: 0, y: 0 });
@@ -163,6 +166,27 @@ export function HtmlPreview({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeDocRef = useRef<Document | null>(null);
   const iframeContainerRef = useRef<HTMLDivElement>(null);
+
+  // 创建对HTML预览容器的引用
+  const htmlPreviewRef = useRef<HTMLPreElement>(null);
+  const codeContainerRef = useRef<HTMLDivElement>(null);
+  
+  // 当htmlContent更新时，滚动到底部
+  useEffect(() => {
+    if (htmlPreviewRef.current && activePreviewTab === "html") {
+      // 使用requestAnimationFrame确保DOM已更新
+      requestAnimationFrame(() => {
+        htmlPreviewRef.current!.scrollTop = htmlPreviewRef.current!.scrollHeight;
+      });
+    }
+    
+    if (codeContainerRef.current && activePreviewTab === "html") {
+      // 滚动整个容器
+      requestAnimationFrame(() => {
+        codeContainerRef.current!.scrollTop = codeContainerRef.current!.scrollHeight;
+      });
+    }
+  }, [htmlContent, activePreviewTab]);
 
   // --- Path Functions ---
 
@@ -1276,6 +1300,9 @@ export function HtmlPreview({
     // 注意：编辑器会在调用此函数前自行关闭，无需再次设置setShowEditor(false)
   }, [selectedElementPath, iframeRef, findElementByPath, t, renderKey, editingElementId]);
 
+  // 不再需要监听activePreviewTabProp变化的useEffect
+  // 现在使用受控组件模式直接使用prop值
+
   return (
     <>
       <div
@@ -1351,7 +1378,11 @@ export function HtmlPreview({
             )}
           </Button>
         </div>
-        <Tabs value={activePreviewTab} onValueChange={(value: string) => setActivePreviewTab(value as "ppt" | "html")} >
+        <Tabs value={activePreviewTab} onValueChange={(value: string) => {
+          if (onActivePreviewTabChange) {
+            onActivePreviewTabChange(value as "ppt" | "html");
+          }
+        }} >
              <TabsList className="h-7 dark:bg-gray-800 dark:border-gray-700" data-no-select>
                <TabsTrigger
                  value="ppt"
@@ -1531,7 +1562,10 @@ export function HtmlPreview({
               <div className="flex-grow relative" style={{height: 'calc(100vh - 150px)'}}>
                 <ScrollArea className="h-full w-full">
                   <div className="p-4">
-                    <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4">
+                    <pre 
+                      className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded p-4 overflow-auto max-h-[calc(100vh-280px)] animate-typing"
+                      ref={htmlPreviewRef}
+                    >
                       {localHtmlContent}
                     </pre>
                   </div>

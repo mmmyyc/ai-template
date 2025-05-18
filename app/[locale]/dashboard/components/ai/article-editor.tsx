@@ -52,32 +52,7 @@ const editorLayoutStyles = `
 `;
 // END ADD
 
-interface ArticleEditorProps {
-  initialContent?: string;
-  onSave?: (content: string) => void;
-  onAIAction?: (
-    selectedText: string,
-    language: string,
-    style: string,
-    generateType: string
-  ) => Promise<void>;
-  isGenerating?: boolean;
-  generatedComponentCode?: string;
-  htmlContent?: string;
-  slideData?: {
-    id: string;
-    title: string;
-    content: string;
-    style: {
-      fontFamily: string;
-      fontSize: number;
-      color: string;
-    };
-  };
-  folderName?: string;
-  onEditModeChange?: (isEditMode: boolean) => void;
-  stopGeneration?: () => void;
-}
+interface ArticleEditorProps {  initialContent?: string;  onSave?: (content: string) => void;  onAIAction?: (    selectedText: string,    language: string,    style: string,    generateType: string  ) => Promise<void>;  isGenerating?: boolean;  generatedComponentCode?: string;  htmlContent?: string;  slideData?: {    id: string;    title: string;    content: string;    style: {      fontFamily: string;      fontSize: number;      color: string;    };  };  folderName?: string;  onEditModeChange?: (isEditMode: boolean) => void;  stopGeneration?: () => void;  activeTabPropforEditOrPreview?: "edit" | "preview";  activePreviewTabProp?: "ppt" | "html";  onActivePreviewTabChange?: (tab: "ppt" | "html") => void;}
 
 export default function ArticleEditor({
   initialContent = "",
@@ -88,13 +63,16 @@ export default function ArticleEditor({
   folderName = "",
   onEditModeChange,
   stopGeneration,
+  activeTabPropforEditOrPreview = "preview",
+  activePreviewTabProp = "ppt",
+  onActivePreviewTabChange,
 }: ArticleEditorProps) {
   const t = useTranslations('ArticleEditor');
 
   // const tab = isGenerating ? "preview" : "edit";
 
   const [markdownContent, setMarkdownContent] = useState(initialContent);
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("preview");
+  const [activeTab, setActiveTab] = useState<"edit" | "preview">(activeTabPropforEditOrPreview);
 
   // ADD useEffect for styles
   useEffect(() => {
@@ -191,6 +169,8 @@ export default function ArticleEditor({
                 htmlContent={htmlContent} 
                 folderName={folderName} 
                 onEditModeChange={onEditModeChange}
+                activePreviewTabProp={activePreviewTabProp}
+                onActivePreviewTabChange={onActivePreviewTabChange}
               />
             </div>
           </TabsContent>

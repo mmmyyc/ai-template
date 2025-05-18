@@ -379,7 +379,7 @@ B --> C["结果"]
       图表：//可选
       流程图：//可选
       <<outline-end>>
-      \`\`\`html
+      <<html-start>>
           <!DOCTYPE html>
           <html lang="zh-CN">
           <head>
@@ -404,7 +404,7 @@ B --> C["结果"]
             <!-- <script>mermaid.initialize({startOnLoad:true});</script> -->
           </body>
           </html>
-      \`\`\`
+      <<html-end>>
 
 
 ## Initialization

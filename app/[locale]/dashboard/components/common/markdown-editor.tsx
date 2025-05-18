@@ -159,14 +159,24 @@ export default function MarkdownEditor({
   // 从本地存储加载内容
   const loadFromLocalStorage = useCallback(() => {
     if (typeof window !== 'undefined') {
+      // 如果 initialContent 被提供并且不仅仅是空字符串或空格，则优先使用它。
+      // 这允许父组件强制指定一个特定的起始内容。
+      if (initialContent && initialContent.trim() !== "") {
+        return initialContent;
+      }
+
+      // 否则 (initialContent 为空或仅包含空格)，尝试从 localStorage 加载。
       try {
         const savedContent = localStorage.getItem(storageKey);
+        // 如果 localStorage 中有内容，则使用它；否则，使用 initialContent (此时它可能是空字符串或默认值)。
         return savedContent !== null ? savedContent : initialContent;
       } catch (error) {
         console.error('Error loading from localStorage:', error);
+        // 加载出错时，回退到 initialContent。
         return initialContent;
       }
     }
+    // SSR 或其他情况 (例如，如果上面 initialContent 优先但 window 未定义)，回退到 initialContent。
     return initialContent;
   }, [storageKey, initialContent]);
 
@@ -243,7 +253,6 @@ export default function MarkdownEditor({
       
       // 从本地存储加载内容
       const contentToUse = loadFromLocalStorage();
-      
       // 初始化编辑器，符合官方示例模式
       const vditor = new Vditor(editorId, {
         mode: 'wysiwyg',
