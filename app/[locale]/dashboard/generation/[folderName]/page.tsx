@@ -297,7 +297,7 @@ export default function Home({ params }: GenerationPageProps) {
         <PanelGroup direction="horizontal" className="h-full">
           <Panel ref={leftPanelRef} defaultSize={50} minSize={0}>
             <div className="h-full flex flex-col border border-neutral-200 rounded-lg shadow-sm bg-base-100 dark:bg-gray-950 dark:border-neutral-800 overflow-hidden">
-              <div className="flex-1 overflow-auto">
+              <div className="flex-1 overflow-auto text-editor">
                 <MarkdownEditor
                   initialContent={leftContent}
                   onChange={setLeftContent}

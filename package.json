@@ -87,6 +87,7 @@
     "resend": "^4.0.1",
     "shadcn-ui": "^0.9.5",
     "sharp": "^0.33.5",
+    "shepherd.js": "13.0.0",
     "stripe": "^13.11.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",

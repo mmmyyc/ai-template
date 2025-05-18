@@ -67,7 +67,7 @@ export function FolderManager() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">{t('myFoldersTitle')}</h2>
         {!isCreating && (
-          <Button onClick={() => setIsCreating(true)} size="sm" className="flex items-center gap-1">
+          <Button onClick={() => setIsCreating(true)} size="sm" className="flex items-center gap-1 create-folder">
             <Plus className="h-4 w-4" />
             {t('newFolderButton')}
           </Button>
@@ -84,10 +84,10 @@ export function FolderManager() {
               setError(null)
             }}
             placeholder={t('newFolderNamePlaceholder')}
-            className="h-9"
+            className="h-9 create-folder-name"
             autoFocus
           />
-          <Button size="sm" onClick={handleCreateFolder} disabled={isLoading}>
+          <Button size="sm" onClick={handleCreateFolder} disabled={isLoading} className="create-folder-button">
             {isLoading ? t('loading') : t('createButton')}
           </Button>
           <Button

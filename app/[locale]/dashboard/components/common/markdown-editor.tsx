@@ -384,7 +384,7 @@ export default function MarkdownEditor({
               <ContextMenuItem
                 onClick={handleAIButtonClick}
                 disabled={isGenerating}
-                className="text-blue-600 dark:text-blue-400 focus:text-white focus:bg-blue-600 dark:focus:bg-blue-500"
+                className="text-blue-600 dark:text-blue-400 focus:text-white focus:bg-blue-600 dark:focus:bg-blue-500 generate-ppt"
               >
                 {isGenerating ? (
                   <>

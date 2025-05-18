@@ -22,14 +22,12 @@ const TourProvider = ({ children }: TourProviderProps) => {
     setIsMounted(true);
     
     // 检查用户是否是第一次访问
+    // 注意：我们不再在页面加载时自动启动引导
     const tourComplete = localStorage.getItem('comfyTourComplete');
     if (!tourComplete) {
       setIsFirstVisit(true);
-      // 稍微延迟启动引导，确保页面完全加载
-      const timer = setTimeout(() => {
-        setRunTour(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+      // 如果是第一次访问，仍然设置标志，但不自动启动引导
+      // setRunTour(true); // 这行被注释掉，不再自动启动
     }
   }, []);
 
@@ -47,9 +45,16 @@ const TourProvider = ({ children }: TourProviderProps) => {
   }, []);
 
   const handleStartTour = () => {
-    // 启动引导时，移除本地存储标记，使其表现为"新"引导
+    // 用户点击按钮时启动引导
+    // 先移除本地存储标记，使其表现为"新"引导
     localStorage.removeItem('comfyTourComplete');
-    setRunTour(true);
+    
+    // 重要：先设置为false，然后在下一个事件循环中设置为true
+    // 这样可以确保每次点击都能重新触发引导
+    setRunTour(false);
+    setTimeout(() => {
+      setRunTour(true);
+    }, 50);
   };
 
   // 只在客户端渲染
