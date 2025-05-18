@@ -222,6 +222,27 @@
       }
     }
   },
+  "Tour": {
+    "common": {
+      "nextButton": "下一步",
+      "previousButton": "上一步",
+      "skipButton": "跳过",
+      "finishButton": "完成"
+    },
+    "dashboard": {
+      "welcome": "欢迎使用SlideCraft AI快速入门教程！让我们带你了解如何将文本内容变成演示文稿。",
+      "createFolder": "第一步：创建一个新文件夹来放你的演示稿",
+      "folderName": "第二步：输入文件夹名称。",
+      "createButton": "第三步：点击创建按钮。",
+      "navigateFolder": "第四步：进入新建的文件夹。"
+    },
+    "generation": {
+      "editor": "编辑器已经有我们准备好的文字，你可以直接在左边的编辑器里编辑。",
+      "selectText": "选中你想放在第一张幻灯片上的那段文字，右键点击它",
+      "generatePPT": "选择Generate AI PPT",
+      "complete": "你已经完成了SlideCraft AI把文本内容做成演示文稿的准备工作！请稍等，我们正在为你生成演示文稿..."
+    }
+  },
   "FAQ": {
     "title": "常见问题",
     "items": {

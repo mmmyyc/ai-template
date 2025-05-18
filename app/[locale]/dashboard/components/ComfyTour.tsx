@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import type Shepherd from "shepherd.js";
 import { usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 type ComfyTourProps = {
   run: boolean;
@@ -13,6 +14,7 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const tourRef = useRef<Shepherd.Tour | null>(null);
+  const t = useTranslations("Tour");
 
   // 初始化Shepherd导览
   useEffect(() => {
@@ -89,14 +91,14 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
       // 第一步: 欢迎屏幕
       tour.addStep({
         id: "welcome",
-        text: "欢迎使用SlideCraft AI快速入门教程！让我们带你了解如何将文本内容变成演示文稿。",
+        text: t("dashboard.welcome"),
         attachTo: {
           element: ".body",
           on: "center",
         },
         buttons: [
           {
-            text: "跳过",
+            text: t("common.skipButton"),
             action: () => {
               tour.cancel();
               setRun(false);
@@ -106,7 +108,7 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
             },
           },
           {
-            text: "下一步",
+            text: t("common.nextButton"),
             action: () => tour.next(),
           },
         ],
@@ -115,14 +117,14 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
       // 第二步: 创建文件夹
       tour.addStep({
         id: "create-folder",
-        text: '第一步：创建一个新文件夹来放你的演示稿，比如叫"make"。',
+        text: t("dashboard.createFolder"),
         attachTo: {
           element: ".create-folder",
           on: "bottom",
         },
         buttons: [
           {
-            text: "上一步",
+            text: t("common.previousButton"),
             action: () => tour.back(),
           },
         ],
@@ -131,7 +133,7 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
       // 第三步: 输入文件夹名称
       tour.addStep({
         id: "create-folder-name",
-        text: "第二步：输入文件夹名称。",
+        text: t("dashboard.folderName"),
         attachTo: {
           element: ".create-folder-name", // 确保这个类名与您输入框的类名一致
           on: "bottom",
@@ -153,7 +155,7 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
         },
         buttons: [
           {
-            text: "下一步",
+            text: t("common.nextButton"),
             action: () => tour.next(),
           },
         ],
@@ -161,14 +163,14 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
       // 第四步: 点击创建
       tour.addStep({
         id: "create-folder-button",
-        text: "第三步：点击创建按钮。",
+        text: t("dashboard.createButton"),
         attachTo: {
           element: ".create-folder-button",
           on: "right",
         },
         buttons: [
           {
-            text: "上一步",
+            text: t("common.previousButton"),
             action: () => tour.back(),
           },
         ],
@@ -177,18 +179,18 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
       // 第五步: 导航到文件夹
       tour.addStep({
         id: "folder-navigation",
-        text: "第四步：进入新建的文件夹。",
+        text: t("dashboard.navigateFolder"),
         attachTo: {
           element: ".body",
           on: "center",
         },
         buttons: [
           {
-            text: "上一步",
+            text: t("common.previousButton"),
             action: () => tour.back(),
           },
           {
-            text: "完成",
+            text: t("common.finishButton"),
             action: () => {
               tour.cancel();
               setRun(false);
@@ -204,18 +206,18 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
       // 文本编辑器
       tour.addStep({
         id: "text-editor",
-        text: "编辑器已经有我们准备好的文字，你可以直接在左边的编辑器里编辑。",
+        text: t("generation.editor"),
         attachTo: {
           element: ".text-editor",
           on: "right",
         },
         buttons: [
           {
-            text: "上一步",
+            text: t("common.previousButton"),
             action: () => tour.back(),
           },
           {
-            text: "下一步",
+            text: t("common.nextButton"),
             action: () => tour.next(),
           },
         ],
@@ -224,14 +226,14 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
       // 文本选择
       tour.addStep({
         id: "contextMenu-before-selection",
-        text: "选中你想放在第一张幻灯片上的那段文字，右键点击它",
+        text: t("generation.selectText"),
         attachTo: {
           element: ".text-editor",
           on: "right",
         },
         buttons: [
           {
-            text: "上一步",
+            text: t("common.previousButton"),
             action: () => tour.back(),
           },
         ],
@@ -260,30 +262,10 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
         },
       });
 
-      // // 样式菜单
-      // tour.addStep({
-      //   id: 'style-menu',
-      //   text: '（可选）右键点击选中的文字，选择一个"Style"（风格），比如"手绘"。',
-      //   attachTo: {
-      //     element: '.style-menu',
-      //     on: 'right'
-      //   },
-      //   buttons: [
-      //     {
-      //       text: '上一步',
-      //       action: () => tour.back()
-      //     },
-      //     {
-      //       text: '下一步',
-      //       action: () => tour.next()
-      //     }
-      //   ]
-      // });
-
       // 生成PPT
       tour.addStep({
         id: "generate-ppt",
-        text: '选择"Generate AI PPT"。',
+        text: t("generation.generatePPT"),
         attachTo: {
           element: ".generate-ppt",
           on: "bottom",
@@ -291,81 +273,21 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
         advanceOn: { selector: ".generate-ppt", event: "click" },
       });
 
-      // // 标题输入
-      // tour.addStep({
-      //   id: 'title-input',
-      //   text: '在"Title"框里给幻灯片起个名字（比如"1"），然后点"Save HTML"保存。',
-      //   attachTo: {
-      //     element: '.title-input',
-      //     on: 'bottom'
-      //   },
-      //   buttons: [
-      //     {
-      //       text: '上一步',
-      //       action: () => tour.back()
-      //     },
-      //     {
-      //       text: '下一步',
-      //       action: () => tour.next()
-      //     }
-      //   ]
-      // });
-
-      // // 编辑按钮
-      // tour.addStep({
-      //   id: 'edit-button',
-      //   text: '如果想修改生成的幻灯片，点击预览区上方的"Select Element to Edit"。',
-      //   attachTo: {
-      //     element: '.edit-button',
-      //     on: 'bottom'
-      //   },
-      //   buttons: [
-      //     {
-      //       text: '上一步',
-      //       action: () => tour.back()
-      //     },
-      //     {
-      //       text: '下一步',
-      //       action: () => tour.next()
-      //     }
-      //   ]
-      // });
-
-      // // 样式编辑器
-      // tour.addStep({
-      //   id: 'style-editor',
-      //   text: '然后点击幻灯片上想修改的部分（比如文字），就可以在弹出的"Style Editor"里调整字体大小、颜色等。',
-      //   attachTo: {
-      //     element: '.style-editor',
-      //     on: 'left'
-      //   },
-      //   buttons: [
-      //     {
-      //       text: '上一步',
-      //       action: () => tour.back()
-      //     },
-      //     {
-      //       text: '下一步',
-      //       action: () => tour.next()
-      //     }
-      //   ]
-      // });
-
       // 完成步骤
       tour.addStep({
         id: "complete",
-        text: "你已经完成了SlideCraft AI把文本内容做成演示文稿的准备工作！请稍等，我们正在为你生成演示文稿...",
+        text: t("generation.complete"),
         attachTo: {
           element: ".body",
           on: "center",
         },
         buttons: [
           {
-            text: "上一步",
+            text: t("common.previousButton"),
             action: () => tour.back(),
           },
           {
-            text: "完成",
+            text: t("common.finishButton"),
             action: () => {
               tour.cancel();
               setRun(false);
@@ -377,154 +299,6 @@ const ComfyTour = ({ run, setRun }: ComfyTourProps): React.ReactNode => {
         ],
       });
     }
-    // else if (pathname === '/dashboard/stream-ppt' || pathname.includes('/dashboard/stream-ppt')) {
-    //   // 添加其他步骤...
-    //   // 文本编辑器
-    //   tour.addStep({
-    //     id: 'text-editor',
-    //     text: '把你准备好的文字（比如《Make》手册的内容）粘贴到左边的编辑器里。',
-    //     attachTo: {
-    //       element: '.text-editor',
-    //       on: 'left'
-    //     },
-    //     buttons: [
-    //       {
-    //         text: '上一步',
-    //         action: () => tour.back()
-    //       },
-    //       {
-    //         text: '下一步',
-    //         action: () => tour.next()
-    //       }
-    //     ]
-    //   });
-
-    //   // 文本选择
-    //   tour.addStep({
-    //     id: 'text-selection',
-    //     text: '选中你想放在第一张幻灯片上的那段文字。',
-    //     attachTo: {
-    //       element: '.text-selection',
-    //       on: 'bottom'
-    //     },
-    //     buttons: [
-    //       {
-    //         text: '上一步',
-    //         action: () => tour.back()
-    //       },
-    //       {
-    //         text: '下一步',
-    //         action: () => tour.next()
-    //       }
-    //     ]
-    //   });
-
-    //   // 样式菜单
-    //   tour.addStep({
-    //     id: 'style-menu',
-    //     text: '（可选）右键点击选中的文字，选择一个"Style"（风格），比如"手绘"。',
-    //     attachTo: {
-    //       element: '.style-menu',
-    //       on: 'right'
-    //     },
-    //     buttons: [
-    //       {
-    //         text: '上一步',
-    //         action: () => tour.back()
-    //       },
-    //       {
-    //         text: '下一步',
-    //         action: () => tour.next()
-    //       }
-    //     ]
-    //   });
-
-    //   // 生成PPT
-    //   tour.addStep({
-    //     id: 'generate-ppt',
-    //     text: '再次右键点击选中的文字，选择"Generate AI PPT"。',
-    //     attachTo: {
-    //       element: '.generate-ppt',
-    //       on: 'bottom'
-    //     },
-    //     buttons: [
-    //       {
-    //         text: '上一步',
-    //         action: () => tour.back()
-    //       },
-    //       {
-    //         text: '下一步',
-    //         action: () => tour.next()
-    //       }
-    //     ]
-    //   });
-
-    //   // 标题输入
-    //   tour.addStep({
-    //     id: 'title-input',
-    //     text: '在"Title"框里给幻灯片起个名字（比如"1"），然后点"Save HTML"保存。',
-    //     attachTo: {
-    //       element: '.title-input',
-    //       on: 'bottom'
-    //     },
-    //     buttons: [
-    //       {
-    //         text: '上一步',
-    //         action: () => tour.back()
-    //       },
-    //       {
-    //         text: '下一步',
-    //         action: () => tour.next()
-    //       }
-    //     ]
-    //   });
-
-    //   // 编辑按钮
-    //   tour.addStep({
-    //     id: 'edit-button',
-    //     text: '如果想修改生成的幻灯片，点击预览区上方的"Select Element to Edit"。',
-    //     attachTo: {
-    //       element: '.edit-button',
-    //       on: 'bottom'
-    //     },
-    //     buttons: [
-    //       {
-    //         text: '上一步',
-    //         action: () => tour.back()
-    //       },
-    //       {
-    //         text: '下一步',
-    //         action: () => tour.next()
-    //       }
-    //     ]
-    //   });
-
-    //   // 样式编辑器
-    //   tour.addStep({
-    //     id: 'style-editor',
-    //     text: '然后点击幻灯片上想修改的部分（比如文字），就可以在弹出的"Style Editor"里调整字体大小、颜色等。',
-    //     attachTo: {
-    //       element: '.style-editor',
-    //       on: 'left'
-    //     },
-    //     buttons: [
-    //       {
-    //         text: '上一步',
-    //         action: () => tour.back()
-    //       },
-    //       {
-    //         text: '完成',
-    //         action: () => {
-    //           tour.cancel();
-    //           setRun(false);
-    //           if (typeof window !== 'undefined') {
-    //             localStorage.setItem('comfyTourComplete', 'true');
-    //           }
-    //         }
-    //       }
-    //     ]
-    //   });
-    // }
 
     // 保存导览实例引用
     tourRef.current = tour;
