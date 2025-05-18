@@ -325,6 +325,7 @@ export function FolderManager({
           htmlId={editingSlide.id}
           defaultHtmlTitle={editingSlide.title}
           onContentChange={handleContentChange}
+          activePreviewTabProp="ppt"
         />
       </div>
     );
