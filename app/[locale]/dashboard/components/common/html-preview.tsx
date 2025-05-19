@@ -412,15 +412,17 @@ export function HtmlPreview({
   useEffect(() => {
     if (htmlContent) {
       setLocalHtmlContent(htmlContent);
-      // 保存到localStorage
-      saveHtmlToLocalStorage(htmlContent);
+      // 保存到localStorage，传递当前页面路径
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      saveHtmlToLocalStorage(htmlContent, currentPath);
     }
   }, [htmlContent]);
 
   // 初始化时，如果props没有提供html内容，尝试从localStorage加载
   useEffect(() => {
     if (!htmlContent) {
-      const savedHtml = loadHtmlFromLocalStorage();
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const savedHtml = loadHtmlFromLocalStorage(currentPath);
       if (savedHtml) {
         setLocalHtmlContent(savedHtml);
         console.log("成功从本地存储加载HTML内容");
@@ -430,7 +432,8 @@ export function HtmlPreview({
 
   // 清除本地存储的HTML内容
   const handleClearStorage = () => {
-    clearSavedHtml();
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+    clearSavedHtml(currentPath);
     setLocalHtmlContent("");
     setRenderKey((prev) => prev + 1);
     setProcessingFeedback(t('feedback.storageCleared'));

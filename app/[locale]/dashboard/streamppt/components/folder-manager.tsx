@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { File, FileText, Folder, ImageIcon, Music, Plus, X, FileUp, Trash2, GripVertical, Video, Play, Edit, ArrowLeft, FileDown } from "lucide-react"
+import { File, FileText, Folder, ImageIcon, Music, Plus, X, FileUp, Trash2, GripVertical, Video, Play, Edit, ArrowLeft, FileDown, Wand2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -489,6 +489,18 @@ export function FolderManager({
                   {isDownloading ? 
                     t('downloadingPpt', { defaultValue: 'Downloading...' }) : 
                     t('downloadPpt', { defaultValue: 'Download PPT' })}
+                </Button>
+              )}
+              
+              {/* 添加跳转到特殊页面生成器的按钮 */}
+              {slides.length > 0 && (
+                <Button
+                  onClick={() => router.push(`/dashboard/streamppt/slide-generator?folderId=${selectedFolderId}`)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                  size="sm"
+                >
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  {t('generateSpecialSlides', { defaultValue: 'Special Pages' })}
                 </Button>
               )}
             

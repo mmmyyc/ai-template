@@ -127,9 +127,9 @@ export function parseCompleteContent(content: string): {
   
   if (outlineMatch && outlineMatch[1]) {
     result.outline = { content: outlineMatch[1].trim() };
-    console.log("Complete parser extracted outline:", 
-                result.outline.content.substring(0, 100) + 
-                (result.outline.content.length > 100 ? "..." : ""));
+    // console.log("Complete parser extracted outline:", 
+    //             result.outline.content.substring(0, 100) + 
+    //             (result.outline.content.length > 100 ? "..." : ""));
   }
   
   // 提取HTML内容(即使不完整)
@@ -138,16 +138,16 @@ export function parseCompleteContent(content: string): {
   
   if (htmlMatch && htmlMatch[1]) {
     result.html = { content: htmlMatch[1].trim() };
-    console.log("Complete parser extracted HTML:", 
-               result.html.content.substring(0, 100) + 
-               (result.html.content.length > 100 ? "..." : ""));
+    // console.log("Complete parser extracted HTML:", 
+    //            result.html.content.substring(0, 100) + 
+    //            (result.html.content.length > 100 ? "..." : ""));
   }
   
   // 如果内容不包含任何标记但看起来像HTML
   if (!result.outline && !result.html) {
     if (content.includes("```html") || content.includes("<html") || 
         content.includes("<div") || content.includes("<p>")) {
-      console.log("Content appears to contain HTML but not in our DSL format");
+      // console.log("Content appears to contain HTML but not in our DSL format");
     }
     
     result.text = content;
