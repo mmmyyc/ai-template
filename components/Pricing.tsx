@@ -1,7 +1,7 @@
 import config from "@/config";
 import ButtonCheckout from "./ButtonCheckout";
 import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 // <Pricing/> displays the pricing plans for your app
 // It's your Stripe config in config.js.stripe.plans[] that will be used to display the plans
@@ -9,6 +9,8 @@ import { useTranslations } from 'next-intl';
 
 const Pricing = () => {
   const t = useTranslations('Pricing');
+  const locale = useLocale();
+  const isChinese = locale === 'zh';
   
   // Get translated plan details
   const getTranslatedPlans = () => {
@@ -139,7 +141,11 @@ const Pricing = () => {
                 <div className="space-y-2">
                   {plan.name !== t(`plans.free.name`) && (
                     <>
-                      <ButtonCheckout priceId={plan.priceId} mode="payment" />
+                      {isChinese && plan.cnPriceId ? (
+                        <ButtonCheckout priceId={plan.cnPriceId} mode="payment" />
+                      ) : (
+                        <ButtonCheckout priceId={plan.priceId} mode="payment" />
+                      )}
                       <p className="flex items-center justify-center gap-2 text-sm text-center text-base-content/80 font-medium relative">
                         {t('paidPlanSubtext')}
                       </p>
