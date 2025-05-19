@@ -108,8 +108,8 @@ export async function POST(req: NextRequest) {
 
           user = profile;
         }
-        const max = user.max_uses + (priceId === config.stripe.plans[1].priceId ? 60 : 0);
-        const available_uses = user.available_uses + (priceId === config.stripe.plans[1].priceId ? 60 : 0);
+        const max = user.max_uses + (priceId === config.stripe.plans[1].priceId || priceId === config.stripe.plans[1].cnPriceId ? 60 : 0);
+        const available_uses = user.available_uses + (priceId === config.stripe.plans[1].priceId || priceId === config.stripe.plans[1].cnPriceId ? 60 : 0);
         // 更新用户配置信息
         const { error: updateError } = await supabase
           .from("profiles")
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
             customer_id: customerId,
             price_id: priceId,
             has_access: true,
-            plan: priceId === config.stripe.plans[1].priceId ? "basic" : "advanced",
+            plan: (priceId === config.stripe.plans[1].priceId || priceId === config.stripe.plans[1].cnPriceId) ? "basic" : "advanced",
             max_uses: max,
             available_uses : available_uses,
           })
@@ -159,8 +159,8 @@ export async function POST(req: NextRequest) {
           .select("price_id, available_uses, max_uses")
           .eq("customer_id", customerId)
           .single();
-        const max = currentProfile.max_uses + (newPriceId === config.stripe.plans[1].priceId ?  60 : 0);
-        const available_uses = currentProfile.available_uses + (newPriceId === config.stripe.plans[1].priceId ? 60 : 0);
+        const max = currentProfile.max_uses + (newPriceId === config.stripe.plans[1].priceId || newPriceId === config.stripe.plans[1].cnPriceId ?  60 : 0);
+        const available_uses = currentProfile.available_uses + (newPriceId === config.stripe.plans[1].priceId || newPriceId === config.stripe.plans[1].cnPriceId ? 60 : 0);
         // 只有当价格ID发生变化时才更新用户计划
         if (currentProfile && currentProfile.price_id !== newPriceId) {
           await supabase
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
             .update({ 
               price_id: newPriceId,
               has_access: true,
-              plan: newPriceId === config.stripe.plans[1].priceId ? "basic" : "advanced",
+              plan: (newPriceId === config.stripe.plans[1].priceId || newPriceId === config.stripe.plans[1].cnPriceId) ? "basic" : "advanced",
               max_uses: max,
               available_uses: available_uses
             })
@@ -231,14 +231,16 @@ export async function POST(req: NextRequest) {
 
         // Grant the profile access to your product. It's a boolean in the database, but could be a number of credits, etc...
         // 授予用户档案产品访问权限。在数据库中是一个布尔值，但也可以是信用点数等
-        const max = profile.max_uses + (config.stripe.plans[1].priceId === priceId ?  60 : 10);
-        const available_uses = priceId === config.stripe.plans[1].priceId ? profile.available_uses + 60 : profile.available_uses + 10
+        const max = profile.max_uses + ((config.stripe.plans[1].priceId === priceId || config.stripe.plans[1].cnPriceId === priceId) ?  60 : 10);
+        const available_uses = (priceId === config.stripe.plans[1].priceId || priceId === config.stripe.plans[1].cnPriceId) ? profile.available_uses + 60 : profile.available_uses + 10
         await supabase
           .from("profiles")
-          .update({ has_access: true , plan: priceId === config.stripe.plans[1].priceId ? "basic" : "advanced" ,
-             available_uses: available_uses,
-             max_uses: max
-            })
+          .update({ 
+            has_access: true, 
+            plan: (priceId === config.stripe.plans[1].priceId || priceId === config.stripe.plans[1].cnPriceId) ? "basic" : "advanced",
+            available_uses: available_uses,
+            max_uses: max
+          })
           .eq("customer_id", customerId);
 
         break;
