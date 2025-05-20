@@ -813,8 +813,8 @@
     "stepsDescription": "Our AI assistant makes PPT creation simple, but you always remain in control",
     "steps": {
       "upload": {
-        "title": "Upload PPT",
-        "description": "Upload your existing PPT file or start from scratch"
+        "title": "Upload Document",
+        "description": "Upload your own document, or an ai processed one."
       },
       "select": {
         "title": "Select Segments",

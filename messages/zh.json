@@ -833,8 +833,8 @@
     "stepsDescription": "我们的AI助手让PPT创作变得简单，但决定权始终在你手中",
     "steps": {
       "upload": {
-        "title": "上传PPT",
-        "description": "上传你现有的PPT文件或从头开始创建"
+        "title": "上传文档",
+        "description": "上传你自己的文档，或者经过ai处理的文档"
       },
       "select": {
         "title": "选择片段",
