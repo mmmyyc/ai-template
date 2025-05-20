@@ -9,7 +9,8 @@ import FAQ from "@/components/FAQ";
 import VideoSection from "@/components/VideoSection";
 import WithWithout from '@/components/WithWithout'
 import { getSEOTags } from "@/libs/seo";
-
+import FourStepsProcess from '@/components/FourStepsProcess';
+import { getLandingPage } from "./services/page";
 // 更新metadata生成方法，考虑语言前缀
 export async function generateMetadata({ params }: { params: { locale: string } }) {
   const locale = params.locale;
@@ -19,7 +20,9 @@ export async function generateMetadata({ params }: { params: { locale: string } 
   });
 }
 
-const LandingPage = () => {
+const LandingPage = async ({ params }: { params: { locale: string } }) => {
+  // const locale = params.locale;
+  // const page = await getLandingPage(locale);
   return (
     <div className="min-h-screen">
       <Header />
@@ -39,6 +42,7 @@ const LandingPage = () => {
 
         {/* CTA Section */}
         {/* <CTA /> */}
+        <FourStepsProcess />
 
         {/* Video Section */}
         <VideoSection />

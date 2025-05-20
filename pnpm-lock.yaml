@@ -155,6 +155,9 @@ importers:
       eslint-config-next:
         specifier: 13.4.19
         version: 13.4.19(eslint@8.57.1)(typescript@5.8.2)
+      gsap:
+        specifier: ^3.13.0
+        version: 3.13.0
       html-react-parser:
         specifier: ^5.2.3
         version: 5.2.3(@types/react@18.3.20)(react@18.2.0)
@@ -3202,6 +3205,9 @@ packages:
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
+
+  gsap@3.13.0:
+    resolution: {integrity: sha512-QL7MJ2WMjm1PHWsoFrAQH/J8wUeqZvMtHO58qdekHpCfhvhSL4gSiz6vJf5EeMP0LOn3ZCprL2ki/gjED8ghVw==}
 
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
@@ -8315,6 +8321,8 @@ snapshots:
   gradient-parser@1.1.1: {}
 
   graphemer@1.4.0: {}
+
+  gsap@3.13.0: {}
 
   has-bigints@1.1.0: {}
 

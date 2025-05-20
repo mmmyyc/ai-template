@@ -13,17 +13,17 @@
     "back": "Back",
     "hero": {
       "title": "Create Professional Presentations in Minutes",
-      "subtitle": "Generate precise, customizable PPT slides with our AI technology",
+      "subtitle": "Generate precise, customizable PPT slides with our AI technology while maintaining complete control over your content",
       "tryButton": "Try Now",
       "watchButton": "Watch Demo"
     },
     "problem": {
       "title": "Traditional AI PPT Tools Fall Short of User Expectations",
-      "description": "Current AI presentation tools struggle with content fidelity, design quality, and practical usability, creating more work than they save",
+      "description": "Current AI presentation tools take over content creation, leaving users with little control. They struggle with content fidelity, design quality, and practical usability, creating more work than they save",
       "steps": {
         "digital": {
           "title": "Content Gets Distorted",
-          "description": "AI alters your content, adds fluff, and changes your intended focus"
+          "description": "AI alters your original content, adds unnecessary fluff, and changes your intended focus"
         },
         "burnout": {
           "title": "Poor Design Quality",
@@ -45,21 +45,21 @@
       "list": {
         "ai": {
           "title": "One Slide at a Time",
-          "description": "Generate precisely what you need with complete content control"
+          "description": "Upload your content, select text segments, and AI generates only what you need with complete content control"
         },
         "customization": {
           "title": "Deep Customization",
-          "description": "Adjust every aspect of your slides - style, text, colors, spacing"
+          "description": "Instantly adjust every aspect of your slides online - style, text, colors, spacing - with real-time feedback"
         },
         "interaction": {
           "title": "Professional Data Visualization",
-          "description": "Automatically generate charts and graphs from your data"
+          "description": "Automatically generate charts and graphs from your data to effectively communicate insights"
         }
       }
     },
     "cta": {
       "title": "Ready to Transform Your Presentations?",
-      "description": "Start creating professional-looking slides without the frustration",
+      "description": "Start creating professional-looking slides that you fully control and that truly save you time",
       "button": "Get Started"
     },
     "pricing": {
@@ -183,13 +183,14 @@
         "description": "Generate professional AI slides with essential features",
         "features": {
           "0": "Usage Limit 10 generations per month",
-          "1": "AI Key Point Extraction",
-          "2": "Deep Style Customization",
-          "3": "Professional Layouts",
-          "4": "Advanced Data Visualization",
-          "5": "Efficient Workflow",
-          "6": "Full Font & Color Control",
-          "7": "AI assistant"
+          "1": "Export PPT",
+          "2": "AI Key Point Extraction",
+          "3": "Deep Style Customization",
+          "4": "Professional Layouts",
+          "5": "Advanced Data Visualization",
+          "6": "Efficient Workflow",
+          "7": "Full Font & Color Control",
+          "8": "AI assistant"
         }
       },
       "basic": {
@@ -197,13 +198,14 @@
         "description": "Generate a larger batch of AI slides with full customization",
         "features": {
           "0": "Usage Limit 60 generations per purchase",
-          "1": "AI Key Point Extraction",
-          "2": "Deep Style Customization",
-          "3": "Professional Layouts",
-          "4": "Advanced Data Visualization",
-          "5": "Efficient Workflow",
-          "6": "Full Font & Color Control",
-          "7": "AI assistant"
+          "1": "Export PPT",
+          "2": "AI Key Point Extraction",
+          "3": "Deep Style Customization",
+          "4": "Professional Layouts",
+          "5": "Advanced Data Visualization",
+          "6": "Efficient Workflow",
+          "7": "Full Font & Color Control",
+          "8": "AI assistant"
         }
       }
     }
@@ -213,7 +215,7 @@
     "items": {
       "0": {
         "question": "What makes your AI PPT generator different?",
-        "answer": "<div class='space-y-2 leading-relaxed'><p>Our approach solves the core problems with typical AI presentation tools:</p><ul class='list-disc list-inside'><li>Content Control: We generate one slide at a time based on user-selected text</li><li>Customization: Deep control over styles, fonts, colors, and spacing</li><li>Efficiency: Extract key points from your materials automatically</li><li>Data Visualization: Professional charting tools built in</li><li>User-Friendly: No special prompting skills needed</li></ul></div>"
+        "answer": "<div class='space-y-2 leading-relaxed'><p>Our approach solves the core problems with typical AI presentation tools:</p><ul class='list-disc list-inside'><li>Content Control: We generate one slide at a time based on text segments you select from your uploaded materials - truly \"Your presentation, your rules\"</li><li>Customization: Instant online editing with deep control over styles, fonts, colors, and spacing</li><li>Efficiency: One-click generation of cover pages and tables of contents, automated key point extraction</li><li>Data Visualization: Professional charting tools built in</li><li>User-Friendly: Simple and intuitive, no special prompting skills needed</li></ul></div>"
       },
       "1": {
         "question": "How do I get the best results?",
@@ -276,8 +278,8 @@
       "aiCreation": {
         "name": "Content Control",
         "bulletPoints": {
-          "0": "One slide at a time generation",
-          "1": "Your content, your focus - no unwanted additions",
+          "0": "Your content, your rules - upload materials, select segments",
+          "1": "One slide at a time generation model",
           "2": "Intelligent key point extraction",
           "3": "No content distortion or emphasis shifting"
         }
@@ -286,7 +288,7 @@
         "name": "Deep Customization",
         "bulletPoints": {
           "0": "24 professional design styles",
-          "1": "Adjust fonts, colors, sizes, and spacing",
+          "1": "Instantly adjust fonts, colors, sizes, and spacing online",
           "2": "Fine-tune every element's appearance",
           "3": "Match your brand guidelines perfectly"
         }
@@ -294,7 +296,7 @@
       "convenience": {
         "name": "Genuine Time Savings",
         "bulletPoints": {
-          "0": "Extract key points automatically",
+          "0": "One-click generation of cover pages and tables of contents",
           "1": "Less time fixing AI output",
           "2": "Simplified workflow - select, generate, customize",
           "3": "Professional results with minimal effort"
@@ -802,5 +804,53 @@
       "generatePPT": "Select \"Generate AI PPT\".",
       "complete": "You've completed the preparation for SlidesCraft AI to turn text content into a presentation! Please wait, we're generating your presentation..."
     }
+  },
+  "FourStepsProcess": {
+    "stepsTitle": {
+      "part1": "Four Simple Steps",
+      "part2": ", Perfect PPT"
+    },
+    "stepsDescription": "Our AI assistant makes PPT creation simple, but you always remain in control",
+    "steps": {
+      "upload": {
+        "title": "Upload PPT",
+        "description": "Upload your existing PPT file or start from scratch"
+      },
+      "select": {
+        "title": "Select Segments",
+        "description": "Choose specific sections or pages that need AI assistance"
+      },
+      "generate": {
+        "title": "AI Generation",
+        "description": "AI generates just one slide at a time, ensuring each meets your requirements"
+      },
+      "edit": {
+        "title": "Online Editing",
+        "description": "Modify text, fonts, colors anytime - complete control over your PPT"
+      }
+    },
+    "featuresTitle": "More Powerful Features",
+    "featuresDescription": "Enhance your creativity while improving efficiency and creating outstanding results",
+    "features": {
+      "save": {
+        "title": "One-Click Save",
+        "description": "All content is saved in real-time, never lose your creative work"
+      },
+      "present": {
+        "title": "Online Presentation",
+        "description": "Present your PPT directly in browser without downloading or installing other software"
+      },
+      "download": {
+        "title": "Download PPT",
+        "description": "Export your work as PowerPoint format anytime for offline presentations"
+      },
+      "addPages": {
+        "title": "Add Cover & Contents",
+        "description": "Automatically generate beautiful cover pages and detailed tables of contents"
+      }
+    },
+    "prevFeature": "Previous feature",
+    "nextFeature": "Next feature",
+    "goToFeature": "Go to feature {number}"
   }
 } 

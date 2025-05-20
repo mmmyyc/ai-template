@@ -59,6 +59,7 @@
     "crisp-sdk-web": "^1.0.22",
     "dom-to-svg": "^0.12.2",
     "eslint-config-next": "13.4.19",
+    "gsap": "^3.13.0",
     "html-react-parser": "^5.2.3",
     "html-to-image": "^1.11.13",
     "html2canvas": "1.0.0-rc.7",
