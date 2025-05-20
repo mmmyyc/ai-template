@@ -156,21 +156,14 @@ export default function MarkdownEditor({
       }
     }
   }, [storageKey]);
-
   // 从本地存储加载内容
   const loadFromLocalStorage = useCallback(() => {
     if (typeof window !== 'undefined') {
-      // 如果 initialContent 被提供并且不仅仅是空字符串或空格，则优先使用它。
-      // 这允许父组件强制指定一个特定的起始内容。
-      if (initialContent && initialContent.trim() !== "") {
-        return initialContent;
-      }
-
       // 否则 (initialContent 为空或仅包含空格)，尝试从 localStorage 加载。
       try {
         const savedContent = localStorage.getItem(storageKey);
         // 如果 localStorage 中有内容，则使用它；否则，使用 initialContent (此时它可能是空字符串或默认值)。
-        return savedContent !== null ? savedContent : initialContent;
+        return (savedContent !== null && savedContent !== undefined  && savedContent?.trim() !== "" )? savedContent : initialContent;
       } catch (error) {
         console.error('Error loading from localStorage:', error);
         // 加载出错时，回退到 initialContent。

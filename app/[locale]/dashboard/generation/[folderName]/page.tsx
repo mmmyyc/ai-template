@@ -10,11 +10,11 @@ import {
   PanelResizeHandle,
   ImperativePanelHandle
 } from "react-resizable-panels"
-import { useTranslations } from 'next-intl';
+import { useTranslations , useLocale } from 'next-intl';
 import { useChat, Message, CreateMessage } from '@ai-sdk/react';
 import { extractHtmlFromMarkdown } from "@/app/[locale]/dashboard/utils/ai-service";
 import { parseStreamContent, parseCompleteContent, MixContent, Html, Outline } from "@/app/[locale]/dashboard/utils/HtmlParser";
-
+import { leftEnglishContent, leftChineseContent } from "./leftContent";
 // 自定义大纲样式
 const outlineStyles = `
 .markdown-outline {
@@ -98,7 +98,7 @@ interface CustomChatOptions {
 export default function Home({ params }: GenerationPageProps) {
   const t = useTranslations('GenerationPage');
   const folderName = decodeURIComponent(params.folderName); // Destructure folderId from params
-
+  const locale = useLocale();
   // 应用自定义样式
   useEffect(() => {
     // 创建样式元素
@@ -116,7 +116,7 @@ export default function Home({ params }: GenerationPageProps) {
     };
   }, []);
 
-  const [leftContent, setLeftContent] = useState(``)
+  const [leftContent, setLeftContent] = useState(locale === "en" ? leftEnglishContent : leftChineseContent)
   const [rightContent, setRightContent] = useState(``)
   const [slideData, setSlideData] = useState({
     id: "slide-1",
