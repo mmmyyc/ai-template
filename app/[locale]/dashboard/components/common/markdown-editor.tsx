@@ -25,7 +25,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu"
-import { useTranslations } from 'next-intl'; // Import the hook
+import { useTranslations, useLocale} from 'next-intl'; // Import the hook
 
 // --- Define AI Style Options --- 
 const aiStyleOptionsChinese = [
@@ -132,11 +132,12 @@ export default function MarkdownEditor({
   autoSaveInterval = 5000 // 默认5秒保存一次
 }: MarkdownEditorProps) {
   // 只用一个状态来存储编辑器实例，更接近官方示例
+  const locale = useLocale();
   const [vd, setVd] = useState<Vditor>()
   const [isTextSelected, setIsTextSelected] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   // Add state for AI settings
-  const [aiLanguage, setAiLanguage] = useState("English")
+  const [aiLanguage, setAiLanguage] = useState(locale === 'zh' ? "Chinese" : "English")
   const [generateType, setGenerateType] = useState("PPT")
   // Use the correct style options based on language selection
   const aiStyleOptions = aiLanguage === "English" ? aiStyleOptionsEnglish : aiStyleOptionsChinese
