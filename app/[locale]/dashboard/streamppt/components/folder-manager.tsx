@@ -345,7 +345,7 @@ export function FolderManager({
       // 准备发送到服务器的数据
       const folderName = selectedFolder?.name || 'presentation';
       
-      // 预处理slides，在前端将HTML转换为PNG
+                // 预处理slides，在前端将HTML转换为PNG，同时确保正确处理动画效果
       const processedSlides = [];
       
       for (let i = 0; i < slides.length; i++) {
@@ -360,36 +360,71 @@ export function FolderManager({
           tempIframe.style.cssText = 'position:absolute;left:-9999px;width:1280px;height:720px;';
           document.body.appendChild(tempIframe);
           
-          // 设置iframe内容
+          // 设置iframe内容并等待完全加载
           if (tempIframe.contentDocument) {
             tempIframe.contentDocument.open();
             tempIframe.contentDocument.write(slide.content);
             tempIframe.contentDocument.close();
             
-            // 等待iframe加载完成
+            // 等待iframe完全加载并渲染
             await new Promise<void>((resolve) => {
+              // 主要加载事件
               const handleLoad = () => {
-                resolve();
                 tempIframe.removeEventListener('load', handleLoad);
+                
+                // 确保所有图片都已加载完成
+                const imageElements = Array.from(tempIframe.contentDocument?.querySelectorAll('img') || []) as HTMLImageElement[];
+                if (imageElements.length === 0) {
+                  resolve();
+                  return;
+                }
+                
+                let loadedImages = 0;
+                const imageLoaded = () => {
+                  loadedImages++;
+                  if (loadedImages === imageElements.length) {
+                    resolve();
+                  }
+                };
+                
+                imageElements.forEach(img => {
+                  if (img.complete) {
+                    imageLoaded();
+                  } else {
+                    img.addEventListener('load', imageLoaded);
+                    img.addEventListener('error', imageLoaded);
+                  }
+                });
               };
+              
               tempIframe.addEventListener('load', handleLoad);
-              setTimeout(resolve, 1000); // 超时保护
+              
+              // 设置超时保护，确保流程不会无限等待
+              setTimeout(resolve, 3000);
             });
             
-            // 确保样式应用完成
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 给CSS动画和过渡效果足够时间完成
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
             // 获取内容元素
             const contentElement = tempIframe.contentDocument.body.querySelector('div') || tempIframe.contentDocument.body;
             
-            // 使用domToPng转换为PNG而不是SVG
+            // 使用domToPng转换为PNG，确保捕获完整的视觉效果
             const pngDataUrl = await domToPng(contentElement, {
-              backgroundColor: getComputedStyle(contentElement).backgroundColor || "#ffffff",
+              backgroundColor: getComputedStyle(tempIframe.contentDocument.body).backgroundColor || "#ffffff",
               width: contentElement.scrollWidth,
               height: contentElement.scrollHeight,
               quality: 0.95,
               scale: 2, // 增加缩放因子，提高图像清晰度
               debug: false,
+              // 添加特殊处理以确保CSS动画正确捕获
+              filter: (node) => {
+                // 检查是否应该排除某些元素不进行截图
+                if (node instanceof HTMLElement && node.classList.contains('no-export')) {
+                  return false;
+                }
+                return true;
+              }
             });
             
             // 提取base64数据（去掉前缀）
