@@ -52,7 +52,7 @@ const editorLayoutStyles = `
 `;
 // END ADD
 
-interface ArticleEditorProps {  initialContent?: string;  onSave?: (content: string) => void;  onAIAction?: (    selectedText: string,    language: string,    style: string,    generateType: string  ) => Promise<void>;  isGenerating?: boolean;  generatedComponentCode?: string;  htmlContent?: string;  slideData?: {    id: string;    title: string;    content: string;    style: {      fontFamily: string;      fontSize: number;      color: string;    };  };  folderName?: string;  onEditModeChange?: (isEditMode: boolean) => void;  stopGeneration?: () => void;  activeTabPropforEditOrPreview?: "edit" | "preview";  activePreviewTabProp?: "ppt" | "html";  onActivePreviewTabChange?: (tab: "ppt" | "html") => void;}
+interface ArticleEditorProps {  initialContent?: string;  onSave?: (content: string) => void;  onAIAction?: (    selectedText: string,    language: string,    style: string,    generateType: string  ) => Promise<void>;  isGenerating?: boolean;  generatedComponentCode?: string;  htmlContent?: string;  slideData?: {    id: string;    title: string;    content: string;    style: {      fontFamily: string;      fontSize: number;      color: string;    };  };  folderName?: string;  onEditModeChange?: (isEditMode: boolean) => void;  stopGeneration?: () => void;  activeTabPropforEditOrPreview?: "edit" | "preview";  activePreviewTabProp?: "ppt" | "html";  onActivePreviewTabChange?: (tab: "ppt" | "html") => void;  outlineTitle?: string;}
 
 export default function ArticleEditor({
   initialContent = "",
@@ -66,6 +66,7 @@ export default function ArticleEditor({
   activeTabPropforEditOrPreview = "preview",
   activePreviewTabProp = "ppt",
   onActivePreviewTabChange,
+  outlineTitle = "",
 }: ArticleEditorProps) {
   const t = useTranslations('ArticleEditor');
 
@@ -167,6 +168,7 @@ export default function ArticleEditor({
               ) : null}
               <HtmlPreview 
                 htmlContent={htmlContent} 
+                outlineTitle={outlineTitle}
                 folderName={folderName} 
                 onEditModeChange={onEditModeChange}
                 activePreviewTabProp={activePreviewTabProp}

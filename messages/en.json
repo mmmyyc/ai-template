@@ -13,12 +13,12 @@
     "back": "Back",
     "hero": {
       "title": "Create Professional Presentations in Minutes",
-      "subtitle": "Generate precise, customizable PPT slides with our AI technology while maintaining complete control over your content",
+      "subtitle": "Generate precise, customizable presentation slides with our AI technology while maintaining complete control over your content",
       "tryButton": "Try Now",
       "watchButton": "Watch Demo"
     },
     "problem": {
-      "title": "Traditional AI PPT Tools Fall Short of User Expectations",
+      "title": "Traditional AI Presentation Tools Fall Short of User Expectations",
       "description": "Current AI presentation tools take over content creation, leaving users with little control. They struggle with content fidelity, design quality, and practical usability, creating more work than they save",
       "steps": {
         "digital": {
@@ -41,7 +41,7 @@
       }
     },
     "features": {
-      "title": "Why Choose Our AI PPT Generator?",
+      "title": "Why Choose Our AI Presentation Generator?",
       "list": {
         "ai": {
           "title": "One Slide at a Time",
@@ -89,7 +89,7 @@
       "title": "Frequently Asked Questions",
       "questions": {
         "what": {
-          "question": "How is this different from other AI PPT tools?",
+          "question": "How is this different from other AI Presentation tools?",
           "answer": "Our solution generates one slide at a time, giving you complete control over content. We focus on accuracy and customization rather than producing entire decks filled with fluff."
         },
         "how": {
@@ -123,15 +123,16 @@
       "description": "Upload your documents to generate presentations"
     },
     "streamppt": {
-      "title": "Stream PPT",
-      "description": "Stream your PPT presentations",
-      "backToSlides": "Back to Slides"
+      "title": "Stream Presentations",
+      "description": "Stream your presentations",
+      "backToSlides": "Back to Slides",
+      "outline": "Outline"
     }
   },
   "WithWithout": {
     "title": "Transform Your Presentation Experience",
     "without": {
-      "title": "Traditional AI PPT Tools",
+      "title": "Traditional AI Presentation Tools",
       "items": [
         "AI alters your content and adds unnecessary fluff",
         "Generic templates requiring significant rework",
@@ -141,7 +142,7 @@
       ]
     },
     "with": {
-      "title": "Our AI PPT Generator",
+      "title": "Our AI Presentation Generator",
       "items": [
         "Your content, your focus - one slide at a time",
         "Deep customization of styles, fonts, colors and spacing",
@@ -154,7 +155,7 @@
   "CTA": {
     "backgroundAlt": "Professional Presentation",
     "title": "Transform Your Presentations with AI Precision",
-    "description": "Our AI PPT Generator creates professional-quality slides that actually save you time. No more generic templates or content distortion - just select your text, generate a slide, and customize to perfection!",
+    "description": "Our AI Presentation Generator creates professional-quality slides that actually save you time. No more generic templates or content distortion - just select your text, generate a slide, and customize to perfection!",
     "tryNowButton": "Try Now",
     "exploreStoreButton": "Explore Templates",
     "features": {
@@ -174,7 +175,7 @@
     "title": "Get premium Shimeji pets fast and affordably",
     "popularBadge": "POPULAR",
     "currency": "USD",
-    "paidPlanSubtext": "Get high-quality professional PPTs",
+    "paidPlanSubtext": "Get high-quality professional presentations",
     "freePlanButton": "Try Now",
     "freePlanSubtext": "Get started with 10 generations per month free",
     "plans": {
@@ -183,7 +184,7 @@
         "description": "Generate professional AI slides with essential features",
         "features": {
           "0": "Usage Limit 10 generations per month",
-          "1": "Export PPT",
+          "1": "Export Presentations",
           "2": "AI Key Point Extraction",
           "3": "Deep Style Customization",
           "4": "Professional Layouts",
@@ -198,7 +199,7 @@
         "description": "Generate a larger batch of AI slides with full customization",
         "features": {
           "0": "Usage Limit 60 generations per purchase",
-          "1": "Export PPT",
+          "1": "Export Presentations",
           "2": "AI Key Point Extraction",
           "3": "Deep Style Customization",
           "4": "Professional Layouts",
@@ -214,7 +215,7 @@
     "title": "Frequently Asked Questions",
     "items": {
       "0": {
-        "question": "What makes your AI PPT generator different?",
+        "question": "What makes your AI Presentation Generator different?",
         "answer": "<div class='space-y-2 leading-relaxed'><p>Our approach solves the core problems with typical AI presentation tools:</p><ul class='list-disc list-inside'><li>Content Control: We generate one slide at a time based on text segments you select from your uploaded materials - truly \"Your presentation, your rules\"</li><li>Customization: Instant online editing with deep control over styles, fonts, colors, and spacing</li><li>Efficiency: One-click generation of cover pages and tables of contents, automated key point extraction</li><li>Data Visualization: Professional charting tools built in</li><li>User-Friendly: Simple and intuitive, no special prompting skills needed</li></ul></div>"
       },
       "1": {
@@ -273,7 +274,7 @@
   },
   "FeaturesListicle": {
     "title": "Precision and Control in AI Presentation Creation",
-    "description": "We've designed our AI PPT generator to address the pain points of traditional tools, giving you complete control over content while saving you valuable time.",
+    "description": "We've designed our AI Presentation Generator to address the pain points of traditional tools, giving you complete control over content while saving you valuable time.",
     "features": {
       "aiCreation": {
         "name": "Content Control",
@@ -537,7 +538,7 @@
     "titleInputLabel": "Title",
     "titleInputPlaceholder": "Enter a title for your generation",
     "tabs": {
-      "ppt": "PPT",
+      "ppt": "Slides",
       "html": "HTML"
     },
     "status": {
@@ -669,7 +670,7 @@
       "stylePlaceholder": "Select style",
       "changeGenerateType": "Change Generate Type",
       "changeToCard": "Switch to Card Mode",
-      "changeToPPT": "Switch to PPT Mode",
+      "changeToPPT": "Switch to Presentation Mode",
       "save": "Save"
     }
   },
@@ -687,7 +688,7 @@
     "noFoldersMessage": "No folders found. Please create a new folder.",
     "createdOnLabel": "Created on",
     "loading": "Loading...",
-    "streampptCardTitle": "Stream PPT",
+    "streampptCardTitle": "Stream Presentations",
     "streampptCardDescription": "Manage and present slide content dynamically.",
     "newFolder": "New Folder",
     "createFolder": "Create Folder",
@@ -713,18 +714,18 @@
     "slideListTitle": "Slide List",
     "deleteSlide": "Delete Slide",
     "slideTitlePlaceholder": "Slide Title (auto-generated)",
-    "sidebarTitle": "Website PPT Templates",
+    "sidebarTitle": "Website Presentation Templates",
     "currentFolder": "Current Folder",
     "noFolderSelected": "No Folder Selected",
     "changeButton": "Change",
     "closeSidebar": "Close Sidebar",
     "selectFolderPrompt": "You haven't selected a folder yet. Please select one to save your presentation.",
     "selectFolderButton": "Select Folder",
-    "sideBarTitle": "Website PPT Templates"
+    "sideBarTitle": "Website Presentation Templates"
   },
   "StreamPpt": {
-    "title": "Stream PPT",
-    "description": "Create and manage your streaming PPT presentations",
+    "title": "Stream Presentations",
+    "description": "Create and manage your streaming presentations",
     "backToFolders": "Back to Folders",
     "startPresentation": "Start Presentation",
     "exitPresentation": "Exit Presentation",
@@ -750,15 +751,15 @@
     "slideListTitle": "Slide List",
     "backToSlides": "Back to Slides",
     "processingSlides": "Processing slides...",
-    "pptGenerationError": "Failed to generate PPT",
-    "pptGenerationSuccess": "PPT generated successfully",
-    "pptGenerationFailed": "Failed to generate PPT",
-    "pptGenerationFailedLog": "PPT generation failed:",
-    "pptGenerationNetworkError": "Network error occurred while generating PPT",
-    "pptGenerationTimeout": "PPT generation timed out",
-    "downloadingPpt": "Downloading PPT...",
-    "downloadPpt": "Download PPT",
-    "pptDownloaded": "PPT downloaded successfully",
+    "pptGenerationError": "Failed to generate presentation",
+    "pptGenerationSuccess": "Presentation generated successfully",
+    "pptGenerationFailed": "Failed to generate presentation",
+    "pptGenerationFailedLog": "Presentation generation failed:",
+    "pptGenerationNetworkError": "Network error occurred while generating presentation",
+    "pptGenerationTimeout": "Presentation generation timed out",
+    "downloadingPpt": "Downloading presentation...",
+    "downloadPpt": "Download Presentation",
+    "pptDownloaded": "Presentation downloaded successfully",
     "processingSlide": "Processing slide...",
     "generateSpecialSlides": "Generate Special Slides",
     "specialSlidesGenerator": "Special Slides Generator",
@@ -782,7 +783,8 @@
     "acknowledgementsPageName": "Acknowledgments",
     "slideSaved": "Slide saved successfully!",
     "slideSaveError": "Error saving slide: {error}",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "outline": "Outline"
   },
   "Tour": {
     "common": {
@@ -801,16 +803,16 @@
     "generation": {
       "editor": "The editor already has text we've prepared. You can edit directly in the editor on the left.",
       "selectText": "Select the text you want to put on the first slide, then right-click it",
-      "generatePPT": "Select \"Generate AI PPT\".",
+      "generatePPT": "Select \"Generate AI Presentation\".",
       "complete": "You've completed the preparation for SlidesCraft AI to turn text content into a presentation! Please wait, we're generating your presentation..."
     }
   },
   "FourStepsProcess": {
     "stepsTitle": {
       "part1": "Four Simple Steps",
-      "part2": ", Perfect PPT"
+      "part2": ", Perfect Presentation"
     },
-    "stepsDescription": "Our AI assistant makes PPT creation simple, but you always remain in control",
+    "stepsDescription": "Our AI assistant makes presentation creation simple, but you always remain in control",
     "steps": {
       "upload": {
         "title": "Upload Document",
@@ -826,7 +828,7 @@
       },
       "edit": {
         "title": "Online Editing",
-        "description": "Modify text, fonts, colors anytime - complete control over your PPT"
+        "description": "Modify text, fonts, colors anytime - complete control over your presentation"
       }
     },
     "featuresTitle": "More Powerful Features",
@@ -838,10 +840,10 @@
       },
       "present": {
         "title": "Online Presentation",
-        "description": "Present your PPT directly in browser without downloading or installing other software"
+        "description": "Present your slides directly in browser without downloading or installing other software"
       },
       "download": {
-        "title": "Download PPT",
+        "title": "Download Presentation",
         "description": "Export your work as PowerPoint format anytime for offline presentations"
       },
       "addPages": {

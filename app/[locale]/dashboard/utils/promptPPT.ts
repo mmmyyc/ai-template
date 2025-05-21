@@ -373,11 +373,11 @@ B --> C["结果"]
       - 说明: 标准返回结构示例
       - 示例内容: |
       <<outline-start>>
-      **幻灯片：市场营销季度报告**
-      标题：
-      **内容模块：**
-      图表：//可选
-      流程图：//可选
+      **Presentation: ** //必选(换行) 
+         title: //必选(换行)
+         Content Module:  //必选 
+         chart: //可选
+         flowchart: //可选
       <<outline-end>>
       <<html-start>>
           <!DOCTYPE html>

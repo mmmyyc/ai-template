@@ -115,7 +115,8 @@
     },
     "streamppt": {
       "title": "Stream PPT",
-      "description": "在线播放您的PPT演示文稿"
+      "description": "在线播放您的PPT演示文稿",
+      "outline": "大纲"
     }
   },
   "DailyLimit": {
@@ -745,7 +746,8 @@
     "acknowledgementsPageName": "致谢页",
     "slideSaved": "幻灯片保存成功！",
     "slideSaveError": "保存幻灯片时出错：{error}",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "outline": "大纲"
   },
   "HtmlPreview": {
     "title": "AI 生成预览",

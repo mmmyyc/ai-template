@@ -130,6 +130,7 @@ export default function Home({ params }: GenerationPageProps) {
   })
   const [htmlContent, setHtmlContent] = useState("")
   const [outlineContent, setOutlineContent] = useState("")
+  const [outlineTitle, setOutlineTitle] = useState("")
   const [isEditMode, setIsEditMode] = useState(false)
   const currentStyle = useRef("" as string)
   
@@ -151,6 +152,7 @@ export default function Home({ params }: GenerationPageProps) {
       // 重置内容状态，准备接收新的内容
       setHtmlContent("");
       setOutlineContent("");
+      setOutlineTitle("");
       streamingContentRef.current = "";
       
       // 重置生成完成标志
@@ -181,13 +183,14 @@ export default function Home({ params }: GenerationPageProps) {
       
       // 处理大纲内容
       if (parsedContent.outline) {
-        console.log("Setting outline from message content");
+        // console.log("Setting outline from message content");
         setOutlineContent(parsedContent.outline.content);
+        setOutlineTitle(parsedContent.outline.title);
       }
       
       // 处理HTML内容
       if (parsedContent.html) {
-        console.log("Setting HTML from message content");
+        // console.log("Setting HTML from message content");
         setHtmlContent(parsedContent.html.content);
         
         // 当检测到HTML内容时自动打开右侧面板
@@ -336,6 +339,7 @@ export default function Home({ params }: GenerationPageProps) {
               onAIAction={handleAIAction}
               isGenerating={isLoading}
               htmlContent={htmlContent}
+              outlineTitle={outlineTitle}
               slideData={slideData}
               folderName={folderName}
               onEditModeChange={handleEditModeChange}

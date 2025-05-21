@@ -48,6 +48,7 @@ export default function SlideGeneratorPage() {
   const [leftContent, setLeftContent] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const [outlineContent, setOutlineContent] = useState('')
+  const [outlineTitle, setOutlineTitle] = useState('')
   const [activeTabMode, setActiveTabMode] = useState<"edit" | "preview">("preview")
   const [activePreviewTab, setActivePreviewTab] = useState<"html" | "ppt">("html")
   const [slideData, setSlideData] = useState({
@@ -97,6 +98,7 @@ export default function SlideGeneratorPage() {
       // 重置内容状态，准备接收新的内容
       setHtmlContent("")
       setOutlineContent("")
+      setOutlineTitle("")
       streamingContentRef.current = ""
       
       // 重置生成完成标志
@@ -148,6 +150,7 @@ export default function SlideGeneratorPage() {
       // 处理大纲内容
       if (parsedContent.outline) {
         console.log("Setting outline from message content")
+        setOutlineTitle(parsedContent.outline.title)
         setOutlineContent(parsedContent.outline.content)
       }
       
@@ -500,7 +503,7 @@ export default function SlideGeneratorPage() {
           </div>
           {outlineContent && (
                 <div className="p-4 bg-gray-50 dark:bg-gray-900 border-t border-neutral-200 dark:border-neutral-800 overflow-auto max-h-[30%]" ref={outlineContainerRef}>
-                  <h3 className="text-sm font-medium mb-2">大纲</h3>
+                  <h3 className="text-sm font-medium mb-2">{t('outline')}</h3>
                   <div className="markdown-outline prose prose-sm dark:prose-invert max-w-none">
                     <ReactMarkdown>
                       {outlineContent}
@@ -519,6 +522,7 @@ export default function SlideGeneratorPage() {
             isGenerating={isChatLoading}
             htmlContent={htmlContent}
             slideData={slideData}
+            outlineTitle={outlineTitle}
             folderName={folderId || ''}
             onEditModeChange={handleEditModeChange}
             stopGeneration={stop}

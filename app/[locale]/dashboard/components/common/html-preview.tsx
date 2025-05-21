@@ -124,6 +124,7 @@ export function HtmlPreview({
   onContentChange,
   activePreviewTabProp = "ppt",
   onActivePreviewTabChange,
+  outlineTitle,
 }: { 
   htmlContent: string, 
   folderName: string,
@@ -134,9 +135,10 @@ export function HtmlPreview({
   onContentChange?: (htmlId: string, content: string, title: string) => void,
   activePreviewTabProp: "ppt" | "html",
   onActivePreviewTabChange?: (tab: "ppt" | "html") => void,
+  outlineTitle?: string,
 }) {
   const t = useTranslations('HtmlPreview');
-  const [htmlTitle, setHtmlTitle] = useState("");
+  const [htmlTitle, setHtmlTitle] = useState(outlineTitle || "");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
 
@@ -408,15 +410,16 @@ export function HtmlPreview({
     };
   }, [isSelecting]);
 
-  // Update local HTML content when the prop changes
+  // Update local HTML content and outline title when the prop changes
   useEffect(() => {
     if (htmlContent) {
       setLocalHtmlContent(htmlContent);
+      setHtmlTitle(outlineTitle);
       // 保存到localStorage，传递当前页面路径
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
       saveHtmlToLocalStorage(htmlContent, currentPath);
     }
-  }, [htmlContent]);
+  }, [htmlContent, outlineTitle]);
 
   // 初始化时，如果props没有提供html内容，尝试从localStorage加载
   useEffect(() => {

@@ -7,7 +7,14 @@ export interface Html {
   content: string;
 }
 
+// export interface Content {
+//   title: string;
+//   subtitle: string;
+//   content: string;
+// }
+
 export interface Outline {
+  title?: string;
   content: string;
 }
 
@@ -46,6 +53,25 @@ export function parseStreamContent(content: string): MixContent {
       const outlineContent = outlineMatch[1].trim();
       console.log("Extracted outline content:", outlineContent.substring(0, 100) + (outlineContent.length > 100 ? "..." : ""));
       
+      // Extract title if available
+      let title: string | undefined;
+      const titleMatch = outlineContent.match(/(?:title\s*\|\|\s*标题|title|标题):\s*(.*?)(?:\n|$)/i);
+      console.log("Title match in stream:", titleMatch ? titleMatch[0] : "no match");
+      
+      if (titleMatch && titleMatch[1]) {
+        title = titleMatch[1].trim();
+        // Remove the title line from content
+        const contentWithoutTitle = outlineContent.replace(/(?:title\s*\|\|\s*标题|title|标题):\s*(.*?)(?:\n|$)/i, '').trim();
+        
+        return {
+          type: "outline",
+          outline: { 
+            title: title,
+            content: contentWithoutTitle
+          }
+        };
+      }
+      
       return {
         type: "outline",
         outline: { content: outlineContent }
@@ -74,6 +100,26 @@ export function parseStreamContent(content: string): MixContent {
     const partialOutlineContent = content.split("<<outline-start>>")[1]?.trim();
     if (partialOutlineContent) {
       console.log("Extracted partial outline:", partialOutlineContent.substring(0, 100) + (partialOutlineContent.length > 100 ? "..." : ""));
+      
+      // Extract title if available in partial content
+      let title: string | undefined;
+      const titleMatch = partialOutlineContent.match(/(?:title\s*\|\|\s*标题|title|标题):\s*(.*?)(?:\n|$)/i);
+      console.log("Title match in partial stream:", titleMatch ? titleMatch[0] : "no match");
+      
+      if (titleMatch && titleMatch[1]) {
+        title = titleMatch[1].trim();
+        // Remove the title line from content
+        const contentWithoutTitle = partialOutlineContent.replace(/(?:title\s*\|\|\s*标题|title|标题):\s*(.*?)(?:\n|$)/i, '').trim();
+        
+        return {
+          type: "outline",
+          outline: { 
+            title: title,
+            content: contentWithoutTitle
+          }
+        };
+      }
+      
       return {
         type: "outline",
         outline: { content: partialOutlineContent }
@@ -126,10 +172,24 @@ export function parseCompleteContent(content: string): {
   const outlineMatch = content.match(outlineRegex);
   
   if (outlineMatch && outlineMatch[1]) {
-    result.outline = { content: outlineMatch[1].trim() };
-    // console.log("Complete parser extracted outline:", 
-    //             result.outline.content.substring(0, 100) + 
-    //             (result.outline.content.length > 100 ? "..." : ""));
+    const outlineContent = outlineMatch[1].trim();
+    
+    // Extract title if available
+    let title: string | undefined;
+    const titleMatch = outlineContent.match(/(?:title\s*\|\|\s*标题|title|标题):\s*(.*?)(?:\n|$)/i);
+    console.log("Title match in complete:", titleMatch ? titleMatch[0] : "no match");
+    
+    if (titleMatch && titleMatch[1]) {
+      title = titleMatch[1].trim();
+      result.outline = { 
+        title: title,
+        content: outlineContent 
+      };
+    } else {
+      result.outline = { content: outlineContent };
+    }
+    // console.log("Complete parser extracted outline title:", 
+    //             result.outline?.title);
   }
   
   // 提取HTML内容(即使不完整)
