@@ -63,7 +63,18 @@ export default function SlideGeneratorPage() {
   })
   const [isEditMode, setIsEditMode] = useState(false)
   const currentStyle = useRef("" as string)
-  
+  const [folderName, setFolderName] = useState("")
+
+  useEffect(() => {
+    apiClient.get("/html-ppt/getFolderNameFromId", {
+      params: {
+        id: folderId
+      }
+    }).then((res) => {
+      setFolderName(res.data.folderName)
+    })
+  }, [folderId])
+
   // 用于收集流式内容的引用
   const streamingContentRef = useRef("")
   
@@ -360,19 +371,9 @@ export default function SlideGeneratorPage() {
     if (!htmlContent || !folder || !selectedType) return
     
     try {
-      // 生成幻灯片标题
-      let slideTitle = ''
-      if (selectedType === 'cover') {
-        slideTitle = t('coverPageName')
-      } else if (selectedType === 'contents') {
-        slideTitle = t('contentsPageName')
-      } else {
-        slideTitle = t('acknowledgementsPageName')
-      }
-      
       // 创建新的幻灯片对象
       const newSlide = {
-        title: slideTitle,
+        title: outlineTitle,
         content: htmlContent,
         folder_id: folderId
       }
@@ -423,15 +424,6 @@ export default function SlideGeneratorPage() {
             {folder && ` - ${folder.name}`}
           </h1>
         </div>
-        
-        {htmlContent && (
-          <Button
-            className="bg-green-600 hover:bg-green-700 transition-colors" 
-            onClick={saveSlide}
-          >
-            {t('saveSlide')}
-          </Button>
-        )}
       </header>
       
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 p-6 overflow-hidden">
@@ -523,7 +515,7 @@ export default function SlideGeneratorPage() {
             htmlContent={htmlContent}
             slideData={slideData}
             outlineTitle={outlineTitle}
-            folderName={folderId || ''}
+            folderName={folderName || ''}
             onEditModeChange={handleEditModeChange}
             stopGeneration={stop}
             activeTabPropforEditOrPreview="preview"
