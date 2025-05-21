@@ -54,6 +54,98 @@ function SortableSlideItem({ slide, index, isActive, onClick, onDelete, onEdit }
     isDragging 
   } = useSortable({ id: slide.id });
 
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  
+  // Generate preview image from HTML content
+  useEffect(() => {
+    const generatePreview = async () => {
+      try {
+        // 创建临时iframe来渲染HTML，与下载PPT中的方法相同
+        const tempIframe = document.createElement('iframe');
+        tempIframe.style.cssText = 'position:absolute;left:-9999px;width:600px;height:337px;'; // 16:9比例
+        document.body.appendChild(tempIframe);
+        
+        // 设置iframe内容并等待完全加载
+        if (tempIframe.contentDocument) {
+          tempIframe.contentDocument.open();
+          tempIframe.contentDocument.write(slide.content);
+          tempIframe.contentDocument.close();
+          
+          // 等待iframe完全加载并渲染
+          await new Promise<void>((resolve) => {
+            // 主要加载事件
+            const handleLoad = () => {
+              tempIframe.removeEventListener('load', handleLoad);
+              
+              // 确保所有图片都已加载完成
+              const imageElements = Array.from(tempIframe.contentDocument?.querySelectorAll('img') || []) as HTMLImageElement[];
+              if (imageElements.length === 0) {
+                resolve();
+                return;
+              }
+              
+              let loadedImages = 0;
+              const imageLoaded = () => {
+                loadedImages++;
+                if (loadedImages === imageElements.length) {
+                  resolve();
+                }
+              };
+              
+              imageElements.forEach(img => {
+                if (img.complete) {
+                  imageLoaded();
+                } else {
+                  img.addEventListener('load', imageLoaded);
+                  img.addEventListener('error', imageLoaded);
+                }
+              });
+            };
+            
+            tempIframe.addEventListener('load', handleLoad);
+            
+            // 设置超时保护，确保流程不会无限等待
+            setTimeout(resolve, 1000);
+          });
+          
+          // 给CSS动画和过渡效果足够时间完成（预览图较小，时间可以短些）
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // 获取内容元素
+          const contentElement = tempIframe.contentDocument.body.querySelector('div') || tempIframe.contentDocument.body;
+          
+          // 使用domToPng转换为PNG，确保捕获完整的视觉效果
+          const pngDataUrl = await domToPng(contentElement, {
+            backgroundColor: getComputedStyle(tempIframe.contentDocument.body).backgroundColor || "#ffffff",
+            width: contentElement.scrollWidth,
+            height: contentElement.scrollHeight,
+            quality: 0.9,
+            scale: 1, // 预览图不需要太高清晰度
+            debug: false,
+            filter: (node) => {
+              // 检查是否应该排除某些元素不进行截图
+              if (node instanceof HTMLElement && node.classList.contains('no-export')) {
+                return false;
+              }
+              return true;
+            }
+          });
+          
+          setPreviewImage(pngDataUrl);
+          
+          // 清理
+          document.body.removeChild(tempIframe);
+        }
+      } catch (error) {
+        console.error('Error generating preview:', error);
+        // Set fallback image or placeholder
+        setPreviewImage(null);
+      }
+    };
+    
+    generatePreview();
+  }, [slide.content]);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -67,15 +159,16 @@ function SortableSlideItem({ slide, index, isActive, onClick, onDelete, onEdit }
       style={style}
       {...attributes}
       {...listeners}
-      className={`p-3 mb-2 rounded cursor-grab active:cursor-grabbing transition-colors ${
+      className={`p-4 mb-3 rounded-lg cursor-grab active:cursor-grabbing transition-colors ${
         isActive
-          ? "bg-primary/10 text-primary font-medium"
-          : "hover:bg-gray-100 dark:hover:bg-gray-800"
+          ? "bg-primary/10 text-primary font-medium border border-primary/20"
+          : "hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-100"
       } ${isDragging ? 'border border-primary/30 shadow-lg' : ''}`}
     >
-      <div className="flex items-center">
+      <div className="flex flex-col">
+        {/* Slide Preview */}
         <div 
-          className="flex-1" 
+          className="slide-preview mb-4 rounded-md overflow-hidden border border-gray-200 shadow-sm"
           onClick={(e) => {
             // Prevent click event when dragging
             if (!isDragging) {
@@ -84,27 +177,49 @@ function SortableSlideItem({ slide, index, isActive, onClick, onDelete, onEdit }
             }
           }}
         >
-          {/* <div className="slide-preview mb-2">
-            <div className="bg-gray-200 dark:bg-gray-700 w-full h-24 flex items-center justify-center">
-              <FileUp className="text-gray-400 dark:text-gray-500 h-8 w-8" />
+          {previewImage ? (
+            <div className="aspect-[16/9] bg-gray-50 relative">
+              <img 
+                src={previewImage} 
+                alt={slide.title} 
+                className="w-full h-full object-cover"
+              />
             </div>
-          </div> */}
-          <div className="text-sm truncate">{slide.title}</div>
+          ) : (
+            <div className="aspect-[16/9] bg-gray-100 flex items-center justify-center">
+              <FileUp className="text-gray-400 h-10 w-10" />
+            </div>
+          )}
         </div>
-        <button
-          onClick={(e) => onEdit(e, slide)}
-          className="ml-2 p-1 rounded-full hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/30 transition-colors"
-          title="编辑幻灯片"
-        >
-          <Edit className="h-4 w-4" />
-        </button>
-        <button
-          onClick={(e) => onDelete(e, slide.id)}
-          className="ml-1 p-1 rounded-full hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 transition-colors"
-          title="删除幻灯片"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        
+        {/* Slide Title and Actions */}
+        <div className="flex items-center">
+          <div 
+            className="flex-1 truncate"
+            onClick={(e) => {
+              if (!isDragging) {
+                e.stopPropagation();
+                onClick();
+              }
+            }}
+          >
+            <div className="text-sm font-medium truncate leading-5">{slide.title}</div>
+          </div>
+          <button
+            onClick={(e) => onEdit(e, slide)}
+            className="ml-2 p-1 rounded-full hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/30 transition-colors"
+            title="编辑幻灯片"
+          >
+            <Edit className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => onDelete(e, slide.id)}
+            className="ml-1 p-1 rounded-full hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 transition-colors"
+            title="删除幻灯片"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -574,7 +689,7 @@ export function FolderManager({
           ) : (
             <div className="border rounded-lg p-4 bg-white">
               <h4 className="text-sm font-medium mb-4 text-gray-500">{t('slideListTitle')}</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {onSlideChange && onSlideDelete && (
                   <DndContext
                     sensors={sensors}

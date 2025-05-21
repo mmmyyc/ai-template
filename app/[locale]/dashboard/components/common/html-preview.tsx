@@ -450,7 +450,7 @@ export function HtmlPreview({
       toast.error(t('feedback.titleRequired'));
       return; // 阻止保存
     }
-    if(htmlTitle.length >= 50) {
+    if(htmlTitle.length >= 70) {
       toast.error(t('feedback.titleTooLong'))
       return;
     }
