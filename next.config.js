@@ -18,6 +18,7 @@ const nextConfig = {
       "r2.SlidesCraft.com",
       "avatars.githubusercontent.com",
       "replicate.delivery",
+      "api.producthunt.com",
     ],
   },
   async headers() { 
