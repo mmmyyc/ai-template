@@ -62,7 +62,7 @@ function SortableSlideItem({ slide, index, isActive, onClick, onDelete, onEdit }
       try {
         // 创建临时iframe来渲染HTML，与下载PPT中的方法相同
         const tempIframe = document.createElement('iframe');
-        tempIframe.style.cssText = 'position:absolute;left:-9999px;width:600px;height:337px;'; // 16:9比例
+        tempIframe.style.cssText = 'position:absolute;left:-9999px;width:700px;height:395px;'; // 16:9比例
         document.body.appendChild(tempIframe);
         
         // 设置iframe内容并等待完全加载
