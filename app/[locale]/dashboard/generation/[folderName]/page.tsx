@@ -129,6 +129,7 @@ export default function Home({ params }: GenerationPageProps) {
     },
   })
   const [htmlContent, setHtmlContent] = useState("")
+  const [previousHtmlContent, setPreviousHtmlContent] = useState("")
   const [outlineContent, setOutlineContent] = useState("")
   const [outlineTitle, setOutlineTitle] = useState("")
   const [isEditMode, setIsEditMode] = useState(false)
@@ -145,10 +146,13 @@ export default function Home({ params }: GenerationPageProps) {
   const generationCompletedRef = useRef(false)
   
   // 使用 useChat hook
-  const { messages, append, isLoading, stop, data } = useChat({
+  const { messages, append, isLoading, stop, data, setMessages } = useChat({
     api: '/api/ai/generate',
     experimental_throttle: 50,
     onResponse: (response: Response) => {
+      // 在生成新内容前保存当前HTML内容
+      setPreviousHtmlContent(htmlContent);
+      
       // 重置内容状态，准备接收新的内容
       setHtmlContent("");
       setOutlineContent("");
@@ -165,6 +169,11 @@ export default function Home({ params }: GenerationPageProps) {
       console.log("Started new generation");
     }
   } as any);
+  
+  // 自定义删除消息的函数
+  const removeMessage = useCallback((messageId: string) => {
+    setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== messageId));
+  }, [setMessages]);
   
   // 监听 messages 变化，解析最新的消息内容
   useEffect(() => {
@@ -199,6 +208,8 @@ export default function Home({ params }: GenerationPageProps) {
       }
       
       // 如果解析器没有识别到特定格式，尝试使用老方法提取HTML
+      const hasHtmlContent = parsedContent.html || extractHtmlFromMarkdown(latestMessage.content);
+      
       if (!parsedContent.html && !parsedContent.outline && htmlContent === "") {
         const extractedHtml = extractHtmlFromMarkdown(latestMessage.content);
         if (extractedHtml) {
@@ -211,8 +222,19 @@ export default function Home({ params }: GenerationPageProps) {
         }
       }
       
-      // 消息完成时更新幻灯片数据
+      // 消息完成后，如果没有检测到HTML内容，删除该消息并恢复先前的HTML内容
       if (!isLoading) {
+        if (!hasHtmlContent) {
+          console.log("No HTML content detected in message, removing message:", latestMessage.id);
+          // 删除最新消息
+          removeMessage(latestMessage.id);
+          // 恢复先前的HTML内容
+          setHtmlContent(previousHtmlContent);
+          // 显示通知或日志
+          console.log("Restored previous HTML content");
+          return; // 提前退出以避免更新幻灯片数据
+        }
+        
         const title = leftContent.split('\n')[0].replace(/^#+\s+/, "").trim();
         setSlideData({
           id: `slide-${Date.now()}`,
@@ -227,7 +249,7 @@ export default function Home({ params }: GenerationPageProps) {
     } catch (error) {
       console.error("Error processing message content:", error);
     }
-  }, [messages, isLoading , leftContent, slideData.style, htmlContent]);
+  }, [messages, isLoading, leftContent, slideData.style, htmlContent, previousHtmlContent, removeMessage]);
   
   // 创建对左侧面板的引用
   const leftPanelRef = useRef<ImperativePanelHandle>(null);
