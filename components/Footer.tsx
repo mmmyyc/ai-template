@@ -1,7 +1,7 @@
 import { Link } from '@/i18n/navigation';
 import Image from "next/image";
 import config from "@/config";
-import logo from "@/app/icon.png";
+import logo from "@/app/apple-icon.png";
 import { useTranslations } from 'next-intl';
 
 const Footer = () => {
