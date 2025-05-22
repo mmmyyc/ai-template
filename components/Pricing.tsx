@@ -3,6 +3,11 @@ import ButtonCheckout from "./ButtonCheckout";
 import { Link } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 
+// 定义特性的接口
+interface Feature {
+  name: string;
+}
+
 // <Pricing/> displays the pricing plans for your app
 // It's your Stripe config in config.js.stripe.plans[] that will be used to display the plans
 // <ButtonCheckout /> renders a button that will redirect the user to Stripe checkout called the /api/stripe/create-checkout API endpoint with the correct priceId
@@ -23,26 +28,18 @@ const Pricing = () => {
         description = plan.description; 
       }
       
-      // 直接从翻译文件中获取特性，而不依赖 config 中的定义
-      const translatedFeatures = [];
-      let index = 0;
-      let hasMoreFeatures = true;
-      
-      while (hasMoreFeatures) {
-        try {
-          const featureName = t(`plans.${planKey}.features.${index}`);
-          // 如果翻译键不存在，next-intl 通常会返回键名本身
-          // 检查返回值是否看起来像一个翻译键，如果是，认为已经没有更多翻译了
-          if (featureName.includes(`plans.${planKey}.features.`)) {
-            hasMoreFeatures = false;
-          } else {
-            translatedFeatures.push({ name: featureName });
-            index++;
-          }
-        } catch (e) {
-          // 如果获取翻译时出错，说明没有更多特性了
-          hasMoreFeatures = false;
+      // 使用t.raw()直接从翻译文件中获取特性数组，避免循环和异常处理
+      let translatedFeatures: Feature[] = [];
+      try {
+        // 尝试获取特性数组
+        const featuresArray = t.raw(`plans.${planKey}.features`);
+        if (featuresArray && typeof featuresArray === 'object') {
+          // 将对象转换为数组
+          translatedFeatures = Object.values(featuresArray).map(feature => ({ name: String(feature) }));
         }
+      } catch (e) {
+        // 如果无法从翻译中获取，则使用配置中的特性
+        translatedFeatures = plan.features || [];
       }
       
       return {

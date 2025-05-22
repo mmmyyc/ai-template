@@ -1,5 +1,6 @@
 import { TextAnimate } from "@/components/magicui/text-animate";
 import { useTranslations } from 'next-intl';
+import { ChevronDown } from "lucide-react";
 
 const Arrow = ({ extraStyle }: { extraStyle: string }) => {
   return (
@@ -76,6 +77,14 @@ const Problem = () => {
             text={t('steps.productivity.title')} 
             description={t('steps.productivity.description')}
           />
+
+          <Arrow extraStyle="max-md:-scale-x-100 md:-rotate-90" />
+
+          <Step 
+            emoji="💰" 
+            text={t('steps.price.title')} 
+            description={t('steps.price.description')}
+          />
         </div>
 
         <div className="mt-16 md:mt-24 flex flex-wrap justify-center gap-4 text-sm opacity-80">
@@ -88,6 +97,11 @@ const Problem = () => {
           <div className="flex items-center gap-2 bg-base-300 px-4 py-2 rounded-full">
             {t('stats.efficiency')}
           </div>
+        </div>
+
+        <div className="mt-12 flex flex-col items-center justify-center animate-bounce">
+          <p className="text-sm font-medium text-primary">{t('solution.teaser', { defaultValue: '别担心，我们有解决方案！' })}</p>
+          <ChevronDown className="h-5 w-5 mt-2 text-primary" />
         </div>
       </div>
     </section>

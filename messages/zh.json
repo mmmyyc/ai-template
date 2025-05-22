@@ -3,32 +3,39 @@
     "title": "AI 演示文稿生成器",
     "back": "返回",
     "hero": {
-      "title": "在几分钟内创建专业演示文稿",
-      "subtitle": "使用我们的 AI 技术生成精确、可定制的 PPT 幻灯片，保持对内容的完全掌控",
+      "title": "您的幻灯片，你自己做主",
+      "subtitle": "使用我们的 AI 技术生成精确、可定制的 PPT 幻灯片，保持对内容的完全掌控——一次一张幻灯片，深度定制，专业数据可视化",
       "tryButton": "立即体验",
       "watchButton": "观看演示"
     },
     "problem": {
-      "title": "传统 AI PPT 工具难以满足用户期望",
+      "title": "传统 一键生成的AI PPT 工具难以满足用户期望",
       "description": "当前的 AI 演示工具主导内容生成，导致用户对自己的演示文稿失去控制，在内容保真度、设计质量和实用性方面存在不足，造成的工作量比节省的还多",
       "steps": {
         "digital": {
-          "title": "内容被扭曲",
-          "description": "AI 会篡改您的内容，添加废话，改变您的预期重点"
+          "title": "缺乏内容控制",
+          "description": "无法精确选择内容，AI强制整体生成，用户无法决定具体内容"
         },
         "burnout": {
-          "title": "设计质量差",
-          "description": "通用模板，布局不协调，格式不一致"
+          "title": "无法灵活编辑",
+          "description": "生成后难以修改样式和内容，无法实现所见即所得的编辑体验"
         },
         "productivity": {
-          "title": "修复浪费时间",
-          "description": "花在修复 AI 输出上的时间与手动创建幻灯片一样多"
+          "title": "效率低下",
+          "description": "没有智能辅助功能，缺乏一键生成首页和目录的能力"
+        },
+        "price": {
+          "title": "价格昂贵",
+          "description": "按月购买，无法按需使用"
         }
       },
       "stats": {
-        "remote": "78% 的用户对 AI 生成内容的准确性不满意",
-        "environment": "65% 的人发现 AI 演示文稿的设计质量不令人满意",
-        "efficiency": "82% 的用户希望对幻灯片内容和格式有更多控制权"
+        "remote": "94% 的用户希望能精确控制AI生成内容的具体范围",
+        "environment": "87% 的人需要更灵活的编辑工具来调整AI生成的内容",
+        "efficiency": "97% 的用户认为一键功能和智能辅助对提高效率至关重要"
+      },
+      "solution": {
+        "teaser": "别担心，SlidesCraft解决了这些问题！"
       }
     },
     "features": {

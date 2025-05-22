@@ -12,32 +12,39 @@
     "title": "AI Presentation Generator",
     "back": "Back",
     "hero": {
-      "title": "Create Professional Presentations in Minutes",
-      "subtitle": "Generate precise, customizable presentation slides with our AI technology while maintaining complete control over your content",
+      "title": "Your Slides, Your Way",
+      "subtitle": "Generate precise, customizable presentation slides with our AI technology while maintaining complete control over your content——one slide at a time, deep customization, professional data visualization",
       "tryButton": "Try Now",
       "watchButton": "Watch Demo"
     },
     "problem": {
-      "title": "Traditional AI Presentation Tools Fall Short of User Expectations",
-      "description": "Current AI presentation tools take over content creation, leaving users with little control. They struggle with content fidelity, design quality, and practical usability, creating more work than they save",
+      "title": "Traditional AI PPT tools struggle to meet user expectations",
+      "description": "Current AI presentation tools dominate content generation, leading to a loss of control over user presentations, with insufficient content fidelity, design quality, and practicality, resulting in more work than saved",
       "steps": {
         "digital": {
-          "title": "Content Gets Distorted",
-          "description": "AI alters your original content, adds unnecessary fluff, and changes your intended focus"
+          "title": "Lack of content control",
+          "description": "Unable to precisely select content, AI forces overall generation, and users cannot decide on specific content"
         },
         "burnout": {
-          "title": "Poor Design Quality",
-          "description": "Generic templates with awkward layouts and inconsistent formatting"
+          "title": "Unable to flexibly edit",
+          "description": "After generation, it is difficult to modify styles and content, and it is impossible to achieve the editing experience of what you see is what you get"
         },
         "productivity": {
-          "title": "Time Wasted on Fixes",
-          "description": "Spending as much time fixing AI output as creating slides manually"
+          "title": "Low efficiency",
+          "description": "Lack of intelligent assistance, lack of the ability to generate a homepage and table of contents with one click"
+        },
+        "price": {
+          "title": "High price",
+          "description": "Monthly purchase, unable to use as needed"
         }
       },
       "stats": {
-        "remote": "78% of users are unhappy with AI-generated content accuracy",
-        "environment": "65% find design quality of AI presentations unsatisfactory",
-        "efficiency": "82% want more control over slide content and formatting"
+        "remote": "94% of users want to precisely control the specific range of AI-generated content",
+        "environment": "87% of people need more flexible editing tools to adjust AI-generated content",
+        "efficiency": "97% of users believe that one-click functions and intelligent assistance are crucial for improving efficiency"
+      },
+      "solution": {
+        "teaser": "Don't worry, SlidesCraft solves these problems!"
       }
     },
     "features": {
@@ -567,7 +574,7 @@
       "downloadSvg": "Download SVG",
       "editModeTooltip": "Save the HTML content of the current element",
       "regenerate": "Regenerate"
-      
+
     },
     "feedback": {
       "storageCleared": "Local storage cleared",
