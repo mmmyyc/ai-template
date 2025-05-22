@@ -1323,8 +1323,8 @@ export function HtmlPreview({
           </h3>
         </div>
         <div className="flex items-center space-x-2" data-no-select>
-          {/* 添加重新生成按钮 */}
-          {reload && (!(generatingStatus === 'ready' || generatingStatus === 'error')) && (
+          {/* 添加重新生成按钮 && (!(generatingStatus === 'ready' || generatingStatus === 'error'))*/}
+          {reload && (localHtmlContent.trim().length > 0) && (
             <Button
               onClick={reload}
               variant="outline"

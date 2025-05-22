@@ -158,7 +158,7 @@ export default function Home({ params }: GenerationPageProps) {
   const generationCompletedRef = useRef(false)
   
   // 使用 useChat hook
-  const { messages, append, isLoading, stop, reload, status,data, setMessages } = useChat({
+  const { messages, append, isLoading, stop, reload, status, data, setMessages } = useChat({
     api: '/api/ai/generate',
     experimental_throttle: 50,
     onResponse: (response: Response) => {
