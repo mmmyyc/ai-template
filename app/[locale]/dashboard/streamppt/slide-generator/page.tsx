@@ -102,7 +102,9 @@ export default function SlideGeneratorPage() {
     messages,
     append,
     isLoading: isChatLoading,
-    stop 
+    stop,
+    reload,
+    status
   } = useChat({
     api: '/api/ai/generate',
     experimental_throttle: 50,
@@ -519,11 +521,13 @@ export default function SlideGeneratorPage() {
             folderName={folderName || ''}
             onEditModeChange={handleEditModeChange}
             stopGeneration={stop}
+            reloadGeneration={reload}
             activeTabPropforEditOrPreview="preview"
             activePreviewTabProp={activePreviewTab}
             onActivePreviewTabChange={(tab) => {
               setActivePreviewTab(tab);
             }}
+            status={status}
           />
         </div>
       </div>
