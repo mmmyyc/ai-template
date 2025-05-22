@@ -124,12 +124,12 @@ const Hero = () => {
           <div className="lg:w-1/2 relative">
             <div className="relative w-full max-w-lg mx-auto">
               <Image
-                src="/landing/three_person.webp"
+                src="/display.gif"
                 alt="Desktop Pet Demo"
                 className="w-full h-auto rounded-2xl shadow-xl"
                 priority={true}
-                width={500}
-                height={400}
+                width={600}
+                height={500}
                 style={{
                   objectFit: "contain",
                   maxHeight: "500px",
