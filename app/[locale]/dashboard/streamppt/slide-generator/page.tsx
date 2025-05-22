@@ -5,7 +5,7 @@ import ArticleEditor from "@/app/[locale]/dashboard/components/ai/article-editor
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Home, BookOpen, Award } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useTranslations } from 'next-intl'
+import { useTranslations ,useLocale} from 'next-intl'
 import { useChat } from '@ai-sdk/react'
 import { toast } from "react-hot-toast"
 import { useFolderStore } from "@/app/[locale]/dashboard/store/folderStore"
@@ -21,7 +21,8 @@ export default function SlideGeneratorPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations('StreamPpt')
-  
+  const locale = useLocale()
+
   // 获取URL参数
   const folderId = searchParams.get('folderId')
   
@@ -330,7 +331,7 @@ export default function SlideGeneratorPage() {
       if (slideType === 'cover') {
         textContent = {
           ...textContent,
-          instructions: `创建一个专业的封面页，突出显示"${folderName}"作为主标题。分析${slideTitles.length}个幻灯片标题，提取核心主题作为副标题。添加presenter姓名和日期占位符。使用符合主题的渐变背景或简单形状作为视觉元素。整体设计应清晰、现代且专业。`,
+          instructions: `创建一个专业的封面页，突出显示"${folderName}"作为主标题，标题要醒目。分析${slideTitles.length}个幻灯片标题，提取核心主题作为副标题。添加presenter姓名和日期占位符。使用符合主题的渐变背景或简单形状作为视觉元素。整体设计应清晰、现代且专业。`,
           designFocus: "典雅、专业、醒目"
         }
       } else if (slideType === 'contents') {
@@ -352,7 +353,7 @@ export default function SlideGeneratorPage() {
         role: 'user',
         content: JSON.stringify({
           text: JSON.stringify(textContent),
-          language: 'auto', // 可以根据locale自动选择
+          language: locale === 'zh' ? '中文' : 'English', // 可以根据locale自动选择
           style: 'professional',
           generateType: 'PPT',
           previousHtml: preContent

@@ -10,6 +10,11 @@ const getPathPrefix = (pagePath?: string): string => {
     if (pagePath.includes('/streamppt/')) {
       return 'streamppt';
     } else if (pagePath.includes('/generation/')) {
+      // 从路径中提取文件名
+      const match = pagePath.match(/\/generation\/([^/]+)/);
+      if (match && match[1]) {
+        return `generation_${match[1]}`;
+      }
       return 'generation';
     }
   }
@@ -20,6 +25,11 @@ const getPathPrefix = (pagePath?: string): string => {
     if (url.includes('/streamppt/')) {
       return 'streamppt';
     } else if (url.includes('/generation/')) {
+      // 从URL中提取文件名
+      const match = url.match(/\/generation\/([^/]+)/);
+      if (match && match[1]) {
+        return `generation_${match[1]}`;
+      }
       return 'generation';
     }
   }
@@ -29,15 +39,15 @@ const getPathPrefix = (pagePath?: string): string => {
 };
 
 // 获取带路径前缀的存储键
-const getStorageKey = (pagePath?: string): string => {
+const getStorageKey = (pagePath?: string, folderId?: string): string => {
   const prefix = getPathPrefix(pagePath);
-  return `${BASE_HTML_STORAGE_KEY}_${prefix}`;
+  return `${BASE_HTML_STORAGE_KEY}_${prefix}_${folderId}`;
 };
 
 // 保存HTML内容到localStorage
-export const saveHtmlToLocalStorage = (html: string, pagePath?: string): void => {
+export const saveHtmlToLocalStorage = (html: string, pagePath?: string, folderId?: string): void => {
   try {
-    const key = getStorageKey(pagePath);
+    const key = getStorageKey(pagePath, folderId);
     localStorage.setItem(key, html);
     console.log(`HTML内容已保存到本地存储 (${key})`);
   } catch (error) {
@@ -46,9 +56,9 @@ export const saveHtmlToLocalStorage = (html: string, pagePath?: string): void =>
 };
 
 // 从localStorage加载HTML内容
-export const loadHtmlFromLocalStorage = (pagePath?: string): string | null => {
+export const loadHtmlFromLocalStorage = (pagePath?: string, folderId?: string): string | null => {
   try {
-    const key = getStorageKey(pagePath);
+    const key = getStorageKey(pagePath, folderId);
     const savedHtml = localStorage.getItem(key);
     if (savedHtml) {
       console.log(`已从本地存储加载HTML内容 (${key})`);

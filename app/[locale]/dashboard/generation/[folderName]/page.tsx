@@ -136,7 +136,17 @@ export default function Home({ params }: GenerationPageProps) {
   const [outlineTitle, setOutlineTitle] = useState("")
   const [isEditMode, setIsEditMode] = useState(false)
   const currentStyle = useRef("" as string)
-  
+  const [folderId, setFolderId] = useState("")
+
+  useEffect(() => {
+    const fetchFolderId = async () => {
+      const response = await fetch(`/api/html-ppt/getFromIdFormFolderName?name=${folderName}`);
+      const data = await response.json();
+      setFolderId(data.data.folderId);
+    };
+    fetchFolderId();
+  }, [folderName]);
+
   // 用于收集流式内容的引用
   const streamingContentRef = useRef("");
   
@@ -317,19 +327,19 @@ export default function Home({ params }: GenerationPageProps) {
   useEffect(() => {
     if (htmlContent) {
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-      saveHtmlToLocalStorage(htmlContent, currentPath);
+      saveHtmlToLocalStorage(htmlContent, currentPath, folderId);
     }
-  }, [htmlContent]);
+  }, [htmlContent, folderId]);
 
   // 初始化时从localStorage加载HTML内容
   useEffect(() => {
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-    const savedHtml = loadHtmlFromLocalStorage(currentPath);
+    const savedHtml = loadHtmlFromLocalStorage(currentPath, folderId);
     if (savedHtml && !htmlContent) {
       setHtmlContent(savedHtml);
       console.log("成功从本地存储加载HTML内容");
     }
-  }, []);
+  }, [htmlContent, folderId]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
