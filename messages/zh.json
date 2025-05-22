@@ -776,7 +776,8 @@
       "exitEditMode": "退出编辑模式",
       "editMode": "编辑模式",
       "downloadSvg": "下载SVG",
-      "editModeTooltip": "保存当前元素的HTML内容"
+      "editModeTooltip": "保存当前元素的HTML内容",
+      "regenerate": "重新生成"
     },
     "feedback": {
       "storageCleared": "本地存储已清除",

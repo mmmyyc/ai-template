@@ -268,6 +268,7 @@ export function FolderManager({
 
   const [isCreating, setIsCreating] = useState(false)
   const [newFolderName, setNewFolderName] = useState("")
+  const [activePreviewTab, setActivePreviewTab] = useState<"html" | "ppt">("ppt")
   const router = useRouter()
   const t = useTranslations('StreamPpt')
 
@@ -440,7 +441,10 @@ export function FolderManager({
           htmlId={editingSlide.id}
           defaultHtmlTitle={editingSlide.title}
           onContentChange={handleContentChange}
-          activePreviewTabProp="ppt"
+          activePreviewTabProp={activePreviewTab}
+          onActivePreviewTabChange={(tab) => {
+            setActivePreviewTab(tab);
+          }}
         />
       </div>
     );

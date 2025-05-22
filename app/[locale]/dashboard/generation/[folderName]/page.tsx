@@ -158,7 +158,7 @@ export default function Home({ params }: GenerationPageProps) {
   const generationCompletedRef = useRef(false)
   
   // 使用 useChat hook
-  const { messages, append, isLoading, stop, data, setMessages } = useChat({
+  const { messages, append, isLoading, stop, reload, status,data, setMessages } = useChat({
     api: '/api/ai/generate',
     experimental_throttle: 50,
     onResponse: (response: Response) => {
@@ -396,6 +396,8 @@ export default function Home({ params }: GenerationPageProps) {
               folderName={folderName}
               onEditModeChange={handleEditModeChange}
               stopGeneration={stop}
+              reloadGeneration={reload}
+              status={status}
               activeTabPropforEditOrPreview={activeTabMode}
               activePreviewTabProp={activePreviewTab}
               onActivePreviewTabChange={(tab) => {

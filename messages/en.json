@@ -565,7 +565,9 @@
       "editMode": "Edit Mode",
       "stopGeneration": "Stop Generation",
       "downloadSvg": "Download SVG",
-      "editModeTooltip": "Save the HTML content of the current element"
+      "editModeTooltip": "Save the HTML content of the current element",
+      "regenerate": "Regenerate"
+      
     },
     "feedback": {
       "storageCleared": "Local storage cleared",

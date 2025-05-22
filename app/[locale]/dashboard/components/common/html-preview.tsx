@@ -16,7 +16,8 @@ import {
   Edit,
   Fullscreen,
   Square,
-  FileCode
+  FileCode,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -122,6 +123,8 @@ export function HtmlPreview({
   activePreviewTabProp = "ppt",
   onActivePreviewTabChange,
   outlineTitle,
+  reload, // 添加reload函数属性
+  status, // 添加重新生成状态标志
 }: { 
   htmlContent: string, 
   folderName: string,
@@ -133,6 +136,8 @@ export function HtmlPreview({
   activePreviewTabProp: "ppt" | "html",
   onActivePreviewTabChange?: (tab: "ppt" | "html") => void,
   outlineTitle?: string,
+  reload?: () => void, // 添加重新生成功能的函数属性
+  status?: string,
 }) {
   const t = useTranslations('HtmlPreview');
   const [htmlTitle, setHtmlTitle] = useState(outlineTitle || "");
@@ -148,6 +153,7 @@ export function HtmlPreview({
   // 不再使用内部状态管理activePreviewTab，直接使用prop值
   const activePreviewTab = activePreviewTabProp;
   const [localHtmlContent, setLocalHtmlContent] = useState(htmlContent || "");
+  const [generatingStatus, setGeneratingStatus] = useState(status);
   const [showEditor, setShowEditor] = useState(false);
   const [editorPosition, setEditorPosition] = useState({ x: 0, y: 0 });
   const [appliedChanges, setAppliedChanges] = useState<
@@ -412,9 +418,9 @@ export function HtmlPreview({
     if (htmlContent) {
       setLocalHtmlContent(htmlContent);
       setHtmlTitle(outlineTitle);
-      // 移除本地存储相关代码，因为这个功能已经移到父组件
+      setGeneratingStatus(status);
     }
-  }, [htmlContent, outlineTitle]);
+  }, [htmlContent, outlineTitle, status]);
 
   // 删除初始化加载localStorage的useEffect
   // 初始化时，如果props没有提供html内容，尝试从localStorage加载
@@ -1317,6 +1323,22 @@ export function HtmlPreview({
           </h3>
         </div>
         <div className="flex items-center space-x-2" data-no-select>
+          {/* 添加重新生成按钮 */}
+          {reload && (!(generatingStatus === 'ready' || generatingStatus === 'error')) && (
+            <Button
+              onClick={reload}
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs bg-white dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+              title={t('buttons.regenerate', { defaultValue: '重新生成' })}
+              data-no-select
+              disabled={isSelecting || generatingStatus === 'loading'}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 mr-1 ${generatingStatus === 'loading' ? 'animate-spin' : ''}`} />
+              <span>{t('buttons.regenerate', { defaultValue: '重新生成' })}</span>
+            </Button>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
