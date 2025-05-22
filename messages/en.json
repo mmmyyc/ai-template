@@ -531,7 +531,8 @@
     }
   },
   "GenerationPage": {
-    "header": "AI Generation Preview"
+    "header": "AI Generation Preview",
+    "outline": "Outline"
   },
   "HtmlPreview": {
     "title": "AI Generation Preview",

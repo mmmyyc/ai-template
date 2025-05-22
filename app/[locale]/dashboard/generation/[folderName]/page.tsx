@@ -15,6 +15,8 @@ import { useChat, Message, CreateMessage } from '@ai-sdk/react';
 import { extractHtmlFromMarkdown } from "@/app/[locale]/dashboard/utils/ai-service";
 import { parseStreamContent, parseCompleteContent, MixContent, Html, Outline } from "@/app/[locale]/dashboard/utils/HtmlParser";
 import { leftEnglishContent, leftChineseContent } from "./leftContent";
+import { saveHtmlToLocalStorage, loadHtmlFromLocalStorage } from "@/app/[locale]/dashboard/utils/localStorage";
+
 // 自定义大纲样式
 const outlineStyles = `
 .markdown-outline {
@@ -311,6 +313,24 @@ export default function Home({ params }: GenerationPageProps) {
     }
   }, [append, htmlContent]); // 将 htmlContent 加入依赖项
 
+  // 将HTML内容保存到localStorage
+  useEffect(() => {
+    if (htmlContent) {
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      saveHtmlToLocalStorage(htmlContent, currentPath);
+    }
+  }, [htmlContent]);
+
+  // 初始化时从localStorage加载HTML内容
+  useEffect(() => {
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+    const savedHtml = loadHtmlFromLocalStorage(currentPath);
+    if (savedHtml && !htmlContent) {
+      setHtmlContent(savedHtml);
+      console.log("成功从本地存储加载HTML内容");
+    }
+  }, []);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex items-center justify-between px-6 py-3 border-b bg-base-100 dark:bg-gray-950">
@@ -335,7 +355,7 @@ export default function Home({ params }: GenerationPageProps) {
               
               {outlineContent && (
                 <div className="p-4 bg-gray-50 dark:bg-gray-900 border-t border-neutral-200 dark:border-neutral-800 overflow-auto max-h-[30%]" ref={outlineContainerRef}>
-                  <h3 className="text-sm font-medium mb-2">大纲</h3>
+                  <h3 className="text-sm font-medium mb-2">{t('outline')}</h3>
                   <div className="markdown-outline prose prose-sm dark:prose-invert max-w-none">
                     <ReactMarkdown>
                       {outlineContent}
@@ -369,7 +389,6 @@ export default function Home({ params }: GenerationPageProps) {
               activeTabPropforEditOrPreview={activeTabMode}
               activePreviewTabProp={activePreviewTab}
               onActivePreviewTabChange={(tab) => {
-                console.log("Tab changed from child:", tab); // 调试日志
                 setActivePreviewTab(tab);
               }}
             />

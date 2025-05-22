@@ -23,9 +23,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import apiClient from "@/libs/api";
 import {
-  saveHtmlToLocalStorage,
-  loadHtmlFromLocalStorage,
-  hasSavedHtml,
   clearSavedHtml,
 } from "@/app/[locale]/dashboard/utils/localStorage";
 import {
@@ -281,7 +278,7 @@ export function HtmlPreview({
           // Continue to fallbacks
         }
 
-        // If that fails, try with simplified path (fallback mechanism)
+        // If that fails, try with simplifying the path (fallback mechanism)
         console.warn(
           `findElementByPath: Primary query failed for path. Trying fallbacks...`
         );
@@ -415,23 +412,22 @@ export function HtmlPreview({
     if (htmlContent) {
       setLocalHtmlContent(htmlContent);
       setHtmlTitle(outlineTitle);
-      // 保存到localStorage，传递当前页面路径
-      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-      saveHtmlToLocalStorage(htmlContent, currentPath);
+      // 移除本地存储相关代码，因为这个功能已经移到父组件
     }
   }, [htmlContent, outlineTitle]);
 
+  // 删除初始化加载localStorage的useEffect
   // 初始化时，如果props没有提供html内容，尝试从localStorage加载
-  useEffect(() => {
-    if (!htmlContent) {
-      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-      const savedHtml = loadHtmlFromLocalStorage(currentPath);
-      if (savedHtml) {
-        setLocalHtmlContent(savedHtml);
-        console.log("成功从本地存储加载HTML内容");
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!htmlContent) {
+  //     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  //     const savedHtml = loadHtmlFromLocalStorage(currentPath);
+  //     if (savedHtml) {
+  //       setLocalHtmlContent(savedHtml);
+  //       console.log("成功从本地存储加载HTML内容");
+  //     }
+  //   }
+  // }, []);
 
   // 清除本地存储的HTML内容
   const handleClearStorage = () => {
@@ -1063,7 +1059,7 @@ export function HtmlPreview({
 
             const updatedHtml = iframeDoc.documentElement.outerHTML;
             setLocalHtmlContent(updatedHtml);
-            saveHtmlToLocalStorage(updatedHtml);
+            // 移除本地存储相关代码，因为这个功能已经移到父组件
             setRenderKey((prev) => prev + 1);
 
             console.log("Applied changes, updated state, triggered re-render");
@@ -1274,7 +1270,7 @@ export function HtmlPreview({
             const updatedHtmlContent = iframeRef.current.contentDocument.documentElement.outerHTML;
             console.log("更新HTML内容");
             setLocalHtmlContent(updatedHtmlContent);
-            saveHtmlToLocalStorage(updatedHtmlContent);
+            // 移除本地存储相关代码，因为这个功能已经移到父组件
             
             // 使用更强的方式触发重新渲染
             setTimeout(() => {

@@ -419,7 +419,8 @@
     }
   },
   "GenerationPage": {
-    "header": "生成预览"
+    "header": "生成预览",
+    "outline": "大纲"
   },
   "ArticleEditor": {
     "title": "文本编辑",
