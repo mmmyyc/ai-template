@@ -80,7 +80,7 @@ export async function POST(req: Request) {
 
     // 流式生成文本
     const result = streamText({
-      model: anthropic('claude-3-7-sonnet-20250219'),
+      model: anthropic('claude-sonnet-4-20250514-thinking'),
       messages: finalMessages,
       providerOptions: {
         anthropic: {
