@@ -55,13 +55,13 @@ export function parseStreamContent(content: string): MixContent {
       
       // Extract title if available
       let title: string | undefined;
-      const titleMatch = outlineContent.match(/(?:title\s*\|\|\s*标题|title|标题|主标题):\s*(.*?)(?:\n|$)/i);
+      const titleMatch = outlineContent.match(/(?:title\s*\|\|\s*标题|title|标题|主标题)[：:]\s*(.*?)(?:\n|$)/i);
       console.log("Title match in stream:", titleMatch ? titleMatch[0] : "no match");
       
       if (titleMatch && titleMatch[1]) {
         title = titleMatch[1].trim();
         // Remove the title line from content
-        const contentWithoutTitle = outlineContent.replace(/(?:title\s*\|\|\s*标题|title|标题|主标题):\s*(.*?)(?:\n|$)/i, '').trim();
+        const contentWithoutTitle = outlineContent.replace(/(?:title\s*\|\|\s*标题|title|标题|主标题)[：:]\s*(.*?)(?:\n|$)/i, '').trim();
         
         return {
           type: "outline",
@@ -103,13 +103,13 @@ export function parseStreamContent(content: string): MixContent {
       
       // Extract title if available in partial content
       let title: string | undefined;
-      const titleMatch = partialOutlineContent.match(/(?:title\s*\|\|\s*标题|title|标题|主标题):\s*(.*?)(?:\n|$)/i);
+      const titleMatch = partialOutlineContent.match(/(?:title\s*\|\|\s*标题|title|标题|主标题)[：:]\s*(.*?)(?:\n|$)/i);
       console.log("Title match in partial stream:", titleMatch ? titleMatch[0] : "no match");
       
       if (titleMatch && titleMatch[1]) {
         title = titleMatch[1].trim();
         // Remove the title line from content
-        const contentWithoutTitle = partialOutlineContent.replace(/(?:title\s*\|\|\s*标题|title|标题|主标题):\s*(.*?)(?:\n|$)/i, '').trim();
+        const contentWithoutTitle = partialOutlineContent.replace(/(?:title\s*\|\|\s*标题|title|标题|主标题)[：:]\s*(.*?)(?:\n|$)/i, '').trim();
         
         return {
           type: "outline",
@@ -176,7 +176,7 @@ export function parseCompleteContent(content: string): {
     
     // Extract title if available
     let title: string | undefined;
-    const titleMatch = outlineContent.match(/(?:title\s*\|\|\s*标题|title|标题|主标题):\s*(.*?)(?:\n|$)/i);
+    const titleMatch = outlineContent.match(/(?:title\s*\|\|\s*标题|title|标题|主标题)[：:]\s*(.*?)(?:\n|$)/i);
     console.log("Title match in complete:", titleMatch ? titleMatch[0] : "no match");
     
     if (titleMatch && titleMatch[1]) {

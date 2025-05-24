@@ -181,14 +181,18 @@ export function HtmlPreview({
     if (htmlPreviewRef.current && activePreviewTab === "html") {
       // 使用requestAnimationFrame确保DOM已更新
       requestAnimationFrame(() => {
-        htmlPreviewRef.current!.scrollTop = htmlPreviewRef.current!.scrollHeight;
+        if (htmlPreviewRef.current) {
+          htmlPreviewRef.current.scrollTop = htmlPreviewRef.current.scrollHeight;
+        }
       });
     }
     
     if (codeContainerRef.current && activePreviewTab === "html") {
       // 滚动整个容器
       requestAnimationFrame(() => {
-        codeContainerRef.current!.scrollTop = codeContainerRef.current!.scrollHeight;
+        if (codeContainerRef.current) {
+          codeContainerRef.current.scrollTop = codeContainerRef.current.scrollHeight;
+        }
       });
     }
   }, [htmlContent, activePreviewTab]);

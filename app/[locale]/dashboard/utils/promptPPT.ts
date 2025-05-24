@@ -231,10 +231,12 @@ export const promptPPT = (language: string, style: string) => `
 
 7. 图表使用条件规范：
    - 按需使用：仅在内容明确包含需要可视化的数据或关系时才使用图表
+   - 数据格式解析：如果大纲中包含chart格式如"pie: [产品A, 产品B, 产品C] | [30, 45, 25]"，需要解析出图表类型、标签数组和数据数组，用于生成相应的Chart.js代码
    - 图表简化：使用最精简的节点和连接，减少图表复杂度，确保在有限空间内清晰可见
    - 内容导向：图表应该使复杂概念更易理解，而非为了视觉吸引力而增加不必要的复杂性
    - 必要性判断：严格评估是否真正需要图表，文本表达更简洁时应避免使用图表
    - Mermaid语法规范：使用Mermaid语法创建简洁的流程图、类图、时序图等可视化图表
+   - 流程格式解析：如果大纲中包含flowchart格式如"业务流程: 需求分析->设计开发->测试发布"，需要解析出节点和连接关系，生成相应的Mermaid代码
    - 方向设置：Mermaid流程图优先使用水平方向(LR或RL)，而非垂直方向(TD或BT)，特别是对于较长内容
    - 空间预规划：在设计布局初期即为Mermaid图表预留足够的水平空间，避免后期内容溢出
    - 节点命名：必须在节点名称周围使用引号(如\`A["节点名称"]\`)，节点文字尽量简短
@@ -252,6 +254,150 @@ export const promptPPT = (language: string, style: string) => `
    - 边距规则复用：在保证本身边距规则的不会出错前提下，保持相同的内外边距设置模式，确保空间感一致
    - 视觉层次呼应：在保证本身视觉层次的不会出错前提下，复制历史幻灯片中的视觉层次建立方式，保持信息架构一致性
    - 设计元素协调：在保证本身设计元素的不会出错前提下，图标、分隔符、边框等装饰元素应与历史幻灯片风格匹配
+
+## DaisyUI
+
+DaisyUI是一个基于Tailwind CSS的组件库，提供了丰富的预制组件，可以大大提升演示幻灯片的视觉效果和布局质量。在HTML幻灯片设计中，DaisyUI组件应当用于增强内容表达，而非纯粹装饰。
+
+### 核心组件分类与使用场景
+
+#### **数据展示组件**
+- **stats**: 用于展示关键数据和统计信息
+  \`\`\`html
+  <div class="stats shadow">
+    <div class="stat">
+      <div class="stat-title">用户增长</div>
+      <div class="stat-value text-blue-600">150%</div>
+      <div class="stat-desc">较去年同期</div>
+    </div>
+  </div>
+  \`\`\`
+
+- **stats-vertical**: 用于垂直排列多个数据项，节约水平空间
+  \`\`\`html
+  <div class="stats stats-vertical shadow">
+    <div class="stat">
+      <div class="stat-title">销售额</div>
+      <div class="stat-value text-green-600">¥8,000万</div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">增长率</div>
+      <div class="stat-value text-blue-600">25%</div>
+    </div>
+  </div>
+  \`\`\`
+
+#### **内容组织组件**
+- **card**: 用于组织相关内容块，创建清晰的视觉分组
+  \`\`\`html
+  <div class="card bg-white shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title text-gray-800">核心功能</h2>
+      <p class="text-gray-600">功能描述内容...</p>
+    </div>
+  </div>
+  \`\`\`
+
+- **divider**: 用于分隔不同内容区域，保持布局清晰
+  \`\`\`html
+  <div class="divider text-gray-400">第二部分</div>
+  \`\`\`
+
+#### **信息提示组件**
+- **alert**: 用于重要提示或警告信息
+  \`\`\`html
+  <div role="alert" class="alert bg-blue-50 border-blue-200">
+    <div class="text-blue-800">
+      <strong>提示：</strong>重要信息内容
+    </div>
+  </div>
+  \`\`\`
+
+#### **时间轴组件**
+- **timeline**: 用于展示时间序列或步骤流程
+  \`\`\`html
+  <ul class="timeline timeline-vertical">
+    <li>
+      <div class="timeline-start">2023年</div>
+      <div class="timeline-middle">
+        <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+      </div>
+      <div class="timeline-end">项目启动</div>
+    </li>
+  </ul>
+  \`\`\`
+
+#### **进度展示组件**
+- **progress**: 用于展示进度或比例关系
+  \`\`\`html
+  <progress class="progress progress-info w-56" value="70" max="100"></progress>
+  \`\`\`
+
+- **radial-progress**: 用于环形进度展示
+  \`\`\`html
+  <div class="radial-progress text-blue-600" style="--value:70;">70%</div>
+  \`\`\`
+
+### 颜色使用规范
+
+**严格禁止使用DaisyUI语义化颜色类：**
+- ❌ 禁用: \`btn-primary\`, \`bg-base-100\`, \`text-accent\`, \`alert-info\`, \`text-primary-content\`等
+- ✅ 使用: 标准Tailwind CSS颜色类如 \`bg-blue-500\`, \`text-gray-900\`, \`border-green-300\`
+
+**正确的颜色应用示例：**
+\`\`\`html
+<!-- 错误示例 -->
+<div class="card bg-base-100 text-base-content">
+  <div class="alert alert-info">
+    <span class="text-info-content">提示信息</span>
+  </div>
+</div>
+
+<!-- 正确示例 -->
+<div class="card bg-white text-gray-800">
+  <div class="alert bg-blue-50 border-blue-200">
+    <span class="text-blue-800">提示信息</span>
+  </div>
+</div>
+\`\`\`
+
+### 组件选择原则
+
+1. **静态优先**: 只使用静态展示组件，避免需要用户交互的组件（如dropdown、modal、collapse等）
+2. **空间效率**: 优先选择紧凑型组件，确保在1280px宽度内有效利用空间
+3. **内容驱动**: 组件选择应基于内容需求，而非视觉装饰需求
+4. **性能考虑**: 避免过度嵌套和复杂的组件结构
+
+### 容器尺寸控制
+
+使用DaisyUI组件时必须确保父容器尺寸合适：
+\`\`\`html
+<!-- 确保stats组件有足够空间 -->
+<div class="w-full max-w-md">
+  <div class="stats stats-vertical shadow">
+    <!-- 内容 -->
+  </div>
+</div>
+
+<!-- 为timeline预留足够高度 -->
+<div class="min-h-[300px]">
+  <ul class="timeline timeline-vertical">
+    <!-- 时间轴内容 -->
+  </ul>
+</div>
+\`\`\`
+
+### 响应式设计注意事项
+
+确保组件在不同屏幕尺寸下正常显示：
+\`\`\`html
+<div class="stats flex-col lg:flex-row shadow">
+  <div class="stat">
+    <div class="stat-title text-sm lg:text-base">标题</div>
+    <div class="stat-value text-lg lg:text-2xl text-blue-600">数值</div>
+  </div>
+</div>
+\`\`\`
 
 ## Charts
 
@@ -378,8 +524,8 @@ B --> C["结果"]
       **Presentation: ** //必选(换行) 
          title: //必选(换行)
          Content Module:  //必选 
-         chart: //可选
-         flowchart: //可选
+         chart: [图表类型: [标签1, 标签2, 标签3] | [数值1, 数值2, 数值3]] //可选，示例：pie: [产品A, 产品B, 产品C] | [30, 45, 25]
+         flowchart: [流程描述: 节点1->节点2->节点3] //可选，示例：业务流程: 需求分析->设计开发->测试发布
       <<outline-end>>
       <<html-start>>
           <!DOCTYPE html>
