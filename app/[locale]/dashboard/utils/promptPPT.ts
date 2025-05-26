@@ -457,7 +457,7 @@ Chart.js是一个强大的JavaScript图表库，可以创建多种交互式图�
 示例（推荐配置）：
 \`\`\`html
 <div class="h-[250px] w-full">
-  <canvas id="myChart" width="400" height="250"></canvas>
+<canvas id="myChart" width="400" height="250"></canvas>
 </div>
 <script>
   const ctx = document.getElementById('myChart').getContext('2d');

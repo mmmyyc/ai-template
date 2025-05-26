@@ -37,12 +37,9 @@ const Footer = () => {
             <p className="mt-3 text-sm text-base-content/60">
               {t('copyright', { year: new Date().getFullYear() })}
             </p>
-            {/* <p className="mt-2 text-xs text-base-content/40">
-              Featured on{" "}
-              <a href="https://startupfa.me/s/ycamie.com?utm_source=ycamie.com" target="_blank" className="hover:underline">
-                Startup Fame
-              </a>
-            </p> */}
+            <p className="mt-2 text-xs text-base-content/40">
+              <a href="https://sprunkid.com/">Sprunkid</a>
+            </p>
           </div>
 
           {/* Product Column */}
