@@ -69,8 +69,8 @@ export async function POST(req: NextRequest) {
         const customerId = session?.customer;
         const priceId = session?.line_items?.data[0]?.price.id;
         const userId = stripeObject.client_reference_id;
-        const plan = configFile.stripe.plans.find((p) => p.priceId === priceId);
-
+        const plan = configFile.stripe.plans.find((p) => p.priceId === priceId || p.cnPriceId === priceId);
+        
         // 获取 Stripe 客户信息
         const customer = (await stripe.customers.retrieve(
           customerId as string
