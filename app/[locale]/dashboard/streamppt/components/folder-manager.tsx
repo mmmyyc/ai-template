@@ -450,7 +450,7 @@ export function FolderManager({
     );
   }
 
-  // 下载PPT函数
+  // 下载PPT函数 - 优化版本
   const handleDownloadPpt = async () => {
     if (slides.length === 0) {
       toast.error(t('noSlidesToDownload', { defaultValue: 'No slides to download' }));
@@ -461,114 +461,13 @@ export function FolderManager({
     const processingMessage = toast.loading(t('preparingPpt', { defaultValue: 'Preparing your PPT...' }));
 
     try {
-      // 准备发送到服务器的数据
       const folderName = selectedFolder?.name || 'presentation';
       
-                // 预处理slides，在前端将HTML转换为PNG，同时确保正确处理动画效果
-      const processedSlides = [];
+      // 使用优化的HTML转PPT处理流程
+      const processedSlides = await processHtmlSlides(slides, processingMessage);
       
-      for (let i = 0; i < slides.length; i++) {
-        try {
-          const slide = slides[i];
-          
-          // 更新处理状态
-          toast.loading(`${t('processingSlide', { defaultValue: 'Processing slide' })} ${i+1}/${slides.length}...`, { id: processingMessage });
-          
-          // 创建临时iframe来渲染HTML
-          const tempIframe = document.createElement('iframe');
-          tempIframe.style.cssText = 'position:absolute;left:-9999px;width:1280px;height:720px;';
-          document.body.appendChild(tempIframe);
-          
-          // 设置iframe内容并等待完全加载
-          if (tempIframe.contentDocument) {
-            tempIframe.contentDocument.open();
-            tempIframe.contentDocument.write(slide.content);
-            tempIframe.contentDocument.close();
-            
-            // 等待iframe完全加载并渲染
-            await new Promise<void>((resolve) => {
-              // 主要加载事件
-              const handleLoad = () => {
-                tempIframe.removeEventListener('load', handleLoad);
-                
-                // 确保所有图片都已加载完成
-                const imageElements = Array.from(tempIframe.contentDocument?.querySelectorAll('img') || []) as HTMLImageElement[];
-                if (imageElements.length === 0) {
-                  resolve();
-                  return;
-                }
-                
-                let loadedImages = 0;
-                const imageLoaded = () => {
-                  loadedImages++;
-                  if (loadedImages === imageElements.length) {
-                    resolve();
-                  }
-                };
-                
-                imageElements.forEach(img => {
-                  if (img.complete) {
-                    imageLoaded();
-                  } else {
-                    img.addEventListener('load', imageLoaded);
-                    img.addEventListener('error', imageLoaded);
-                  }
-                });
-              };
-              
-              tempIframe.addEventListener('load', handleLoad);
-              
-              // 设置超时保护，确保流程不会无限等待
-              setTimeout(resolve, 3000);
-            });
-            
-            // 给CSS动画和过渡效果足够时间完成
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // 获取内容元素
-            const contentElement = tempIframe.contentDocument.body.querySelector('div') || tempIframe.contentDocument.body;
-            
-            // 使用domToPng转换为PNG，确保捕获完整的视觉效果
-            const pngDataUrl = await domToPng(contentElement, {
-              backgroundColor: getComputedStyle(tempIframe.contentDocument.body).backgroundColor || "#ffffff",
-              width: contentElement.scrollWidth,
-              height: contentElement.scrollHeight,
-              quality: 0.95,
-              scale: 2, // 增加缩放因子，提高图像清晰度
-              debug: false,
-              // 添加特殊处理以确保CSS动画正确捕获
-              filter: (node) => {
-                // 检查是否应该排除某些元素不进行截图
-                if (node instanceof HTMLElement && node.classList.contains('no-export')) {
-                  return false;
-                }
-                return true;
-              }
-            });
-            
-            // 提取base64数据（去掉前缀）
-            const base64Data = pngDataUrl.split(',')[1];
-            
-            // 添加处理后的slide
-            processedSlides.push({
-              ...slide,
-              pngBase64: base64Data, // 保存PNG的base64数据
-              width: contentElement.scrollWidth, // 保存宽度（无缩放）
-              height: contentElement.scrollHeight // 保存高度（无缩放）
-            });
-            
-            // 清理临时iframe
-            document.body.removeChild(tempIframe);
-          }
-        } catch (error) {
-          console.error('处理幻灯片时出错:', error);
-          // 如果PNG处理失败，使用原始HTML
-          processedSlides.push(slides[i]);
-        }
-      }
-      
-      // 调用修改后的API端点
-      const response = await fetch('/api/ppt/generate', {
+      // 调用后端API生成PPT
+      const response = await fetch('/api/ppt/generate-advanced', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -576,30 +475,22 @@ export function FolderManager({
         body: JSON.stringify({
           slides: processedSlides,
           folderName,
-          preprocessed: true, // 标记为已预处理
-          format: 'png' // 指定使用PNG格式
+          options: {
+            format: 'pptx',
+            quality: 'high',
+            preserveAnimations: true,
+            optimizeImages: true
+          }
         }),
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '下载PPT时出错');
+        throw new Error(errorData.error || 'PPT生成失败');
       }
       
-      // 获取blob数据
-      const blob = await response.blob();
-      
-      // 创建下载链接
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${folderName}-${new Date().toISOString().slice(0, 10)}.pptx`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // 清理
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // 下载生成的PPT文件
+      await downloadPptFile(response, folderName);
       
       toast.success(t('pptDownloaded', { defaultValue: 'PPT downloaded successfully!' }), { id: processingMessage });
     } catch (error) {
@@ -614,6 +505,248 @@ export function FolderManager({
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  // 优化的HTML幻灯片处理函数
+  const processHtmlSlides = async (slides: Slide[], processingMessage: string) => {
+    const processedSlides = [];
+    
+    for (let i = 0; i < slides.length; i++) {
+      try {
+        const slide = slides[i];
+        
+        // 更新处理状态
+        toast.loading(`${t('processingSlide', { defaultValue: 'Processing slide' })} ${i+1}/${slides.length}...`, { id: processingMessage });
+        
+        // 解析HTML内容
+        const parsedContent = await parseHtmlContent(slide.content);
+        
+        // 生成高质量预览图
+        const previewImage = await generateSlidePreview(slide.content);
+        
+        processedSlides.push({
+          ...slide,
+          parsedContent,
+          previewImage,
+          metadata: {
+            width: 1920,
+            height: 1080,
+            aspectRatio: '16:9'
+          }
+        });
+        
+      } catch (error) {
+        console.error(`处理幻灯片 ${i+1} 时出错:`, error);
+        // 如果处理失败，使用原始内容
+        processedSlides.push(slides[i]);
+      }
+    }
+    
+    return processedSlides;
+  };
+
+  // HTML内容解析函数
+  const parseHtmlContent = async (htmlContent: string): Promise<any> => {
+    return new Promise((resolve) => {
+      // 创建临时DOM解析HTML
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      
+      // 提取结构化内容
+      const parsedContent = {
+        title: extractTitle(doc),
+        textElements: extractTextElements(doc),
+        images: extractImages(doc),
+        styles: extractStyles(doc),
+        layout: analyzeLayout(doc)
+      };
+      
+      resolve(parsedContent);
+    });
+  };
+
+  // 提取标题
+  const extractTitle = (doc: Document): string => {
+    const titleElement = doc.querySelector('h1, h2, .title, [data-title]');
+    return titleElement?.textContent?.trim() || '';
+  };
+
+  // 提取文本元素
+  const extractTextElements = (doc: Document) => {
+    const textElements: any[] = [];
+    const elements = doc.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div');
+    
+    elements.forEach((element, index) => {
+      const text = element.textContent?.trim();
+      if (text && text.length > 0) {
+        const computedStyle = window.getComputedStyle(element);
+        textElements.push({
+          id: `text-${index}`,
+          content: text,
+          tag: element.tagName.toLowerCase(),
+          styles: {
+            fontSize: computedStyle.fontSize,
+            fontFamily: computedStyle.fontFamily,
+            color: computedStyle.color,
+            fontWeight: computedStyle.fontWeight,
+            textAlign: computedStyle.textAlign,
+            lineHeight: computedStyle.lineHeight
+          },
+          position: getElementPosition(element)
+        });
+      }
+    });
+    
+    return textElements;
+  };
+
+  // 提取图片
+  const extractImages = (doc: Document) => {
+    const images: any[] = [];
+    const imgElements = doc.querySelectorAll('img');
+    
+    imgElements.forEach((img, index) => {
+      images.push({
+        id: `image-${index}`,
+        src: img.src,
+        alt: img.alt || '',
+        width: img.width || img.naturalWidth,
+        height: img.height || img.naturalHeight,
+        position: getElementPosition(img)
+      });
+    });
+    
+    return images;
+  };
+
+  // 提取样式信息
+  const extractStyles = (doc: Document) => {
+    const bodyStyle = window.getComputedStyle(doc.body);
+    return {
+      backgroundColor: bodyStyle.backgroundColor,
+      backgroundImage: bodyStyle.backgroundImage,
+      fontFamily: bodyStyle.fontFamily,
+      fontSize: bodyStyle.fontSize,
+      color: bodyStyle.color
+    };
+  };
+
+  // 分析布局
+  const analyzeLayout = (doc: Document) => {
+    const container = doc.body.firstElementChild as HTMLElement;
+    if (!container) return { type: 'simple' };
+    
+    const computedStyle = window.getComputedStyle(container);
+    return {
+      type: computedStyle.display === 'flex' ? 'flex' : 'block',
+      direction: computedStyle.flexDirection || 'column',
+      justifyContent: computedStyle.justifyContent || 'flex-start',
+      alignItems: computedStyle.alignItems || 'stretch'
+    };
+  };
+
+  // 获取元素位置
+  const getElementPosition = (element: Element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height
+    };
+  };
+
+  // 生成幻灯片预览图
+  const generateSlidePreview = async (htmlContent: string): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 创建高分辨率iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:absolute;left:-9999px;width:1920px;height:1080px;border:none;';
+        document.body.appendChild(iframe);
+        
+        if (iframe.contentDocument) {
+          // 设置HTML内容
+          iframe.contentDocument.open();
+          iframe.contentDocument.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <style>
+                body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                * { box-sizing: border-box; }
+              </style>
+            </head>
+            <body>${htmlContent}</body>
+            </html>
+          `);
+          iframe.contentDocument.close();
+          
+          // 等待内容加载完成
+          await new Promise<void>((loadResolve) => {
+            const checkLoad = () => {
+              if (iframe.contentDocument?.readyState === 'complete') {
+                loadResolve();
+              } else {
+                setTimeout(checkLoad, 100);
+              }
+            };
+            checkLoad();
+          });
+          
+          // 等待图片加载
+          const images = Array.from(iframe.contentDocument.querySelectorAll('img'));
+          await Promise.all(images.map(img => {
+            return new Promise((imgResolve) => {
+              if (img.complete) {
+                imgResolve(null);
+              } else {
+                img.onload = () => imgResolve(null);
+                img.onerror = () => imgResolve(null);
+              }
+            });
+          }));
+          
+          // 等待渲染完成
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // 使用domToPng生成高质量图片
+          const targetElement = iframe.contentDocument.body;
+          const dataUrl = await domToPng(targetElement, {
+            backgroundColor: '#ffffff',
+            width: 1920,
+            height: 1080,
+            quality: 0.95,
+            scale: 2
+          });
+          
+          // 清理iframe
+          document.body.removeChild(iframe);
+          
+          resolve(dataUrl);
+        } else {
+          reject(new Error('无法访问iframe内容'));
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
+  // 下载PPT文件
+  const downloadPptFile = async (response: Response, folderName: string) => {
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${folderName}-${new Date().toISOString().slice(0, 10)}.pptx`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // 清理
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   };
 
   return (
